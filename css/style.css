@@ -1384,10 +1384,7 @@ tr:hover .row-actions {
 
 /* ── DETAIL PAGE ─────────────────────────────────────────── */
 .detail-hero {
-  background: rgba(8, 8, 14, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
+  background: transparent;
   padding: var(--s10) 0 var(--s8);
   position: relative;
   overflow: hidden;
