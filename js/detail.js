@@ -260,7 +260,7 @@ function closeModal() { document.getElementById('modal-delete').style.display = 
 async function confirmDelete() {
   await Storage.delete(currentSetup.id);
   sessionStorage.setItem('toast_msg',  'Setup deletado.');
-  sessionStorage.setItem('toast_type', 'info');
+  sessionStorage.setItem('toast_type', 'error');
   window.location.href = 'index.html';
 }
 

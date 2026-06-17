@@ -19,3 +19,13 @@ BEGIN
   WHERE id = row_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 4. Cria a função RPC para decrementar votos ignorando RLS
+CREATE OR REPLACE FUNCTION decrement_votes(row_id UUID)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE setups
+  SET votes = GREATEST(COALESCE(votes, 0) - 1, 0)
+  WHERE id = row_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

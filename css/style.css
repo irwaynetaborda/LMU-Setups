@@ -85,7 +85,7 @@
 
   /* Layout */
   --header-h: 80px;
-  --max-w: 1320px;
+  --max-w: 1400px;
 }
 
 /* ── RESET ───────────────────────────────────────────────── */
@@ -663,6 +663,8 @@ ol {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
+  table-layout: fixed;
+  min-width: 1100px;
 }
 
 .setups-table thead {
@@ -671,7 +673,7 @@ ol {
 }
 
 .setups-table th {
-  padding: 10px 6px;
+  padding: 12px 14px;
   font-size: 0.725rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -679,6 +681,16 @@ ol {
   letter-spacing: 0.05em;
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
+  text-align: left;
+}
+
+.th-content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-start;
+  width: 100%;
+  text-align: left;
 }
 
 .setups-table th.sortable {
@@ -713,10 +725,20 @@ ol {
 }
 
 .setups-table td {
-  padding: 10px 6px;
+  padding: 12px 14px;
   font-size: 0.8125rem;
   vertical-align: middle;
-  text-align: center;
+  text-align: left;
+}
+
+.setups-table th:first-child,
+.setups-table td:first-child {
+  padding-left: 20px;
+}
+
+.setups-table th:last-child,
+.setups-table td:last-child {
+  padding-right: 20px;
 }
 
 /* ── CLASS BADGE ─────────────────────────────────────────── */
@@ -769,7 +791,7 @@ ol {
   align-items: center;
   justify-content: flex-start;
   gap: var(--s3);
-  width: 190px;
+  width: 100%;
 }
 
 .car-logo {
@@ -818,8 +840,7 @@ ol {
   flex-direction: column;
   align-items: flex-start;
   gap: 3px;
-  width: 130px;
-  margin: 0 auto;
+  width: 100%;
   text-align: left;
 }
 
@@ -855,15 +876,13 @@ ol {
   gap: 6px;
   font-size: 0.8125rem;
   color: var(--text-2);
-  width: 105px;
-  margin: 0 auto;
 }
 
 /* ── RATING STARS (display) ──────────────────────────────── */
 .stars {
   display: flex;
   gap: 2px;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .stars .star {
@@ -2385,6 +2404,10 @@ tr:hover .row-actions {
     right: var(--s5);
   }
 
+  .setups-table {
+    min-width: 650px;
+  }
+
   .setups-table th:nth-child(5), .setups-table td:nth-child(5),
   .setups-table th:nth-child(6), .setups-table td:nth-child(6),
   .setups-table th:nth-child(8), .setups-table td:nth-child(8),
@@ -2804,6 +2827,9 @@ tr:hover .row-actions {
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .btn-vote {
@@ -2837,4 +2863,24 @@ tr:hover .row-actions {
   background: rgba(232, 0, 45, 0.15);
   border-color: var(--red);
   box-shadow: 0 0 8px rgba(232, 0, 45, 0.2);
+}
+
+/* ── TABLE COLUMN WIDTHS ─────────────────────────────────── */
+.th-creator { width: 13%; }
+.th-class { width: 9%; }
+.th-car { width: 22%; }
+.th-track { width: 13%; }
+.th-cond { width: 8%; }
+.th-sess { width: 8%; }
+.th-laptime { width: 9%; }
+.th-rating { width: 9%; }
+.th-date { width: 9%; }
+.th-votes { width: 10%; }
+.th-votes .th-content {
+  justify-content: flex-end;
+}
+.cell-vote {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
 }

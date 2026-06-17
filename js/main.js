@@ -61,10 +61,6 @@ function populateCarFilter(classId) {
 // ── LOAD & RENDER ─────────────────────────────────────────────
 async function loadAndRender() {
   allSetups = await Storage.getAll();
-  // Tenta popular seeds se for o primeiro acesso deste usuário
-  if (typeof seedIfEmpty === 'function') await seedIfEmpty();
-  // Recarrega após seeds para exibir os novos setups
-  if (allSetups.length === 0) allSetups = await Storage.getAll();
 
   // Se não estiver logado, garante que a aba ativa seja a pública
   const isLoggedIn = (typeof Auth !== 'undefined') ? Auth.isAuthenticated() : false;
@@ -191,16 +187,36 @@ function renderTable() {
       <table class="setups-table" role="grid" aria-label="Lista de setups">
         <thead>
           <tr>
-            <th class="sortable" onclick="setSort('creator')">Criador <span class="sort-icon">${getSortIcon('creator')}</span></th>
-            <th class="sortable" onclick="setSort('class')">Classe <span class="sort-icon">${getSortIcon('class')}</span></th>
-            <th class="sortable" onclick="setSort('car')">Carro <span class="sort-icon">${getSortIcon('car')}</span></th>
-            <th class="sortable" onclick="setSort('track')">Pista <span class="sort-icon">${getSortIcon('track')}</span></th>
-            <th>Condição</th>
-            <th>Sessão</th>
-            <th class="sortable" onclick="setSort('laptime')">Tempo <span class="sort-icon">${getSortIcon('laptime')}</span></th>
-            <th class="sortable" onclick="setSort('rating')">Nota <span class="sort-icon">${getSortIcon('rating')}</span></th>
-            <th class="sortable" onclick="setSort('date')">Data <span class="sort-icon">${getSortIcon('date')}</span></th>
-            <th class="sortable" onclick="setSort('votes')">Votos <span class="sort-icon">${getSortIcon('votes')}</span></th>
+            <th class="sortable th-creator" onclick="setSort('creator')">
+              <div class="th-content">Criador <span class="sort-icon">${getSortIcon('creator')}</span></div>
+            </th>
+            <th class="sortable th-class" onclick="setSort('class')">
+              <div class="th-content">Classe <span class="sort-icon">${getSortIcon('class')}</span></div>
+            </th>
+            <th class="sortable th-car" onclick="setSort('car')">
+              <div class="th-content">Carro <span class="sort-icon">${getSortIcon('car')}</span></div>
+            </th>
+            <th class="sortable th-track" onclick="setSort('track')">
+              <div class="th-content">Pista <span class="sort-icon">${getSortIcon('track')}</span></div>
+            </th>
+            <th class="th-cond">
+              <div class="th-content">Condição</div>
+            </th>
+            <th class="th-sess">
+              <div class="th-content">Sessão</div>
+            </th>
+            <th class="sortable th-laptime" onclick="setSort('laptime')">
+              <div class="th-content">Tempo <span class="sort-icon">${getSortIcon('laptime')}</span></div>
+            </th>
+            <th class="sortable th-rating" onclick="setSort('rating')">
+              <div class="th-content">Nota <span class="sort-icon">${getSortIcon('rating')}</span></div>
+            </th>
+            <th class="sortable th-date" onclick="setSort('date')">
+              <div class="th-content">Data <span class="sort-icon">${getSortIcon('date')}</span></div>
+            </th>
+            <th class="sortable th-votes" onclick="setSort('votes')">
+              <div class="th-content">Votos <span class="sort-icon">${getSortIcon('votes')}</span></div>
+            </th>
           </tr>
         </thead>
         <tbody id="table-body">
@@ -287,10 +303,12 @@ function renderRow(s, index) {
       <td>${renderStars(s.rating || 0)}</td>
       <td style="color:var(--text-3);font-size:0.8125rem;">${dateLabel}</td>
       <td onclick="event.stopPropagation()">
-        <button class="btn-vote ${hasVoted ? 'voted' : ''}" onclick="voteSetup('${s.id}', event)" title="${hasVoted ? 'Você já votou' : 'Votar neste setup'}">
-          <span class="star-icon">★</span>
-          <span class="vote-count">${s.votes || 0}</span>
-        </button>
+        <div class="cell-vote">
+          <button class="btn-vote ${hasVoted ? 'voted' : ''}" onclick="voteSetup('${s.id}', event)" title="${hasVoted ? 'Você já votou' : 'Votar neste setup'}">
+            <span class="star-icon">★</span>
+            <span class="vote-count">${s.votes || 0}</span>
+          </button>
+        </div>
       </td>
     </tr>`;
 }
@@ -383,7 +401,7 @@ async function deleteSetup(id, event) {
   event.stopPropagation();
   if (!confirm('Deletar este setup? Esta ação não pode ser desfeita.')) return;
   await Storage.delete(id);
-  showToast('Setup deletado.', 'info');
+  showToast('Setup deletado.', 'error');
   await loadAndRender();
 }
 
@@ -500,6 +518,12 @@ function getInitials(username) {
 async function voteSetup(id, event) {
   if (event) event.stopPropagation();
 
+  const isLoggedIn = (typeof Auth !== 'undefined') ? Auth.isAuthenticated() : false;
+  if (!isLoggedIn) {
+    showToast('Você precisa fazer login para votar.', 'error');
+    return;
+  }
+
   let voted = [];
   try {
     voted = JSON.parse(localStorage.getItem('voted_setups') || '[]');
@@ -507,53 +531,66 @@ async function voteSetup(id, event) {
     voted = [];
   }
 
-  if (voted.includes(id)) {
-    showToast('Você já votou neste setup!', 'info');
-    return;
-  }
+  const alreadyVoted = voted.includes(id);
+  let diff = 0;
 
-  voted.push(id);
+  if (alreadyVoted) {
+    // Retira o voto
+    voted = voted.filter(x => x !== id);
+    diff = -1;
+  } else {
+    // Adiciona o voto
+    voted.push(id);
+    diff = 1;
+  }
   localStorage.setItem('voted_setups', JSON.stringify(voted));
 
-  // Incrementa no estado local da UI
+  // Incrementa/decrementa no estado local da UI
   const setup = allSetups.find(s => s.id === id);
   if (setup) {
-    setup.votes = (setup.votes || 0) + 1;
+    setup.votes = Math.max((setup.votes || 0) + diff, 0);
   }
-  const filteredSetup = filtered.find(s => s.id === id);
-  if (filteredSetup) {
-    filteredSetup.votes = (filteredSetup.votes || 0) + 1;
-  }
+
+  const newCount = setup ? setup.votes : 0;
 
   // Atualiza elemento visual imediatamente
   const row = document.querySelector(`tr[data-id="${id}"]`);
   if (row) {
     const btn = row.querySelector('.btn-vote');
     if (btn) {
-      btn.classList.add('voted');
+      if (alreadyVoted) {
+        btn.classList.remove('voted');
+      } else {
+        btn.classList.add('voted');
+      }
       const countEl = btn.querySelector('.vote-count');
       if (countEl) {
-        countEl.textContent = setup ? setup.votes : (parseInt(countEl.textContent) || 0) + 1;
+        countEl.textContent = newCount;
       }
     }
   }
 
-  // Persiste no banco usando RPC
+  // Persiste no banco usando RPC ou update
   if (typeof supabaseClient !== 'undefined' && supabaseClient) {
     try {
-      const { error } = await supabaseClient.rpc('increment_votes', { row_id: id });
+      const rpcName = diff > 0 ? 'increment_votes' : 'decrement_votes';
+      const { error } = await supabaseClient.rpc(rpcName, { row_id: id });
       if (error) throw error;
     } catch (err) {
-      console.error("[Supabase] Erro ao incrementar voto:", err);
+      console.error("[Supabase] Erro ao alterar voto:", err);
       // Fallback local update
-      await Storage.update(id, { votes: setup ? setup.votes : 1 });
+      await Storage.update(id, { votes: newCount });
     }
   } else {
     // Fallback local update
-    await Storage.update(id, { votes: setup ? setup.votes : 1 });
+    await Storage.update(id, { votes: newCount });
   }
 
-  showToast('Voto registrado! Obrigado.', 'success');
+  if (alreadyVoted) {
+    showToast('Voto removido.', 'error');
+  } else {
+    showToast('Voto registrado! Obrigado.', 'success');
+  }
 }
 
 window.getInitials = getInitials;
