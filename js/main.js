@@ -58,8 +58,8 @@ function populateCarFilter(classId) {
 }
 
 // ── LOAD & RENDER ─────────────────────────────────────────────
-function loadAndRender() {
-  allSetups = Storage.getAll();
+async function loadAndRender() {
+  allSetups = await Storage.getAll();
   applyFilters();
   renderStats();
 }
@@ -115,7 +115,7 @@ function applyFilters() {
 
 // ── RENDER STATS ──────────────────────────────────────────────
 function renderStats() {
-  const stats = Storage.getStats();
+  const stats = Storage.getStats(allSetups);
 
   document.getElementById('stat-total').textContent   = stats.total;
   document.getElementById('stat-rating').textContent  = stats.avgRating;
@@ -311,12 +311,12 @@ function editSetup(id) {
   window.location.href = `add-setup.html?edit=${id}`;
 }
 
-function deleteSetup(id, event) {
+async function deleteSetup(id, event) {
   event.stopPropagation();
   if (!confirm('Deletar este setup? Esta ação não pode ser desfeita.')) return;
-  Storage.delete(id);
+  await Storage.delete(id);
   showToast('Setup deletado.', 'info');
-  loadAndRender();
+  await loadAndRender();
 }
 
 function resetFilters() {

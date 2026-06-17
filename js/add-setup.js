@@ -212,12 +212,12 @@ function setDefaultDate() {
 }
 
 // ── EDIT MODE ─────────────────────────────────────────────────
-function checkEditMode() {
+async function checkEditMode() {
   const params = new URLSearchParams(window.location.search);
   editId = params.get('edit');
   if (!editId) return;
 
-  const setup = Storage.getById(editId);
+  const setup = await Storage.getById(editId);
   if (!setup) {
     window.location.href = 'index.html';
     return;
@@ -291,7 +291,7 @@ function checkEditMode() {
 
 // ── FORM SUBMIT ───────────────────────────────────────────────
 function bindFormSubmit() {
-  document.getElementById('setup-form').addEventListener('submit', e => {
+  document.getElementById('setup-form').addEventListener('submit', async e => {
     e.preventDefault();
     if (!validateForm()) return;
 
@@ -317,10 +317,10 @@ function bindFormSubmit() {
     };
 
     if (editId) {
-      Storage.update(editId, data);
+      await Storage.update(editId, data);
       showToast('Setup atualizado com sucesso!', 'success');
     } else {
-      Storage.save(data);
+      await Storage.save(data);
       showToast('Setup salvo com sucesso!', 'success');
     }
     

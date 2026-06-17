@@ -6,11 +6,11 @@
 let currentSetup = null;
 
 // ── INIT ──────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const id = new URLSearchParams(window.location.search).get('id');
   if (!id) { redirect(); return; }
 
-  currentSetup = Storage.getById(id);
+  currentSetup = await Storage.getById(id);
   if (!currentSetup) { redirect(); return; }
 
   document.title = buildTitle(currentSetup) + ' — Taborda Setups';
@@ -274,8 +274,8 @@ function bindModal() {
 function openModal()  { document.getElementById('modal-delete').style.display = 'flex'; }
 function closeModal() { document.getElementById('modal-delete').style.display = 'none'; }
 
-function confirmDelete() {
-  Storage.delete(currentSetup.id);
+async function confirmDelete() {
+  await Storage.delete(currentSetup.id);
   sessionStorage.setItem('toast_msg',  'Setup deletado.');
   sessionStorage.setItem('toast_type', 'info');
   window.location.href = 'index.html';

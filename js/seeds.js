@@ -257,10 +257,26 @@ const SEED_SETUPS = [
   },
 ];
 
-// Popula localStorage apenas se estiver vazio
-(function seedIfEmpty() {
+// Popula o banco de dados/localStorage apenas se estiver vazio
+(async function seedIfEmpty() {
   if (typeof Storage === 'undefined' || typeof LMU_DATA === 'undefined') return;
-  if (Storage.getAll().length > 0) return;
-  Storage._persist(SEED_SETUPS);
-  console.log('[Seeds] 10 setups de exemplo carregados.');
+  try {
+    const all = await Storage.getAll();
+    if (all.length > 0) return;
+
+    if (supabaseClient) {
+      console.log('[Seeds] Popuando banco de dados Supabase com setups de exemplo...');
+      // Insere cada um no Supabase
+      const dbRows = SEED_SETUPS.map(s => Storage._mapToDb(s));
+      const { error } = await supabaseClient
+        .from('setups')
+        .insert(dbRows);
+      if (error) throw error;
+    } else {
+      Storage._persist(SEED_SETUPS);
+    }
+    console.log('[Seeds] 10 setups de exemplo carregados.');
+  } catch (err) {
+    console.error('[Seeds] Erro ao injetar setups de exemplo:', err);
+  }
 })();
