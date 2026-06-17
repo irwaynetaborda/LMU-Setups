@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Novo Setup — Taborda Setups</title>
+  <meta name="description" content="Adicionar novo setup Fixed Setup para Le Mans Ultimate." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏁</text></svg>" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/auth.js"></script>
+  <script>Auth.requireAuth();</script>
+</head>
+<body>
+
+  <!-- ── HEADER ────────────────────────────────────────────── -->
+  <header class="header">
+    <a href="index.html" class="logo">
+      <span class="logo-flag">🏁</span>
+      <span>Taborda<em>Setups</em></span>
+    </a>
+    <nav class="header-nav">
+      <a href="index.html" class="nav-link">Setups</a>
+      <a href="fuel.html" class="nav-link">Combustível</a>
+      <a href="schedule.html" class="nav-link">Corridas Diárias</a>
+    </nav>
+    <div class="header-actions">
+      <button class="btn btn-ghost" onclick="Auth.logout()" title="Sair do sistema">Sair</button>
+    </div>
+  </header>
+
+  <!-- ── MAIN ─────────────────────────────────────────────── -->
+  <main class="main">
+    <div class="form-page">
+
+      <div class="form-page-header animate-in">
+        <h1 id="form-title">Novo <em>Setup</em></h1>
+        <p id="form-subtitle"></p>
+      </div>
+
+      <form id="setup-form" novalidate>
+
+        <!-- ── 1. IDENTIFICAÇÃO ──────────────────────────── -->
+        <div class="form-card animate-in">
+          <div class="form-card-title">
+            <span class="num">1</span>
+            <h2>Carro &amp; Pista</h2>
+          </div>
+
+          <!-- Classe -->
+          <div class="form-field" style="margin-bottom:var(--s5)">
+            <label class="form-label">Classe</label>
+            <div class="class-picker" id="class-picker" role="group" aria-label="Selecione a classe">
+              <!-- Renderizado por JS -->
+            </div>
+            <input type="hidden" id="f-class" name="classId" required />
+          </div>
+
+          <div class="form-row">
+            <!-- Carro -->
+            <div class="form-field">
+              <label class="form-label" for="f-car">Carro <span style="color:var(--red)">*</span></label>
+              <select class="form-select" id="f-car" name="carId" required disabled>
+                <option value="">Selecione a classe primeiro</option>
+              </select>
+            </div>
+
+            <!-- Ano -->
+            <div class="form-field">
+              <label class="form-label" for="f-year">Ano do Carro <span style="color:var(--red)">*</span></label>
+              <select class="form-select" id="f-year" name="carYear" required disabled>
+                <option value="">Selecione o carro primeiro</option>
+              </select>
+            </div>
+
+            <!-- Pista -->
+            <div class="form-field">
+              <label class="form-label" for="f-track">Pista <span style="color:var(--red)">*</span></label>
+              <select class="form-select" id="f-track" name="trackId" required>
+                <option value="">Selecione a pista</option>
+              </select>
+            </div>
+
+            <!-- Layout -->
+            <div class="form-field">
+              <label class="form-label" for="f-layout">Layout <span style="color:var(--red)">*</span></label>
+              <select class="form-select" id="f-layout" name="trackLayout" required disabled>
+                <option value="">Selecione a pista primeiro</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 2. CONDIÇÕES ──────────────────────────────── -->
+        <div class="form-card animate-in" style="animation-delay:80ms">
+          <div class="form-card-title">
+            <span class="num">2</span>
+            <h2>Condições da Corrida</h2>
+          </div>
+
+          <div class="form-row-3">
+            <div class="form-field">
+              <label class="form-label" for="f-condition">Condição da Pista</label>
+              <select class="form-select" id="f-condition" name="condition">
+                <option value="">—</option>
+                <option value="dry">☀️ Seco</option>
+                <option value="wet">🌧️ Chuva</option>
+                <option value="mixed">⛅ Misto</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="f-session">Tipo de Sessão</label>
+              <select class="form-select" id="f-session" name="sessionType">
+                <option value="">—</option>
+                <option value="qualifying">⏱️ Qualifying</option>
+                <option value="sprint">🏁 Sprint Race</option>
+                <option value="endurance">🕐 Endurance</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="f-series">Série</label>
+              <select class="form-select" id="f-series" name="series">
+                <option value="">—</option>
+                <option value="wec">WEC</option>
+                <option value="elms">ELMS</option>
+                <option value="custom">Custom / Outro</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 3. PARÂMETROS FIXED SETUP ─────────────────── -->
+        <div class="form-card animate-in" style="animation-delay:120ms">
+          <div class="form-card-title">
+            <span class="num">3</span>
+            <h2>Parâmetros Fixed Setup</h2>
+          </div>
+
+          <div class="param-list" id="param-list">
+
+            <!-- Brake Bias -->
+            <div class="param-row">
+              <div class="param-info">
+                <div class="param-name">Brake Bias</div>
+                <div class="param-desc">% força dianteira (45 – 70%)</div>
+              </div>
+              <input type="range" class="param-slider" id="sl-bb"
+                name="brakeBias" min="45" max="70" step="0.5" value="57.5"
+                aria-label="Brake Bias" />
+              <input type="number" class="param-val" id="val-bb"
+                min="45" max="70" step="0.5" value="57.5" aria-label="Valor Brake Bias" />
+            </div>
+
+            <!-- TC -->
+            <div class="param-row">
+              <div class="param-info">
+                <div class="param-name">TC</div>
+                <div class="param-desc">Traction Control (1 – 11)</div>
+              </div>
+              <input type="range" class="param-slider" id="sl-tc"
+                name="tc" min="1" max="11" step="1" value="6"
+                aria-label="TC" />
+              <input type="number" class="param-val" id="val-tc"
+                min="1" max="11" step="1" value="6" aria-label="Valor TC" />
+            </div>
+
+            <!-- TC Power Cut -->
+            <div class="param-row">
+              <div class="param-info">
+                <div class="param-name">TC Power Cut</div>
+                <div class="param-desc">Corte de potência no TC (1 – 11)</div>
+              </div>
+              <input type="range" class="param-slider" id="sl-tcpc"
+                name="tcPowerCut" min="1" max="11" step="1" value="6"
+                aria-label="TC Power Cut" />
+              <input type="number" class="param-val" id="val-tcpc"
+                min="1" max="11" step="1" value="6" aria-label="Valor TC Power Cut" />
+            </div>
+
+            <!-- TC Slip Angle -->
+            <div class="param-row">
+              <div class="param-info">
+                <div class="param-name">TC Slip Angle</div>
+                <div class="param-desc">Limiar lateral do TC (1 – 11)</div>
+              </div>
+              <input type="range" class="param-slider" id="sl-tcsa"
+                name="tcSlipAngle" min="1" max="11" step="1" value="6"
+                aria-label="TC Slip Angle" />
+              <input type="number" class="param-val" id="val-tcsa"
+                min="1" max="11" step="1" value="6" aria-label="Valor TC Slip Angle" />
+            </div>
+
+            <!-- ABS -->
+            <div class="param-row" id="row-abs">
+              <div class="param-info">
+                <div class="param-name">ABS</div>
+                <div class="param-desc">Anti-lock Braking (1 – 11)</div>
+              </div>
+              <input type="range" class="param-slider" id="sl-abs"
+                name="abs" min="1" max="11" step="1" value="6"
+                aria-label="ABS" />
+              <input type="number" class="param-val" id="val-abs"
+                min="1" max="11" step="1" value="6" aria-label="Valor ABS" />
+            </div>
+
+            <!-- Brake Pressure -->
+            <div class="param-row">
+              <div class="param-info">
+                <div class="param-name">Brake Pressure</div>
+                <div class="param-desc">Pressão máxima (50 – 100%)</div>
+              </div>
+              <input type="range" class="param-slider" id="sl-bp"
+                name="brakePressure" min="50" max="100" step="1" value="90"
+                aria-label="Brake Pressure" />
+              <input type="number" class="param-val" id="val-bp"
+                min="50" max="100" step="1" value="90" aria-label="Valor Brake Pressure" />
+            </div>
+
+
+
+          </div><!-- /param-list -->
+        </div>
+
+        <!-- ── 4. RESULTADO & AVALIAÇÃO ──────────────────── -->
+        <div class="form-card animate-in" style="animation-delay:160ms">
+          <div class="form-card-title">
+            <span class="num">4</span>
+            <h2>Resultado &amp; Avaliação</h2>
+          </div>
+
+          <div class="form-row">
+            <!-- Laptime -->
+            <div class="form-field">
+              <label class="form-label" for="f-laptime">
+                Tempo de Volta <span class="opt">(opcional)</span>
+              </label>
+              <input
+                type="text" class="form-input" id="f-laptime"
+                name="laptime"
+                placeholder="ex: 03:27:545 ou 1:34.820"
+                pattern="[\d:.]+"
+                aria-label="Tempo de volta"
+              />
+              <span class="form-hint">Formato: MM:SS.mmm  ou  H:MM:SS.mmm</span>
+            </div>
+
+            <!-- Data -->
+            <div class="form-field">
+              <label class="form-label" for="f-date">Data do Setup</label>
+              <input type="date" class="form-input" id="f-date" name="date" aria-label="Data" />
+            </div>
+
+            <!-- Rating -->
+            <div class="form-field col-span-2" style="align-items: center;">
+              <label class="form-label">Avaliação do Setup</label>
+              <div class="rating-input" id="rating-input" role="group" aria-label="Avalie o setup de 1 a 5 estrelas" style="justify-content: center;">
+                <button type="button" class="rating-star" data-val="1" aria-label="1 estrela">★</button>
+                <button type="button" class="rating-star" data-val="2" aria-label="2 estrelas">★</button>
+                <button type="button" class="rating-star" data-val="3" aria-label="3 estrelas">★</button>
+                <button type="button" class="rating-star" data-val="4" aria-label="4 estrelas">★</button>
+                <button type="button" class="rating-star" data-val="5" aria-label="5 estrelas">★</button>
+              </div>
+              <input type="hidden" id="f-rating" name="rating" value="0" />
+            </div>
+          </div>
+
+          <!-- Notas -->
+          <div class="form-field" style="margin-top:var(--s4)">
+            <label class="form-label" for="f-notes">
+              Comentários / Notas <span class="opt">(opcional)</span>
+            </label>
+            <textarea class="form-textarea" id="f-notes" name="notes"
+              placeholder="Descreva o setup: o que funcionou, onde foi bom, o que mudar, notas sobre a corrida..."
+              aria-label="Comentários sobre o setup"></textarea>
+          </div>
+
+        </div>
+
+        <!-- ── ACTIONS ────────────────────────────────────── -->
+        <div class="form-actions animate-in" style="animation-delay:200ms">
+          <a href="index.html" class="btn btn-ghost">Cancelar</a>
+          <button type="submit" class="btn btn-primary" id="btn-submit">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Salvar Setup
+          </button>
+        </div>
+
+      </form>
+    </div><!-- /form-page -->
+  </main>
+
+  <!-- Toast -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/add-setup.js"></script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora de Combustível — Taborda Setups</title>
+  <meta name="description" content="Calculadora de Pitstop para Le Mans Ultimate." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏁</text></svg>" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/auth.js"></script>
+</head>
+<body>
+
+  <!-- ── HEADER ────────────────────────────────────────────── -->
+  <header class="header">
+    <a href="index.html" class="logo">
+      <span class="logo-flag">🏁</span>
+      <span>Taborda<em>Setups</em></span>
+    </a>
+    <nav class="header-nav">
+      <a href="index.html" class="nav-link">Setups</a>
+      <a href="fuel.html" class="nav-link active">Combustível</a>
+      <a href="schedule.html" class="nav-link">Corridas Diárias</a>
+    </nav>
+    <div class="header-actions">
+      <button class="btn btn-ghost auth-only" onclick="Auth.logout()" title="Sair do sistema" style="display:none">Sair</button>
+      <a href="login.html" class="btn btn-primary unauth-only" style="display:none">Login</a>
+    </div>
+  </header>
+
+  <!-- ── MAIN ─────────────────────────────────────────────── -->
+  <main class="main">
+    <div class="form-page fuel-page">
+
+      <div class="form-page-header animate-in">
+        <h1 id="form-title">Fuel <em>Calculator</em></h1>
+        <p id="form-subtitle" style="color: #fff;">Cálculo de combustível preciso para corridas no Le Mans Ultimate.</p>
+      </div>
+
+      <div class="fuel-layout animate-in" style="animation-delay:80ms">
+        
+        <!-- Left: Inputs -->
+        <div class="fuel-card">
+          <div class="form-card-title">
+            <span class="num">1</span>
+            <h2>Parâmetros da Corrida</h2>
+          </div>
+
+          <div class="form-row" style="margin-bottom:var(--s4); align-items:flex-end;">
+            <div class="form-field">
+              <label class="form-label">Duração da Corrida <span style="color:var(--red)">*</span></label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" class="form-input" id="f-dur-h" placeholder="Hrs" min="0" style="width:48%">
+                <input type="number" class="form-input" id="f-dur-m" placeholder="Mins" min="0" style="width:48%">
+              </div>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Consumo por Volta (L) <span style="color:var(--red)">*</span></label>
+              <input type="number" class="form-input" id="f-consumption" step="0.01" placeholder="ex: 3.45">
+            </div>
+          </div>
+
+          <div class="form-row" style="margin-bottom:var(--s4); align-items:flex-end;">
+            <div class="form-field">
+              <label class="form-label">Tempo de Volta <span style="color:var(--red)">*</span></label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" class="form-input" id="f-lap-m" placeholder="Min" min="0" style="width:30%">
+                <input type="number" class="form-input" id="f-lap-s" placeholder="Sec" min="0" max="59" style="width:30%">
+                <input type="number" class="form-input" id="f-lap-ms" placeholder="Ms" min="0" max="999" style="width:36%">
+              </div>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Uso de Energia (%/Volta)</label>
+              <input type="number" class="form-input" id="f-energy" step="0.1" placeholder="ex: 4.5">
+            </div>
+          </div>
+
+          <div class="form-field" style="margin-top:var(--s4)">
+            <label class="form-label" for="f-margin">Margem de Segurança (Voltas)</label>
+            <select class="form-select" id="f-margin">
+              <option value="0">Sem margem extra (+0 volta)</option>
+              <option value="1" selected>Margem Segura (+1 volta)</option>
+              <option value="2">Margem Larga (+2 voltas)</option>
+            </select>
+            <span class="form-hint">Recomendado +1 volta para imprevistos e disputas na última volta.</span>
+          </div>
+          
+          <div class="form-field" style="margin-top:var(--s4)">
+            <label class="form-label" style="display:flex;align-items:center;gap:8px;">
+              <input type="checkbox" id="f-formation" checked style="width:16px;height:16px;">
+              Incluir Volta de Apresentação (Formation Lap)
+            </label>
+          </div>
+
+        </div>
+
+        <!-- Right: Results -->
+        <div class="fuel-card results-card" style="display:flex;flex-direction:column;">
+          <div class="form-card-title">
+            <span class="num">2</span>
+            <h2>Resultado</h2>
+          </div>
+
+          <div class="fuel-results-display">
+            <div class="fuel-main-result">
+              <span class="fuel-label">Combustível Total</span>
+              <div class="fuel-value"><span id="res-fuel">0</span><span style="font-size:0.5em;color:var(--text-3);margin-left:4px;">L</span></div>
+            </div>
+            <div class="fuel-main-result" id="res-energy-container" style="display:none; padding-top:var(--s4); border-top:none;">
+              <span class="fuel-label">Virtual Energy Total</span>
+              <div class="fuel-value" style="color:#3b82f6"><span id="res-energy">0</span><span style="font-size:0.5em;color:var(--text-3);margin-left:4px;">%</span></div>
+            </div>
+
+            <div class="fuel-stats">
+              <div class="fuel-stat-item">
+                <span class="fuel-stat-label">Voltas Base (Sem Margem)</span>
+                <strong class="fuel-stat-val" id="res-laps">0</strong>
+              </div>
+              <div class="fuel-stat-item">
+                <span class="fuel-stat-label">Voltas Totais (Com Margem)</span>
+                <strong class="fuel-stat-val" id="res-total-laps">0</strong>
+              </div>
+            </div>
+          </div>
+          
+          <div style="margin-top:auto;">
+            <button type="button" class="btn btn-primary" id="btn-calculate" style="width:100%">
+              Calcular Combustível
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <script src="js/fuel.js"></script>
+</body>
+</html>

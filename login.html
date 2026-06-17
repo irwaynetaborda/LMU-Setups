@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Taborda Setups</title>
+  <meta name="description" content="Acesso restrito." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏁</text></svg>" />
+  
+  <script src="js/auth.js"></script>
+  <script>
+    if (Auth.isAuthenticated()) window.location.replace('index.html');
+  </script>
+  
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--s8);
+    }
+    .login-card {
+      background: rgba(8,8,14,0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--red);
+      border-radius: var(--r-xl);
+      padding: var(--s10) var(--s8);
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+      text-align: center;
+    }
+    .login-logo {
+      font-family: var(--f-outfit);
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      margin-bottom: var(--s2);
+    }
+    .login-logo em { color: var(--red); font-style: normal; }
+    .login-subtitle {
+      color: var(--text-2);
+      margin-bottom: var(--s8);
+      font-size: 0.9375rem;
+    }
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s5);
+      text-align: left;
+    }
+    .login-btn {
+      width: 100%;
+      justify-content: center;
+      padding: 0.8rem;
+      font-size: 1rem;
+      margin-top: var(--s2);
+    }
+    .login-error {
+      color: #ef4444;
+      font-size: 0.875rem;
+      margin-top: var(--s2);
+      display: none;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="login-wrapper">
+    <div class="login-card animate-in">
+      <div class="login-logo">Taborda<em>Setups</em></div>
+      <p class="login-subtitle">Acesso restrito a área de setups</p>
+
+      <form id="login-form" class="login-form" novalidate>
+        <div class="form-field">
+          <label class="form-label" for="l-user">Usuário</label>
+          <input type="text" class="form-input" id="l-user" required placeholder="Digite seu usuário" />
+        </div>
+        
+        <div class="form-field">
+          <label class="form-label" for="l-pass">Senha</label>
+          <input type="password" class="form-input" id="l-pass" required placeholder="Digite sua senha" />
+        </div>
+
+        <div class="login-error" id="login-error">Usuário ou senha incorretos.</div>
+
+        <button type="submit" class="btn btn-primary login-btn" id="btn-login">
+          Entrar
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script src="js/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detalhes do Setup — Taborda Setups</title>
+  <meta name="description" content="Detalhes do setup Fixed Setup para Le Mans Ultimate." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏁</text></svg>" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/auth.js"></script>
+  <script>Auth.requireAuth();</script>
+</head>
+<body>
+
+  <!-- ── HEADER ────────────────────────────────────────────── -->
+  <header class="header">
+    <a href="index.html" class="logo">
+      <span class="logo-flag">🏁</span>
+      <span>Taborda<em>Setups</em></span>
+    </a>
+    <nav class="header-nav">
+      <a href="index.html" class="nav-link">← Voltar aos Setups</a>
+      <a href="fuel.html" class="nav-link">Combustível</a>
+      <a href="schedule.html" class="nav-link">Corridas Diárias</a>
+    </nav>
+    <div class="header-actions">
+      <button class="btn btn-ghost" onclick="Auth.logout()" title="Sair do sistema">Sair</button>
+    </div>
+  </header>
+
+  <!-- ── MAIN ─────────────────────────────────────────────── -->
+  <main class="main" id="main">
+
+    <!-- Placeholder enquanto carrega -->
+    <div id="loading" class="page-hero" style="min-height:240px;display:flex;align-items:center;justify-content:center;">
+      <span style="color:var(--text-3);font-size:0.875rem;">Carregando setup...</span>
+    </div>
+
+    <!-- Conteúdo renderizado por detail.js -->
+    <div id="detail-root" style="display:none;"></div>
+
+  </main>
+
+  <!-- Modal de confirmação de exclusão -->
+  <div class="modal-backdrop" id="modal-delete" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <h3 id="modal-title">🗑 Deletar Setup?</h3>
+      <p>Esta ação não pode ser desfeita. O setup será removido permanentemente.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="modal-cancel">Cancelar</button>
+        <button class="btn btn-danger" id="modal-confirm">Deletar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/detail.js"></script>
+</body>
+</html>

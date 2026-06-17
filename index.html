@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Taborda Setups — Le Mans Ultimate</title>
+  <meta name="description" content="Minha biblioteca pessoal de setups para Le Mans Ultimate. Consulte configurações por carro, pista e condição antes de cada corrida." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏁</text></svg>" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/auth.js"></script>
+</head>
+<body>
+
+  <!-- ── HEADER ────────────────────────────────────────────── -->
+  <header class="header">
+    <a href="index.html" class="logo" aria-label="Taborda Setups">
+      <span class="logo-flag">🏁</span>
+      <span>Taborda<em>Setups</em></span>
+    </a>
+
+    <nav class="header-nav" aria-label="Navegação principal">
+      <a href="index.html" class="nav-link active" id="nav-setups">Setups</a>
+      <a href="fuel.html" class="nav-link" id="nav-fuel">Combustível</a>
+      <a href="schedule.html" class="nav-link" id="nav-schedule">Corridas Diárias</a>
+    </nav>
+
+    <div class="header-actions">
+      <a href="add-setup.html" class="btn btn-primary auth-only" id="btn-new-setup" style="display:none">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+        Novo Setup
+      </a>
+      <button class="btn btn-ghost auth-only" onclick="Auth.logout()" title="Sair do sistema" style="display:none">
+        Sair
+      </button>
+      <a href="login.html" class="btn btn-primary unauth-only" style="display:none">Login</a>
+    </div>
+  </header>
+
+  <!-- ── MAIN ─────────────────────────────────────────────── -->
+  <main class="main" id="main">
+
+    <!-- PAGE HERO — apenas título + wallpaper -->
+    <section class="page-hero" aria-label="Resumo">
+      <div class="container">
+        <div class="page-hero-inner">
+          <h1>Meus <em>Setups</em></h1>
+          <p>Armazene parâmetros, acompanhe tempos de volta e consulte estratégias exclusivas para maximizar o seu desempenho nas pistas.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS BAND — fundo sólido, separado da hero -->
+    <section class="stats-band auth-only" aria-label="Estatísticas" style="display:none">
+      <div class="container">
+        <div class="stats-grid stagger" id="stats-grid">
+
+          <!-- Total -->
+          <div class="stat-card animate-in">
+            <div class="stat-card-icon">🏎️</div>
+            <div class="stat-card-body">
+              <div class="stat-value" id="stat-total">0</div>
+              <div class="stat-label">Total de Setups</div>
+            </div>
+          </div>
+
+          <!-- Nota Média -->
+          <div class="stat-card animate-in" style="animation-delay:60ms">
+            <div class="stat-card-icon">⭐</div>
+            <div class="stat-card-body">
+              <div class="stat-value accent" id="stat-rating">—</div>
+              <div class="stat-label">Nota Média</div>
+            </div>
+          </div>
+
+          <!-- Pista Mais Usada -->
+          <div class="stat-card animate-in" style="animation-delay:120ms">
+            <div class="stat-card-icon">📍</div>
+            <div class="stat-card-body">
+              <div class="stat-value stat-value-track" id="stat-top-track">—</div>
+              <div class="stat-label">Pista Mais Usada</div>
+            </div>
+          </div>
+
+          <!-- Por Classe -->
+          <div class="stat-card stat-card-classes animate-in" style="animation-delay:180ms;">
+            <div class="stat-card-icon">⚡</div>
+            <div class="stat-card-body">
+              <div class="class-bars" id="class-bars"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- FILTERS -->
+    <section class="filters-wrap auth-only" aria-label="Filtros" style="display:none">
+      <div class="container">
+        <div class="filters-inner">
+
+          <div class="filter-group">
+            <label class="filter-label" for="f-class">Classe</label>
+            <select class="filter-select" id="f-class" aria-label="Filtrar por classe">
+              <option value="">Todas as Classes</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="f-car">Carro</label>
+            <select class="filter-select" id="f-car" aria-label="Filtrar por carro">
+              <option value="">Todos os Carros</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="f-track">Pista</label>
+            <select class="filter-select" id="f-track" aria-label="Filtrar por pista">
+              <option value="">Todas as Pistas</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="f-condition">Condição</label>
+            <select class="filter-select" id="f-condition" aria-label="Filtrar por condição">
+              <option value="">Qualquer Condição</option>
+              <option value="dry">☀️ Seco</option>
+              <option value="wet">🌧️ Chuva</option>
+              <option value="mixed">⛅ Misto</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="f-session">Sessão</label>
+            <select class="filter-select" id="f-session" aria-label="Filtrar por tipo de sessão">
+              <option value="">Qualquer Sessão</option>
+              <option value="qualifying">⏱️ Qualifying</option>
+              <option value="sprint">🏁 Sprint Race</option>
+              <option value="endurance">🕐 Endurance</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="f-search">Busca</label>
+            <input
+              type="search"
+              class="filter-input"
+              id="f-search"
+              placeholder="Buscar setup..."
+              aria-label="Buscar setup por texto"
+            />
+          </div>
+
+          <div class="filters-spacer"></div>
+
+          <button class="btn-reset" id="btn-reset-filters" type="button">Limpar filtros</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETUPS TABLE -->
+    <section class="setups-section auth-only" style="display:none">
+      <div class="container">
+
+        <div class="setups-header">
+          <h2>Resultados</h2>
+          <span class="setups-count" id="setups-count">0 setups</span>
+        </div>
+
+        <div id="setups-container">
+          <!-- Renderizado por main.js -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- UNAUTHENTICATED MESSAGE -->
+    <div class="container unauth-only" style="display:none; text-align: center; padding: var(--s16) 0;">
+      <h2 style="font-family: var(--f-outfit); color: #fff; margin-bottom: var(--s4); font-size: 2rem;">Faça login para acessar os setups</h2>
+      <p style="color: var(--text-2); margin-bottom: var(--s6);">A sua biblioteca de setups é privada. Autentique-se para visualizar, editar e gerenciar suas configurações.</p>
+      <a href="login.html" class="btn btn-primary" style="font-size: 1.1rem; padding: var(--s3) var(--s6);">Fazer Login</a>
+    </div>
+
+  </main>
+
+  <!-- FAB removed by user request -->
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/seeds.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

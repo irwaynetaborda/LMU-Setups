@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mural de Corridas — Taborda Setups</title>
+  <meta name="description" content="Calendário de corridas do Le Mans Ultimate." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏁</text></svg>" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/auth.js"></script>
+</head>
+<body>
+
+  <!-- ── HEADER ────────────────────────────────────────────── -->
+  <header class="header">
+    <a href="index.html" class="logo">
+      <span class="logo-flag">🏁</span>
+      <span>Taborda<em>Setups</em></span>
+    </a>
+    <nav class="header-nav">
+      <a href="index.html" class="nav-link">Setups</a>
+      <a href="fuel.html" class="nav-link">Combustível</a>
+      <a href="schedule.html" class="nav-link active">Corridas Diárias</a>
+    </nav>
+    <div class="header-actions">
+      <button class="btn btn-ghost auth-only" onclick="Auth.logout()" title="Sair do sistema" style="display:none">Sair</button>
+      <a href="login.html" class="btn btn-primary unauth-only" style="display:none">Login</a>
+    </div>
+  </header>
+
+  <!-- ── MAIN ─────────────────────────────────────────────── -->
+  <main class="main">
+
+    <div class="schedule-header animate-in">
+      <div class="container">
+        <h1>Corridas <em>Diárias</em></h1>
+        <p id="schedule-subtitle">Le Mans Ultimate Online Championships</p>
+        
+        <div class="schedule-tabs" style="align-items: center;">
+          <button class="schedule-tab active" data-tab="daily">Daily Races</button>
+          <button class="schedule-tab" data-tab="weekly">Weekly Races</button>
+          <button class="btn btn-ghost" style="margin-left:var(--s6); font-size:0.875rem; padding:var(--s2) var(--s4);" onclick="openImportModal()">📥 Importar Dados</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-content animate-in" style="animation-delay:100ms">
+      <div class="container">
+        
+        <!-- Tab Content: Daily -->
+        <div class="schedule-pane active" id="pane-daily">
+          <!-- Renderizado via JS -->
+        </div>
+
+        <!-- Tab Content: Weekly -->
+        <div class="schedule-pane" id="pane-weekly">
+          <!-- Renderizado via JS -->
+        </div>
+
+      </div>
+    </div>
+
+    <!-- IMPORT MODAL -->
+    <div id="import-modal" class="modal-backdrop" style="display:none;">
+      <div class="modal-content animate-in">
+        <div class="modal-header">
+          <h2>Importar Schedule do Fórum</h2>
+          <button class="btn-icon" onclick="closeImportModal()" style="font-size:1.5rem; background:none; border:none; color:var(--text-2); cursor:pointer;">✕</button>
+        </div>
+        <div class="modal-body" style="padding:var(--s4) 0;">
+          <p style="color:var(--text-3); font-size:0.875rem; margin-bottom:var(--s4);">Cole abaixo o texto do cronograma oficial do fórum do LMU para atualizar as corridas do site automaticamente.</p>
+          <textarea id="import-text" class="form-input" rows="12" style="font-family:monospace; resize:vertical; font-size:0.8125rem;" placeholder="Cole aqui o texto. Ex:
+Beginner [Bronze SR]
+starts every 15min, 20m races, 20 car splits...
+LMGT3 Fixed: Spa-Francorchamps (WEC)..."></textarea>
+        </div>
+        <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:var(--s4);">
+          <button class="btn btn-ghost" onclick="clearImport()" style="color:var(--red);">🗑️ Limpar Dados</button>
+          <div style="display:flex; gap:var(--s3);">
+            <button class="btn btn-ghost" onclick="closeImportModal()">Cancelar</button>
+            <button class="btn btn-primary" onclick="processImport()">Atualizar Corridas</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="js/schedule-data.js"></script>
+  <script src="js/track-maps.js"></script>
+  <script src="js/schedule.js"></script>
+</body>
+</html>
