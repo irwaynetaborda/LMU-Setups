@@ -65,7 +65,7 @@ const Auth = (() => {
       area.innerHTML = `
         <a href="add-setup.html" class="btn btn-primary" id="btn-new-setup">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
-          Novo Setup
+          <span class="btn-text">Novo Setup</span>
         </a>
         <div class="user-chip" id="user-chip-btn" title="${username}">
           <span class="user-chip-avatar">${initials}</span>

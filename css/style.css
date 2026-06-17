@@ -2287,8 +2287,64 @@ tr:hover .row-actions {
   }
 
   .header {
-    padding: 0 var(--s4);
-    gap: var(--s3);
+    height: auto;
+    padding: var(--s3) var(--s4);
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s2);
+  }
+
+  .logo {
+    margin-right: 0;
+  }
+
+  .header-nav {
+    width: 100%;
+    justify-content: center;
+    gap: var(--s1);
+  }
+
+  .header-actions {
+    position: absolute;
+    top: 14px;
+    right: var(--s4);
+    margin-left: 0;
+    gap: var(--s2);
+  }
+
+  #btn-new-setup .btn-text {
+    display: none;
+  }
+
+  #btn-new-setup {
+    padding: var(--s2);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #btn-new-setup svg {
+    margin-right: 0;
+    width: 20px;
+    height: 20px;
+  }
+
+  .user-chip-email,
+  .user-chip-caret {
+    display: none;
+  }
+
+  .user-chip {
+    padding: 0;
+    border: none;
+    background: transparent;
+  }
+
+  .main {
+    padding-top: 130px !important;
   }
 
   .logo-full {
@@ -2328,8 +2384,10 @@ tr:hover .row-actions {
     right: var(--s5);
   }
 
-  .setups-table th:nth-child(n+5),
-  .setups-table td:nth-child(n+5) {
+  .setups-table th:nth-child(4), .setups-table td:nth-child(4),
+  .setups-table th:nth-child(5), .setups-table td:nth-child(5),
+  .setups-table th:nth-child(7), .setups-table td:nth-child(7),
+  .setups-table th:nth-child(8), .setups-table td:nth-child(8) {
     display: none;
   }
 }
