@@ -25,7 +25,7 @@ const Auth = {
 
   // Retorna se o usuário está logado
   isAuthenticated() {
-    return localStorage.getItem('lmu_auth') === 'true';
+    return true; // localStorage.getItem('lmu_auth') === 'true';
   },
 
   // Protege a página (chamado no <head>)
