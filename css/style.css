@@ -1385,19 +1385,8 @@ tr:hover .row-actions {
 /* ── DETAIL PAGE ─────────────────────────────────────────── */
 .detail-hero {
   background: transparent;
-  padding: var(--s10) 0 var(--s8);
+  padding: var(--s6) 0 0 0;
   position: relative;
-  overflow: hidden;
-}
-
-.detail-hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(to right, var(--red), var(--gold));
 }
 
 .detail-hero-layout {
@@ -1409,6 +1398,24 @@ tr:hover .row-actions {
   text-align: left;
   position: relative;
   z-index: 2;
+
+  background: rgba(8, 8, 14, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: var(--s8) var(--s6);
+  overflow: hidden;
+}
+
+.detail-hero-layout::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(to right, var(--red), var(--gold));
 }
 
 .detail-hero-content {
@@ -1497,8 +1504,8 @@ tr:hover .row-actions {
   display: flex;
   gap: var(--s3);
   position: absolute;
-  top: 0;
-  right: 0;
+  top: var(--s8);
+  right: var(--s6);
   z-index: 10;
 }
 
@@ -2217,6 +2224,13 @@ tr:hover .row-actions {
 @media (max-width: 768px) {
   .container {
     padding: 0 var(--s4);
+  }
+
+  .detail-hero-actions {
+    position: static;
+    width: 100%;
+    margin-top: var(--s4);
+    justify-content: flex-start;
   }
 
   .header {

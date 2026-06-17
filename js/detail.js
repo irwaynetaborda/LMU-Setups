@@ -68,13 +68,13 @@ function renderDetail(s) {
         <div class="detail-hero-layout">
           
           <div class="detail-hero-actions">
-            <button class="btn btn-secondary" id="btn-copy" title="Copiar parâmetros">
+            <button class="btn btn-secondary btn-sm" id="btn-copy" title="Copiar parâmetros">
               📋 Copiar
             </button>
-            <a href="add-setup.html?edit=${s.id}" class="btn btn-secondary" title="Editar setup">
+            <a href="add-setup.html?edit=${s.id}" class="btn btn-secondary btn-sm" title="Editar setup">
               ✏️ Editar
             </a>
-            <button class="btn btn-danger" id="btn-delete" title="Deletar setup">
+            <button class="btn btn-danger btn-sm" id="btn-delete" title="Deletar setup">
               🗑 Deletar
             </button>
           </div>
@@ -115,6 +115,7 @@ function renderDetail(s) {
               </div>` : ''}
             </div>
 
+          </div> <!-- /detail-hero-content -->
 
         </div> <!-- /detail-hero-layout -->
       </div>

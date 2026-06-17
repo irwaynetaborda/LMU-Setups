@@ -3,11 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calculadora de Combustível — Taborda Setups</title>
-  <meta name="description" content="Calculadora de Pitstop para Le Mans Ultimate." />
+  <title>Calculadora de Pitstop — Taborda Setups</title>
+  <meta name="description" content="Calculadora avançada de Pitstop para Le Mans Ultimate." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏁</text></svg>" />
   <link rel="stylesheet" href="css/style.css" />
   <script src="js/auth.js"></script>
+  <style>
+    /* Tabs styles */
+    .calc-tabs { display: flex; gap: 24px; border-bottom: 1px solid var(--border); margin-bottom: 16px; padding-bottom: 8px; }
+    .calc-tab { font-size: 1rem; color: var(--text-3); cursor: pointer; padding-bottom: 11px; margin-bottom: -9px; border-bottom: 2px solid transparent; font-weight: 600; transition: var(--t-fast); }
+    .calc-tab:hover { color: var(--text-1); }
+    .calc-tab.active { color: #fff; border-bottom: 2px solid var(--red); }
+    
+    /* Range slider style */
+    .custom-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 16px;
+      background: var(--red);
+      border-radius: var(--r-full);
+      outline: none;
+      margin-top: 8px;
+    }
+    .custom-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+    }
+    .custom-slider::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
 
@@ -30,110 +64,335 @@
 
   <!-- ── MAIN ─────────────────────────────────────────────── -->
   <main class="main">
-    <div class="form-page fuel-page">
+    <div class="form-page fuel-page" style="max-width: 1000px;">
 
-      <div class="form-page-header animate-in">
-        <h1 id="form-title">Fuel <em>Calculator</em></h1>
-        <p id="form-subtitle" style="color: #fff;">Cálculo de combustível preciso para corridas no Le Mans Ultimate.</p>
+      <div class="form-page-header animate-in" style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+        <h1 id="form-title">Pitstop <em>Calculator</em></h1>
+        <button id="btn-how-to" class="btn btn-secondary" style="font-size: 0.85rem; padding: 6px 12px; border-radius: 4px;">Como Calcular?</button>
       </div>
 
-      <div class="fuel-layout animate-in" style="animation-delay:80ms">
+      <div class="fuel-layout animate-in" style="animation-delay:80ms; display: flex; flex-direction: column; gap: var(--s6);">
         
-        <!-- Left: Inputs -->
-        <div class="fuel-card">
-          <div class="form-card-title">
-            <span class="num">1</span>
-            <h2>Parâmetros da Corrida</h2>
-          </div>
-
-          <div class="form-row" style="margin-bottom:var(--s4); align-items:flex-end;">
-            <div class="form-field">
-              <label class="form-label">Duração da Corrida <span style="color:var(--red)">*</span></label>
-              <div style="display:flex; gap:8px;">
-                <input type="number" class="form-input" id="f-dur-h" placeholder="Hrs" min="0" style="width:48%">
-                <input type="number" class="form-input" id="f-dur-m" placeholder="Mins" min="0" style="width:48%">
-              </div>
-            </div>
-            <div class="form-field">
-              <label class="form-label">Consumo por Volta (L) <span style="color:var(--red)">*</span></label>
-              <input type="number" class="form-input" id="f-consumption" step="0.01" placeholder="ex: 3.45">
-            </div>
-          </div>
-
-          <div class="form-row" style="margin-bottom:var(--s4); align-items:flex-end;">
-            <div class="form-field">
-              <label class="form-label">Tempo de Volta <span style="color:var(--red)">*</span></label>
-              <div style="display:flex; gap:8px;">
-                <input type="number" class="form-input" id="f-lap-m" placeholder="Min" min="0" style="width:30%">
-                <input type="number" class="form-input" id="f-lap-s" placeholder="Sec" min="0" max="59" style="width:30%">
-                <input type="number" class="form-input" id="f-lap-ms" placeholder="Ms" min="0" max="999" style="width:36%">
-              </div>
-            </div>
-            <div class="form-field">
-              <label class="form-label">Uso de Energia (%/Volta)</label>
-              <input type="number" class="form-input" id="f-energy" step="0.1" placeholder="ex: 4.5">
-            </div>
-          </div>
-
-          <div class="form-field" style="margin-top:var(--s4)">
-            <label class="form-label" for="f-margin">Margem de Segurança (Voltas)</label>
-            <select class="form-select" id="f-margin">
-              <option value="0">Sem margem extra (+0 volta)</option>
-              <option value="1" selected>Margem Segura (+1 volta)</option>
-              <option value="2">Margem Larga (+2 voltas)</option>
-            </select>
-            <span class="form-hint">Recomendado +1 volta para imprevistos e disputas na última volta.</span>
-          </div>
+        <!-- PARÂMETROS GERAIS -->
+        <div class="fuel-card" style="padding: var(--s6);">
           
-          <div class="form-field" style="margin-top:var(--s4)">
-            <label class="form-label" style="display:flex;align-items:center;gap:8px;">
-              <input type="checkbox" id="f-formation" checked style="width:16px;height:16px;">
-              Incluir Volta de Apresentação (Formation Lap)
-            </label>
+          <div class="form-field" style="margin-bottom: var(--s4);">
+            <div class="calc-tabs">
+              <div class="calc-tab active" id="tab-hypercar" onclick="switchTab('hypercar')">Hypercar/LMGT3</div>
+              <div class="calc-tab" id="tab-lmp2" onclick="switchTab('lmp2')">LMP2/LMP3/LMGTE</div>
+            </div>
+          </div>
+
+          <!-- RACE PARAMETERS -->
+          <div style="border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--s5); margin-bottom: var(--s4); background: var(--bg-surface);">
+            <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: var(--s4);">
+              <h2 style="font-size: 1rem; font-weight: 700; color: #fff;">PARÂMETROS DA CORRIDA</h2>
+              <span style="font-size: 0.8rem; color: var(--text-3);">Duração da corrida, ritmo e planejamento de combustível.</span>
+            </div>
+
+            <div class="form-row" style="margin-bottom: var(--s4);">
+              <div class="form-field">
+                <label class="form-label" style="font-weight:700; color:#fff;">DURAÇÃO DA CORRIDA <span style="color:var(--red)">*</span></label>
+                <div style="display:flex; gap:8px;">
+                  <div style="display:flex; align-items:center; background:var(--bg-base); border:1px solid var(--border); border-radius:var(--r-sm); padding:0 12px; width:50%;">
+                    <span style="color:var(--text-3); font-size:0.9rem; margin-right:8px; font-weight:600;">Hrs</span>
+                    <input type="number" id="f-dur-h" min="0" style="background:transparent; border:none; color:#fff; width:100%; outline:none; font-family:var(--f-outfit); font-size:1rem;">
+                  </div>
+                  <div style="display:flex; align-items:center; background:var(--bg-base); border:1px solid var(--border); border-radius:var(--r-sm); padding:0 12px; width:50%;">
+                    <span style="color:var(--text-3); font-size:0.9rem; margin-right:8px; font-weight:600;">Min</span>
+                    <input type="number" id="f-dur-m" min="0" style="background:transparent; border:none; color:#fff; width:100%; outline:none; font-family:var(--f-outfit); font-size:1rem;">
+                  </div>
+                </div>
+              </div>
+              
+              <!-- TANK CAPACITY (Apenas LMP2) -->
+              <div class="form-field" id="field-tank-capacity" style="display:none;">
+                <label class="form-label" style="font-weight:700; color:#fff;">CAPACIDADE DO TANQUE <span style="color:var(--red)">*</span></label>
+                <input type="number" class="form-input" id="f-tank" step="0.1">
+              </div>
+
+              <!-- CONSUMO DE COMBUSTÍVEL (Apenas Hypercar na 1a linha) -->
+              <div class="form-field" id="field-fuel-usage-1">
+                <label class="form-label" style="font-weight:700; color:#fff;">CONSUMO DE COMBUSTÍVEL (L/VOLTA) <span style="color:var(--red)">*</span></label>
+                <input type="number" class="form-input" id="f-consumption" step="0.01">
+              </div>
+            </div>
+
+            <div class="form-row" style="margin-bottom: var(--s4);">
+              <div class="form-field">
+                <label class="form-label" style="font-weight:700; color:#fff;">TEMPO DE VOLTA <span style="color:var(--red)">*</span></label>
+                <div style="display:flex; gap:8px;">
+                  <div style="display:flex; align-items:center; background:var(--bg-base); border:1px solid var(--border); border-radius:var(--r-sm); padding:0 12px; width:33%;">
+                    <span style="color:var(--text-3); font-size:0.9rem; margin-right:8px; font-weight:600;">Min</span>
+                    <input type="number" id="f-lap-m" min="0" style="background:transparent; border:none; color:#fff; width:100%; outline:none; font-family:var(--f-outfit); font-size:1rem;">
+                  </div>
+                  <div style="display:flex; align-items:center; background:var(--bg-base); border:1px solid var(--border); border-radius:var(--r-sm); padding:0 12px; width:33%;">
+                    <span style="color:var(--text-3); font-size:0.9rem; margin-right:8px; font-weight:600;">Seg</span>
+                    <input type="number" id="f-lap-s" min="0" max="59" style="background:transparent; border:none; color:#fff; width:100%; outline:none; font-family:var(--f-outfit); font-size:1rem;">
+                  </div>
+                  <div style="display:flex; align-items:center; background:var(--bg-base); border:1px solid var(--border); border-radius:var(--r-sm); padding:0 12px; width:33%;">
+                    <span style="color:var(--text-3); font-size:0.9rem; margin-right:8px; font-weight:600;">Ms</span>
+                    <input type="number" id="f-lap-ms" min="0" max="999" style="background:transparent; border:none; color:#fff; width:100%; outline:none; font-family:var(--f-outfit); font-size:1rem;">
+                  </div>
+                </div>
+              </div>
+              
+              <!-- CONSUMO DE ENERGIA (Apenas Hypercar) -->
+              <div class="form-field" id="field-energy-usage">
+                <label class="form-label" style="font-weight:700; color:#fff;">CONSUMO DE ENERGIA (%/VOLTA) <span style="color:var(--red)">*</span></label>
+                <input type="number" class="form-input" id="f-energy" step="0.1">
+              </div>
+
+              <!-- CONSUMO DE COMBUSTÍVEL (Movido para linha 2 na aba LMP2) -->
+              <div class="form-field" id="field-fuel-usage-2" style="display:none;">
+                <label class="form-label" style="font-weight:700; color:#fff;">CONSUMO DE COMBUSTÍVEL (L/VOLTA) <span style="color:var(--red)">*</span></label>
+                <input type="number" class="form-input" id="f-consumption-lmp2" step="0.01">
+              </div>
+            </div>
+
+            <div class="form-row" style="align-items: center; margin-top: var(--s4);">
+              <div class="form-field">
+                <label class="form-label" style="font-weight: 700; color:#fff;">CÁLCULO DE VOLTA DE SEGURANÇA</label>
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-top:8px;">
+                  <input type="checkbox" id="f-ignore-safe" style="width:16px;height:16px; margin:0; accent-color: var(--red);">
+                  <span style="color: var(--text-1); font-size:0.9rem; font-weight:600;">Ignorar volta de segurança</span>
+                </label>
+              </div>
+
+              <!-- MAX ALLOWED VIRTUAL ENERGY (Hypercar) -->
+              <div class="form-field" id="field-max-energy">
+                <label class="form-label" style="font-weight:700; color:#fff;">ENERGIA VIRTUAL MÁXIMA PERMITIDA (<span id="val-max-energy">100</span>%)</label>
+                <input type="range" min="1" max="100" value="100" class="custom-slider" id="f-max-energy">
+              </div>
+
+              <!-- MAX ALLOWED FUEL (LMP2) -->
+              <div class="form-field" id="field-max-fuel" style="display:none;">
+                <label class="form-label" style="font-weight:700; color:#fff;">COMBUSTÍVEL MÁXIMO PERMITIDO (<span id="val-max-fuel">100</span>%)</label>
+                <input type="range" min="1" max="100" value="100" class="custom-slider" id="f-max-fuel">
+              </div>
+            </div>
+          </div>
+
+          <!-- TYRE PARAMETERS -->
+          <div style="border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--s5); background: var(--bg-surface);">
+            <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: var(--s4);">
+              <h2 style="font-size: 1rem; font-weight: 700; color:#fff;">PARÂMETROS DE PNEUS</h2>
+              <span style="font-size: 0.8rem; color: var(--text-3);">Estratégia, disponibilidade e desgaste.</span>
+            </div>
+
+            <div class="form-field" style="margin-bottom: var(--s4);">
+              <label class="form-label" style="font-weight:700; color:#fff;">ESTRATÉGIA DE PNEUS</label>
+              <select class="form-select" id="f-tyre-strat" style="background-color: var(--red-dark); border-color: var(--red); color: white; font-weight: 600;">
+                <option value="0" selected>Sem troca de pneus</option>
+                <option value="optimum">Calcular estratégia de pneus ideal</option>
+                <option value="1">Trocar a cada pitstop</option>
+                <option value="2">Trocar a cada 2 pitstops</option>
+                <option value="3">Trocar a cada 3 pitstops</option>
+                <option value="4">Trocar a cada 4 pitstops</option>
+              </select>
+            </div>
+
+            <!-- OPÇÕES EXTRAS DE PNEUS -->
+            <div class="form-row" id="tyre-extra-opts" style="margin-top: var(--s4);">
+               <div class="form-field">
+                 <label class="form-label" style="font-weight:700; color:#fff;">PNEUS DISPONÍVEIS <span style="color:var(--red)">*</span></label>
+                 <input type="number" class="form-input" id="f-tyres-avail" value="100">
+               </div>
+               <div class="form-field" style="display:flex; flex-direction:column; justify-content:flex-end;">
+                 <label class="form-label" style="font-weight:700; color:#fff;">AQUECEDORES DE PNEU</label>
+                 <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-top:8px;">
+                   <input type="checkbox" id="f-tyre-warmers" style="width:18px;height:18px;">
+                   <span style="color: var(--text-1); font-size:0.9rem; font-weight:600;">Usar aquecedores de pneu</span>
+                 </label>
+               </div>
+            </div>
+
+            <div class="form-row" id="tyre-extra-opts2" style="margin-top: var(--s4);">
+               <div class="form-field">
+                 <label class="form-label" style="font-weight:700; color:#fff;">DESGASTE DE PNEU POR VOLTA (%) <span style="color:var(--red)">*</span></label>
+                 <input type="number" class="form-input" id="f-tyre-wear" step="0.01" value="1.00">
+               </div>
+               <div class="form-field" style="display:flex; flex-direction:column; justify-content:flex-end;">
+                 <label class="form-label" style="font-weight:700; color:#fff;">DETALHES DO DESGASTE</label>
+                 <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-top:8px;">
+                   <input type="checkbox" id="f-detailed-wear" style="width:18px;height:18px;">
+                   <span style="color: var(--text-1); font-size:0.9rem; font-weight:600;">Desgaste de pneu detalhado</span>
+                 </label>
+               </div>
+            </div>
+
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 16px; margin-top: var(--s6);">
+            <button type="button" class="btn btn-ghost" id="btn-reset">Limpar</button>
+            <button type="button" class="btn btn-primary" id="btn-calculate" style="background-color: var(--red); color: white; padding: 12px 32px; font-weight:700;">Calcular</button>
+          </div>
+        </div>
+
+        <!-- RESULTS SECTION -->
+        <div id="results-panel" style="display: none; flex-direction: column; gap: var(--s6);">
+          
+          <!-- REQUIREMENTS BOX -->
+          <div style="margin-bottom: var(--s6);">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--s3); border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+              <h2 style="font-size: 1.2rem; color:#fff;">Requisitos</h2>
+            </div>
+            
+            <div style="background: var(--bg-surface); border: 1px solid #333; border-radius: var(--r-md); padding: 24px;">
+                
+                <!-- LAPS -->
+                <div style="margin-bottom: 24px;">
+                    <span style="font-size: 0.75rem; color: #fff; font-weight: 800; text-transform: uppercase;">VOLTAS</span>
+                    <div style="display:flex; align-items:center; background:var(--bg-base); border:1px solid #444; border-radius:var(--r-sm); margin-top: 8px;">
+                        <span style="padding: 10px 16px; border-right: 1px solid #444; color: #fff; font-weight: 600;">Mín</span>
+                        <span id="res-laps-min" style="padding: 10px 16px; color: var(--text-2); font-family: var(--f-outfit); width: 100%;">0</span>
+                    </div>
+                </div>
+
+                <!-- FUEL AND ENERGY -->
+                <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+                    <div style="flex: 1;">
+                        <span style="font-size: 0.75rem; color: #fff; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; gap: 6px;">
+                            <span style="color:#3b82f6;">⛽</span> COMBUSTÍVEL (LITROS)
+                        </span>
+                        <div style="display:flex; align-items:center; background:var(--bg-base); border:1px solid #444; border-radius:var(--r-sm); margin-top: 8px;">
+                            <span style="padding: 10px 16px; border-right: 1px solid #444; color: #fff; font-weight: 600;">Mín</span>
+                            <span id="res-fuel-min" style="padding: 10px 16px; color: var(--text-2); font-family: var(--f-outfit); width: 100%;">0</span>
+                        </div>
+                    </div>
+
+                    <div style="flex: 1;" id="req-energy-box">
+                        <span style="font-size: 0.75rem; color: #fff; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; gap: 6px;">
+                            <span style="color:#3b82f6;">⚡</span> ENERGIA (%)
+                        </span>
+                        <div style="display:flex; align-items:center; background:var(--bg-base); border:1px solid #444; border-radius:var(--r-sm); margin-top: 8px;">
+                            <span style="padding: 10px 16px; border-right: 1px solid #444; color: #fff; font-weight: 600;">Mín</span>
+                            <span id="res-energy-min" style="padding: 10px 16px; color: var(--text-2); font-family: var(--f-outfit); width: 100%;">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RATIO -->
+                <div id="box-ratio">
+                    <span style="font-size: 0.75rem; color: #fff; font-weight: 800; text-transform: uppercase;">PROPORÇÃO COMB. / ENERGIA</span>
+                    <div style="display:flex; align-items:center; background:var(--bg-base); border:1px solid #444; border-radius:var(--r-sm); margin-top: 8px; padding: 10px 16px;">
+                        <span id="res-fuel-ratio" style="color: var(--text-2); font-family: var(--f-outfit);">0.00</span>
+                    </div>
+                </div>
+            </div>
+          </div>
+
+          <!-- FLAT OUT RECOMMENDED -->
+          <div id="section-flatout">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--s3); border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+              <h2 style="font-size: 1.2rem; color:#fff;">Aceleração Máxima (Recomendado)</h2>
+            </div>
+
+            <div style="background: var(--bg-surface); border: 1px solid #333; border-radius: var(--r-md); padding: var(--s5);">
+              <p style="color: #fff; font-weight: 500; margin-bottom: 4px; font-size:0.95rem;">Nenhuma estratégia de economia de combustível aplicada. Acelere ao máximo todas as voltas para melhor performance.</p>
+              <p style="color: var(--text-3); font-size: 0.85rem; font-style: italic; margin-bottom: 24px;">Nota: Todos os valores abaixo são estimativas baseadas em tempos de volta consistentes.</p>
+              
+              <div style="display: grid; grid-template-columns: 350px 1fr; gap: 16px; align-items: center; margin-bottom: 12px;">
+                <span style="font-size: 0.85rem; font-weight: 800; color: #aaa;">VOLTA DE SEGURANÇA RECOMENDADA</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span id="res-safety-rec" style="font-weight: 700; color:#fff;">Não</span>
+                  <span id="res-safety-icon" style="color: #f59e0b;">⚠️</span>
+                </div>
+              </div>
+              <div id="eco-metrics" style="display: grid; grid-template-columns: 350px 1fr; gap: 16px; align-items: center;">
+                <span style="font-size: 0.85rem; font-weight: 800; color: #aaa;">RELÓGIO DA CORRIDA NO INÍCIO DA ÚLTIMA VOLTA</span>
+                <span id="res-race-clock" style="color: #fff; font-family: var(--f-outfit);">0s</span>
+              </div>
+            </div>
+
+            <!-- STINTS GRID -->
+            <div id="stints-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; margin-top: 16px;">
+              <!-- Stints will be injected here via JS -->
+            </div>
+          </div>
+
+          <!-- TANK MAXIMIZER FUEL SAVING -->
+          <div id="section-eco" style="display:none; margin-top: var(--s6);">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--s3); border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+              <h2 style="font-size: 1.2rem; color:#fff;">Otimizador de Tanque (Fuel Saving)</h2>
+            </div>
+
+            <div style="background: var(--bg-surface); border: 1px solid #333; border-radius: var(--r-md); padding: var(--s5);">
+              <p style="color: #fff; font-weight: 500; margin-bottom: 4px; font-size:0.95rem;">Adiciona uma volta extra em cada stint para usar completamente o tanque. Em corridas multiclasses, essa estratégia geralmente é mais segura já que você precisa dirigir mais devagar no tráfego de qualquer forma.</p>
+              <p style="color: var(--text-3); font-size: 0.85rem; font-style: italic; margin-bottom: 24px;">Nota: Todos os valores abaixo são estimativas baseadas em tempos de volta consistentes.</p>
+              
+              <div style="display: grid; grid-template-columns: 350px 1fr; gap: 12px; align-items: center;">
+                <span style="font-size: 0.85rem; font-weight: 800; color: #aaa;">VOLTAS ECONOMIZANDO COMBUSTÍVEL</span>
+                <span id="eco-save-laps" style="color: #fff;">0</span>
+
+                <span style="font-size: 0.85rem; font-weight: 800; color: #aaa;">TEMPO SALVO (NO BOX)</span>
+                <span id="eco-time-saved" style="color: #fff;">0s</span>
+
+                <span style="font-size: 0.85rem; font-weight: 800; color: #aaa;">PERDA DE TEMPO MÁXIMA ACEITÁVEL POR VOLTA</span>
+                <span id="eco-max-loss" style="color: #fff;">0.00s</span>
+
+                <span style="font-size: 0.85rem; font-weight: 800; color: #aaa;">GANHO DE TEMPO ESTIMADO</span>
+                <span id="eco-est-gain" style="color: #fff;">0.00s</span>
+
+                <span style="font-size: 0.85rem; font-weight: 800; color: #aaa;">VOLTA DE SEGURANÇA RECOMENDADA</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span id="eco-safety-rec" style="font-weight: 700; color:#fff;">Não</span>
+                  <span id="eco-safety-icon" style="color: #f59e0b;">⚠️</span>
+                </div>
+
+                <span style="font-size: 0.85rem; font-weight: 800; color: #aaa;">RELÓGIO DA CORRIDA NO INÍCIO DA ÚLTIMA VOLTA</span>
+                <span id="eco-race-clock" style="color: #fff; font-family: var(--f-outfit);">0s</span>
+              </div>
+            </div>
+
+            <!-- ECO STINTS GRID -->
+            <div id="eco-stints-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; margin-top: 16px;">
+              <!-- Stints will be injected here via JS -->
+            </div>
           </div>
 
         </div>
-
-        <!-- Right: Results -->
-        <div class="fuel-card results-card" style="display:flex;flex-direction:column;">
-          <div class="form-card-title">
-            <span class="num">2</span>
-            <h2>Resultado</h2>
-          </div>
-
-          <div class="fuel-results-display">
-            <div class="fuel-main-result">
-              <span class="fuel-label">Combustível Total</span>
-              <div class="fuel-value"><span id="res-fuel">0</span><span style="font-size:0.5em;color:var(--text-3);margin-left:4px;">L</span></div>
-            </div>
-            <div class="fuel-main-result" id="res-energy-container" style="display:none; padding-top:var(--s4); border-top:none;">
-              <span class="fuel-label">Virtual Energy Total</span>
-              <div class="fuel-value" style="color:#3b82f6"><span id="res-energy">0</span><span style="font-size:0.5em;color:var(--text-3);margin-left:4px;">%</span></div>
-            </div>
-
-            <div class="fuel-stats">
-              <div class="fuel-stat-item">
-                <span class="fuel-stat-label">Voltas Base (Sem Margem)</span>
-                <strong class="fuel-stat-val" id="res-laps">0</strong>
-              </div>
-              <div class="fuel-stat-item">
-                <span class="fuel-stat-label">Voltas Totais (Com Margem)</span>
-                <strong class="fuel-stat-val" id="res-total-laps">0</strong>
-              </div>
-            </div>
-          </div>
-          
-          <div style="margin-top:auto;">
-            <button type="button" class="btn btn-primary" id="btn-calculate" style="width:100%">
-              Calcular Combustível
-            </button>
-          </div>
-        </div>
-
-      </div>
 
     </div>
   </main>
+
+  <!-- HOW TO CALCULATE MODAL -->
+  <div id="how-to-modal" class="modal-backdrop" style="display: none; padding: 16px;">
+    <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 style="color: #fff; font-size: 1.1rem;">Como calcular a sua Estratégia de Pitstop?</h3>
+        <button id="btn-close-modal" style="background:none; border:none; color:#fff; cursor:pointer; font-size:1.5rem;">&times;</button>
+      </div>
+      <div style="color: #fff; font-size: 0.85rem; line-height: 1.6; display: flex; flex-direction: column; gap: 12px;">
+         <p><strong>1. Coleta de Dados Básicos:</strong><br>
+         Você precisará de algumas informações da corrida, como a duração e o tempo médio de volta esperado. Para corridas mais longas, também calculamos o tempo de pitstop estimado.</p>
+
+         <p><strong>2. Descobrindo o Consumo do Carro:</strong><br>
+         Vá para a pista e dê 3 a 4 voltas (o suficiente para aquecer os pneus e pegar ritmo). No menu <em>MFD</em> do carro no painel HUD, verifique qual é o seu <strong>Consumo de Combustível (Litros/volta)</strong> e o uso de <strong>Energia Virtual (%/volta)</strong>.</p>
+         
+         <p style="background: rgba(255, 255, 255, 0.05); padding: 8px; border-radius: 4px; border-left: 2px solid var(--red);"><em>Nota: Carros das classes LMP2, LMP3 e LMGTE não possuem Energia Virtual. Para eles, você deve verificar a "Capacidade Máxima do Tanque" na aba de Setup do jogo e inserir esse dado na calculadora.</em></p>
+
+         <p><strong>3. Selecione a Classe e Calcule:</strong><br>
+         No topo da tela, escolha a aba correta (Hypercar/LMGT3 ou LMP2/LMP3/LMGTE). Insira os dados recolhidos e clique em Calcular.</p>
+
+         <hr style="border-color: #333; margin: 8px 0;">
+
+         <h4 style="color:#fff; margin-bottom: 4px; font-size: 0.9rem;">Entendendo os Resultados</h4>
+         <p>Abaixo do botão Calcular, você verá as informações gerais da prova:</p>
+         <ul style="margin-left: 20px; display: flex; flex-direction: column; gap: 6px;">
+           <li><strong>Voltas (Mín. e Seguras):</strong> O mínimo que a corrida vai durar, e uma volta extra garantida caso você abra a última volta antes do cronômetro zerar.</li>
+           <li><strong>Requisitos Totais:</strong> A carga total necessária para chegar até o fim da corrida.</li>
+         </ul>
+
+         <p style="margin-top: 8px;">A calculadora também apresentará a sua estratégia dividida em <em>Stints</em> (períodos na pista entre paradas). Cada "card" traz as seguintes diretrizes:</p>
+         <ul style="margin-left: 20px; display: flex; flex-direction: column; gap: 6px;">
+           <li><strong>Voltas do Stint:</strong> O número de voltas até o pit. Se aparecer "Salvar X Voltas", significa que você precisará economizar um pouco de combustível ao longo do stint para conseguir alcançar a quantidade de voltas exigida sem secar o tanque.</li>
+           <li><strong>Alvo (Por Volta):</strong> O limite máximo absoluto de consumo que você pode gastar a cada volta para chegar ao box com segurança.</li>
+           <li><strong>Requisitos:</strong> A quantidade que você deve programar para abastecer o carro. Em "Detalhes do Pit", informamos exatamente a configuração da parada (Combustível e Pneus) e a estimativa de tempo parada.</li>
+         </ul>
+      </div>
+    </div>
+  </div>
 
   <script src="js/fuel.js"></script>
 </body>
