@@ -7,14 +7,14 @@
 
 /* ── TOKENS ──────────────────────────────────────────────── */
 :root {
-  /* Backgrounds */
+  /* Fundos */
   --bg-base: #0d0d18;
   --bg-surface: #141428;
   --bg-elevated: #1c1c35;
   --bg-overlay: #252542;
   --bg-glass: rgba(13, 13, 24, 0.75);
 
-  /* Accent */
+  /* Destaques */
   --red: #e8002d;
   --red-dark: #a8001f;
   --red-glow: rgba(232, 0, 45, 0.25);
@@ -22,17 +22,17 @@
   --gold-light: #e5b84a;
   --gold-glow: rgba(200, 150, 30, 0.2);
 
-  /* Text */
+  /* Texto */
   --text-1: #f2f2fa;
   --text-2: #b0b0d0;
   --text-3: #6a6a96;
 
-  /* Borders */
+  /* Bordas */
   --border: rgba(255, 255, 255, 0.10);
   --border-hover: rgba(255, 255, 255, 0.20);
   --border-focus: rgba(232, 0, 45, 0.55);
 
-  /* Class colors */
+  /* Cores das Categorias */
   --hypercar: #e8002d;
   --hypercar-bg: rgba(232, 0, 45, 0.1);
   --hypercar-bdr: rgba(232, 0, 45, 0.3);
@@ -49,7 +49,7 @@
   --gte-bg: rgba(168, 85, 247, 0.1);
   --gte-bdr: rgba(168, 85, 247, 0.3);
 
-  /* Spacing scale */
+  /* Escala de Espaçamento */
   --s1: 0.25rem;
   --s2: 0.5rem;
   --s3: 0.75rem;
@@ -61,24 +61,24 @@
   --s12: 3rem;
   --s16: 4rem;
 
-  /* Radius */
+  /* Arredondamento (Border Radius) */
   --r-sm: 6px;
   --r-md: 10px;
   --r-lg: 16px;
   --r-xl: 24px;
   --r-full: 9999px;
 
-  /* Shadows */
+  /* Sombras */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
   --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.6);
   --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.7);
   --shadow-red: 0 0 30px rgba(232, 0, 45, 0.3);
 
-  /* Fonts */
+  /* Fontes */
   --f-outfit: 'Outfit', sans-serif;
   --f-inter: 'Inter', sans-serif;
 
-  /* Transitions */
+  /* Transições */
   --t-fast: 150ms ease;
   --t-base: 250ms ease;
   --t-slow: 400ms ease;
@@ -112,8 +112,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── GLOBAL WALLPAPER ────────────────────────────────────── */
-/* Fixed subtle wallpaper tint across the whole page */
+/* ── PAPEL DE PAREDE GLOBAL ──────────────────────────────── */
+/* Tonalidade sutil e fixa do papel de parede em toda a página */
 body::before {
   content: '';
   position: fixed;
@@ -275,12 +275,12 @@ ol {
 /* ── HERO / PAGE HEADER ──────────────────────────────────── */
 .page-hero {
   position: relative;
-  padding: var(--s16) 0 var(--s16);
+  padding: var(--s16) 0 var(--s8);
   overflow: hidden;
   /* sem border-bottom — a stats-band faz a separação */
 }
 
-/* Removed wallpaper from page hero since it's on body now */
+/* Papel de parede removido do hero da página pois agora está no body */
 
 .page-hero .container {
   position: relative;
@@ -1044,7 +1044,7 @@ tr:hover .row-actions {
   color: var(--text-3);
 }
 
-/* Form card sections */
+/* Seções do cartão do formulário */
 .form-card {
   background: var(--bg-surface);
   border: 1px solid var(--border);
@@ -1086,7 +1086,7 @@ tr:hover .row-actions {
   color: #fff;
 }
 
-/* Form grid */
+/* Grade do formulário (Grid) */
 .form-row {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1537,7 +1537,7 @@ tr:hover .row-actions {
   border-bottom: 1px solid var(--border);
 }
 
-/* Param display items */
+/* Exibição dos itens de parâmetros */
 .param-items {
   display: flex;
   flex-direction: column;
@@ -1585,7 +1585,7 @@ tr:hover .row-actions {
   text-align: right;
 }
 
-/* Laptime display */
+/* Exibição do tempo de volta */
 .laptime-display {
   font-family: var(--f-outfit);
   font-size: 3rem;
@@ -2193,13 +2193,14 @@ tr:hover .row-actions {
 }
 
 .modal-content {
-  background: var(--bg-card);
+  background: #141428;
   border: 1px solid var(--border);
   border-radius: var(--r-xl);
   padding: var(--s6);
   width: 90%;
-  max-width: 600px;
+  max-width: 850px;
   box-shadow: var(--shadow-lg);
+  color: #fff;
 }
 
 .modal-header {

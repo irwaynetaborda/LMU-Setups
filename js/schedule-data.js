@@ -4,23 +4,23 @@
 // ============================================================
 
 const SCHEDULE_DATA = {
-  season: "Season 11",
-  dateFrom: "16th June 2026",
+  season: "Temporada 11",
+  dateFrom: "16 de Junho de 2026",
   
   daily: [
-    // ── BEGINNER (BRONZE) ──
+    // ── INICIANTE (BRONZE) ──
     {
       sr: "BRONZE",
       rankClass: "bronze",
-      frequency: "Starts every 15m",
-      title: "LMGT3 Fixed",
+      frequency: "Inicia a cada 15 min",
+      title: "LMGT3 Fixo",
       track: "Spa-Francorchamps (WEC)",
       classes: ["GT3"],
       duration: "20 MIN",
       fuel: "100%",
       tyresLimit: "8",
-      assists: "HIGH",
-      warmers: "ON",
+      assists: "ALTO",
+      warmers: "LIGADO",
       splits: "20",
       setup: "Fixed",
       theme: "theme-bronze"
@@ -28,15 +28,15 @@ const SCHEDULE_DATA = {
     {
       sr: "BRONZE",
       rankClass: "bronze",
-      frequency: "Starts every 15m",
+      frequency: "Inicia a cada 15 min",
       title: "LOGITECH MCLAREN G CHALLENGE Q4",
       track: "Le Mans (WEC)",
       classes: ["GT3"],
       duration: "20 MIN",
       fuel: "100%",
       tyresLimit: "8",
-      assists: "HIGH",
-      warmers: "ON",
+      assists: "ALTO",
+      warmers: "LIGADO",
       splits: "20",
       setup: "Fixed",
       theme: "theme-bronze"
@@ -44,33 +44,33 @@ const SCHEDULE_DATA = {
     {
       sr: "BRONZE",
       rankClass: "bronze",
-      frequency: "Starts every 15m",
-      title: "LMP3 Fixed",
+      frequency: "Inicia a cada 15 min",
+      title: "LMP3 Fixo",
       track: "Bahrain (WEC)",
       classes: ["P3"],
       duration: "20 MIN",
       fuel: "100%",
       tyresLimit: "8",
-      assists: "HIGH",
-      warmers: "ON",
+      assists: "ALTO",
+      warmers: "LIGADO",
       splits: "20",
       setup: "Fixed",
       theme: "theme-bronze"
     },
 
-    // ── INTERMEDIATE (SILVER) ──
+    // ── INTERMEDIÁRIO (PRATA) ──
     {
       sr: "SILVER",
       rankClass: "silver",
-      frequency: "Starts every 20m",
+      frequency: "Inicia a cada 20 min",
       title: "LMGT3 Sprint Cup",
       track: "Interlagos (WEC)",
       classes: ["GT3"],
       duration: "30 MIN",
       fuel: "100%",
       tyresLimit: "8",
-      assists: "LOW",
-      warmers: "OFF",
+      assists: "BAIXO",
+      warmers: "DESLIGADO",
       splits: "38",
       setup: "Open",
       theme: "theme-silver"
@@ -78,15 +78,15 @@ const SCHEDULE_DATA = {
     {
       sr: "SILVER",
       rankClass: "silver",
-      frequency: "Starts every 20m",
-      title: "Prototype Fixed",
+      frequency: "Inicia a cada 20 min",
+      title: "Protótipo Fixo",
       track: "Silverstone (WEC)",
       classes: ["P2", "P3"],
       duration: "30 MIN",
       fuel: "100%",
       tyresLimit: "8",
-      assists: "LOW",
-      warmers: "OFF",
+      assists: "BAIXO",
+      warmers: "DESLIGADO",
       splits: "38",
       setup: "Fixed",
       theme: "theme-silver"
@@ -94,33 +94,33 @@ const SCHEDULE_DATA = {
     {
       sr: "SILVER",
       rankClass: "silver",
-      frequency: "Starts every 20m",
+      frequency: "Inicia a cada 20 min",
       title: "ELMS Sprint Trophy",
       track: "Sebring (WEC)",
       classes: ["P2", "P3", "GT3"],
       duration: "30 MIN",
       fuel: "100%",
       tyresLimit: "8",
-      assists: "LOW",
-      warmers: "OFF",
+      assists: "BAIXO",
+      warmers: "DESLIGADO",
       splits: "38",
       setup: "Open",
       theme: "theme-silver"
     },
 
-    // ── ADVANCED (GOLD) ──
+    // ── AVANÇADO (OURO) ──
     {
       sr: "GOLD",
       rankClass: "gold",
-      frequency: "Starts every 30m",
+      frequency: "Inicia a cada 30 min",
       title: "One Stint Sprint",
       track: "Monza (WEC)",
       classes: ["HY", "GT3"],
       duration: "40 MIN",
       fuel: "100%",
       tyresLimit: "8",
-      assists: "NONE",
-      warmers: "OFF",
+      assists: "NENHUMA",
+      warmers: "DESLIGADO",
       splits: "38",
       setup: "Open",
       theme: "theme-gold"
@@ -128,15 +128,15 @@ const SCHEDULE_DATA = {
     {
       sr: "GOLD",
       rankClass: "gold",
-      frequency: "Starts every 30m",
+      frequency: "Inicia a cada 30 min",
       title: "ELMS Super 60",
       track: "Barcelona (ELMS)",
       classes: ["P2", "P3", "GT3"],
       duration: "60 MIN",
-      fuel: "Limited",
+      fuel: "Limitado",
       tyresLimit: "8",
-      assists: "NONE",
-      warmers: "OFF",
+      assists: "NENHUMA",
+      warmers: "DESLIGADO",
       splits: "38",
       setup: "Open",
       theme: "theme-gold"
@@ -144,15 +144,15 @@ const SCHEDULE_DATA = {
     {
       sr: "GOLD",
       rankClass: "gold",
-      frequency: "Starts every 30m",
+      frequency: "Inicia a cada 30 min",
       title: "WEC-Xperience",
       track: "Fuji (Classic)",
       classes: ["HY", "GT3"],
       duration: "60 MIN",
       fuel: "75% VE",
       tyresLimit: "8",
-      assists: "NONE",
-      warmers: "OFF",
+      assists: "NENHUMA",
+      warmers: "DESLIGADO",
       splits: "38",
       setup: "Open",
       theme: "theme-gold"
@@ -163,36 +163,36 @@ const SCHEDULE_DATA = {
     {
       sr: "S2",
       rankClass: "silver",
-      frequency: "Specific Days",
-      title: "WEC Weekly",
+      frequency: "Dias Específicos",
+      title: "WEC Semanal",
       track: "Silverstone (ELMS)",
       classes: ["HY", "GT3"],
       duration: "100 MIN",
       fuel: "100%",
       tyresLimit: "10",
-      assists: "NONE",
-      warmers: "OFF",
+      assists: "NENHUMA",
+      warmers: "DESLIGADO",
       splits: "44",
       setup: "Open",
       theme: "theme-silver",
-      times: "Wed Fri Sun @ 02:00, 06:00, 09:00, 12:00, 15:00, 18:00, 20:00, 23:00 UTC"
+      times: "Qua Sex Dom @ 02:00, 06:00, 09:00, 12:00, 15:00, 18:00, 20:00, 23:00 UTC"
     },
     {
       sr: "B3",
       rankClass: "bronze",
-      frequency: "Specific Days",
-      title: "Prototype Challenge",
+      frequency: "Dias Específicos",
+      title: "Desafio de Protótipos",
       track: "Portimao (ELMS)",
       classes: ["P2", "P3"],
       duration: "90 MIN",
       fuel: "100%",
       tyresLimit: "10",
-      assists: "NONE",
-      warmers: "OFF",
+      assists: "NENHUMA",
+      warmers: "DESLIGADO",
       splits: "44",
       setup: "Open",
       theme: "theme-bronze",
-      times: "Thu Sat Mon @ 02:00, 06:00, 09:00, 12:00, 15:00, 18:00, 20:00, 23:00 UTC"
+      times: "Qui Sáb Seg @ 02:00, 06:00, 09:00, 12:00, 15:00, 18:00, 20:00, 23:00 UTC"
     }
   ]
 };

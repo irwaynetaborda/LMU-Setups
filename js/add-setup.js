@@ -45,25 +45,25 @@ function buildClassPicker() {
 }
 
 function selectClass(classId) {
-  // Update hidden field
+  // Atualiza o campo oculto
   document.getElementById('f-class').value = classId;
 
-  // Update visual state
+  // Atualiza o estado visual
   document.querySelectorAll('.class-pick').forEach(b => {
     b.classList.toggle('selected', b.dataset.class === classId);
     b.setAttribute('aria-pressed', b.dataset.class === classId ? 'true' : 'false');
   });
 
-  // Populate cars
+  // Popula os carros
   populateCars(classId);
 
-  // Toggle ABS row
+  // Alterna a exibição do ABS
   const hasABS = LMU_DATA.classHasABS(classId);
   document.getElementById('row-abs').classList.toggle('disabled', !hasABS);
   document.getElementById('sl-abs').disabled  = !hasABS;
   document.getElementById('val-abs').disabled = !hasABS;
 
-  // Toggle TC Slip Angle for LMP3
+  // Alterna o TC Slip Angle para LMP3
   const isLMP3 = classId === 'lmp3';
   const tcsaRow = document.getElementById('sl-tcsa').closest('.param-row');
   if (tcsaRow) tcsaRow.classList.toggle('disabled', isLMP3);
@@ -146,13 +146,13 @@ function bindSliders() {
     const slEl  = document.getElementById(slider);
     const valEl = document.getElementById(val);
 
-    // Slider → number input
+    // Controle deslizante → entrada numérica
     slEl.addEventListener('input', () => {
       valEl.value = slEl.value;
       updateSliderTrack(slEl);
     });
 
-    // Number input → slider
+    // Entrada numérica → controle deslizante
     valEl.addEventListener('input', () => {
       const clamped = Math.min(
         parseFloat(slEl.max),
@@ -223,17 +223,17 @@ function checkEditMode() {
     return;
   }
 
-  // Update title
+  // Atualiza o título
   document.getElementById('form-title').innerHTML = 'Editar <em>Setup</em>';
   document.getElementById('form-subtitle').textContent = '';
   document.getElementById('btn-submit').innerHTML = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
     Atualizar Setup`;
 
-  // Populate fields
+  // Preenche os campos
   selectClass(setup.classId);
 
-  // Wait for DOM to update
+  // Aguarda a atualização do DOM para setar valores dependentes
   setTimeout(() => {
     const carSel = document.getElementById('f-car');
     carSel.value = setup.carId;
@@ -257,7 +257,7 @@ function checkEditMode() {
   document.getElementById('f-date').value      = setup.date || '';
   document.getElementById('f-notes').value     = setup.notes || '';
 
-  // Params
+  // Parâmetros (Sliders e Valores numéricos)
   const paramMap = {
     'sl-bb':   setup.brakeBias,
     'sl-tc':   setup.tc,

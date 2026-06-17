@@ -11,17 +11,19 @@ Uma biblioteca pessoal e painel de controle interativo para gerenciar configura�
 - **Métricas e Avaliações:** Registre tempos de volta, notas de desempenho, nível de aderência e anotações detalhadas de telemetria ou comportamento do carro.
 - **Painel de Estatísticas:** Acompanhe o total de setups cadastrados, média de avaliação, pista mais utilizada e distribuição gráfica por classe de veículos.
 
-### 2. ⛽ Calculadora de Combustível (Fuel Calculator)
-- **Estimativa Precisa:** Calcule a quantidade de combustível exata necessária para terminar a corrida com base no tempo de volta e consumo médio por volta.
-- **Opções de Margem de Segurança:** Adicione margens de segurança (+1 ou +2 voltas) e inclua opcionalmente a Volta de Apresentação (Formation Lap).
-- **Virtual Energy:** Suporte para carros híbridos (Hypercar), calculando o consumo total da energia virtual necessária para a sessão.
+### 2. ⛽ Calculadora de Pitstop Avançada
+- **Abas de Categoria Dinâmicas**: Layout especializado que se adapta de acordo com o veículo (Hypercar/LMGT3 com uso de Energia Virtual, e LMP2/LMP3/LMGTE com tanques físicos tradicionais).
+- **Tank Maximizer (Estratégia de Fuel Saving)**: Módulo inteligente que calcula matematicamente se vale a pena economizar combustível em pista para estender stints, economizar tempo no box ou até reduzir o número de pitstops necessários, exibindo métricas precisas de ganho de tempo estimado, perda máxima de tempo aceitável por volta e o relógio da corrida no início da última volta.
+- **Estratégia de Pneus**: Planejamento do número de stints por jogo de pneu (double stints, triple stints, etc.) com estimativa integrada do tempo de parada.
+- **Guia Integrado (Como Calcular?)**: Modal interativo com passo a passo ilustrado ensinando o piloto a ler os dados de telemetria/MFD no cockpit para alimentar a calculadora.
 
-### 3. 📅 Corridas Diárias (Daily Races Schedule)
-- Interface de acompanhamento para as sessões e agendas do simulador.
+### 3. 📅 Mural de Corridas Diárias (Online Championships)
+- Agenda de corridas sincronizada com o formato do simulador (**Temporada 11**).
+- Exibe o calendário das corridas Diárias (Daily) e Semanais (Weekly) com informações cruciais: nível de Safety Rating (SR) exigido, classes de carros elegíveis, mapas vetorizados dinâmicos das pistas, extensão do circuito, tipo de setup da prova (Fixo ou Aberto), duração e multiplicadores de desgaste de pneus e combustível.
 
 ### 4. 🔒 Autenticação e Armazenamento Local
-- Sistema de login básico com controle de acesso para visualizar e adicionar novos setups.
-- Utilização de `localStorage` para persistência de dados de forma local no navegador, permitindo a utilização rápida e segura sem necessidade de um banco de dados externo complexo.
+- Controle de privacidade com login básico para visualização, edição e adição de setups pessoais.
+- Persistência 100% local no navegador (`localStorage`), permitindo velocidade máxima sem dependência de APIs externas nesta versão.
 
 ---
 

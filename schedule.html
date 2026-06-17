@@ -39,7 +39,6 @@
         <div class="schedule-tabs" style="align-items: center;">
           <button class="schedule-tab active" data-tab="daily">Daily Races</button>
           <button class="schedule-tab" data-tab="weekly">Weekly Races</button>
-          <button class="btn btn-ghost" style="margin-left:var(--s6); font-size:0.875rem; padding:var(--s2) var(--s4);" onclick="openImportModal()">📥 Importar Dados</button>
         </div>
       </div>
     </div>
@@ -60,29 +59,7 @@
       </div>
     </div>
 
-    <!-- IMPORT MODAL -->
-    <div id="import-modal" class="modal-backdrop" style="display:none;">
-      <div class="modal-content animate-in">
-        <div class="modal-header">
-          <h2>Importar Schedule do Fórum</h2>
-          <button class="btn-icon" onclick="closeImportModal()" style="font-size:1.5rem; background:none; border:none; color:var(--text-2); cursor:pointer;">✕</button>
-        </div>
-        <div class="modal-body" style="padding:var(--s4) 0;">
-          <p style="color:var(--text-3); font-size:0.875rem; margin-bottom:var(--s4);">Cole abaixo o texto do cronograma oficial do fórum do LMU para atualizar as corridas do site automaticamente.</p>
-          <textarea id="import-text" class="form-input" rows="12" style="font-family:monospace; resize:vertical; font-size:0.8125rem;" placeholder="Cole aqui o texto. Ex:
-Beginner [Bronze SR]
-starts every 15min, 20m races, 20 car splits...
-LMGT3 Fixed: Spa-Francorchamps (WEC)..."></textarea>
-        </div>
-        <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:var(--s4);">
-          <button class="btn btn-ghost" onclick="clearImport()" style="color:var(--red);">🗑️ Limpar Dados</button>
-          <div style="display:flex; gap:var(--s3);">
-            <button class="btn btn-ghost" onclick="closeImportModal()">Cancelar</button>
-            <button class="btn btn-primary" onclick="processImport()">Atualizar Corridas</button>
-          </div>
-        </div>
-      </div>
-    </div>
+
 
   </main>
 

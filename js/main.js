@@ -84,7 +84,7 @@ function applyFilters() {
     return true;
   });
 
-  // Apply sort
+  // Aplica ordenação
   filtered.sort((a, b) => {
     let valA, valB;
     if (sortCol === 'car') {
@@ -121,7 +121,7 @@ function renderStats() {
   document.getElementById('stat-rating').textContent  = stats.avgRating;
   document.getElementById('stat-top-track').textContent = stats.topTrack;
 
-  // Class bars
+  // Barras de categoria
   const barsEl = document.getElementById('class-bars');
   const max = Math.max(...Object.values(stats.byClass), 1);
   barsEl.innerHTML = LMU_DATA.classes.map(c => {
@@ -364,7 +364,7 @@ function bindEvents() {
     applyFilters();
   });
 
-  // Debounce search
+  // Busca com debounce (atraso para otimização)
   let searchTimer;
   document.getElementById('f-search').addEventListener('input', e => {
     clearTimeout(searchTimer);
