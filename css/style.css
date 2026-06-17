@@ -2887,9 +2887,11 @@ tr:hover .row-actions {
 .th-votes { width: 10%; }
 .th-votes .th-content {
   justify-content: flex-end;
+  padding-right: 15px;
 }
 .cell-vote {
   display: flex;
   justify-content: flex-end;
   width: 100%;
+  padding-right: 15px;
 }
