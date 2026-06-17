@@ -24,7 +24,7 @@ function getTrackMap(trackName) {
   }
   
   const fileName = foundKey.toLowerCase().replace(/\s+/g, '-');
-  return `<img src="img/maps/${fileName}.png" class="sch-abstract-map" alt="${foundKey}" onerror="this.style.display='none'" />`;
+  return `<img src="img/maps/${fileName}.png" class="sch-abstract-map sch-map-${fileName}" alt="${foundKey}" onerror="this.style.display='none'" />`;
 }
 
 function getTrackLength(trackName) {

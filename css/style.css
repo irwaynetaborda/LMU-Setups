@@ -1577,3 +1577,9 @@ tr:hover .row-actions { opacity: 1; }
   .filters-inner { flex-direction: column; align-items: stretch; }
   .filter-select, .filter-input { min-width: unset; width: 100%; }
 }
+
+/* ── TRACK MAP ROTATIONS ──────────────────────────────────── */
+.sch-map-le-mans { transform: rotate(180deg); }
+.sch-map-spa-francorchamps { transform: rotate(180deg); }
+.sch-map-interlagos { transform: rotate(90deg); }
+.sch-map-sebring { transform: rotate(90deg); }
