@@ -256,6 +256,7 @@ async function checkEditMode() {
   document.getElementById('f-laptime').value   = setup.laptime || '';
   document.getElementById('f-date').value      = setup.date || '';
   document.getElementById('f-notes').value     = setup.notes || '';
+  document.getElementById('f-public').checked  = setup.isPublic !== false;
 
   // Parâmetros (Sliders e Valores numéricos)
   const paramMap = {
@@ -314,6 +315,7 @@ function bindFormSubmit() {
       date:         document.getElementById('f-date').value,
       rating,
       notes:        document.getElementById('f-notes').value.trim(),
+      isPublic:     document.getElementById('f-public').checked,
     };
 
     if (editId) {

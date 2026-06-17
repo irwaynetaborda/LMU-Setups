@@ -8,6 +8,7 @@ let allSetups = [];
 let filtered  = [];
 let sortCol   = 'date';
 let sortDesc  = true;
+let currentTab = 'public'; // 'public' ou 'private'
 
 const filters = {
   classId:   '',
@@ -64,12 +65,35 @@ async function loadAndRender() {
   if (typeof seedIfEmpty === 'function') await seedIfEmpty();
   // Recarrega após seeds para exibir os novos setups
   if (allSetups.length === 0) allSetups = await Storage.getAll();
+
+  // Se não estiver logado, garante que a aba ativa seja a pública
+  const isLoggedIn = (typeof Auth !== 'undefined') ? Auth.isAuthenticated() : false;
+  if (!isLoggedIn && currentTab === 'private') {
+    currentTab = 'public';
+    const tabs = document.querySelectorAll('.visibility-tab');
+    tabs.forEach(t => {
+      const isPublic = t.dataset.tab === 'public';
+      t.classList.toggle('active', isPublic);
+      t.setAttribute('aria-selected', isPublic ? 'true' : 'false');
+    });
+  }
+
   applyFilters();
   renderStats();
 }
 
 function applyFilters() {
+  const isLoggedIn = (typeof Auth !== 'undefined') ? Auth.isAuthenticated() : false;
+  const currentUserId = isLoggedIn ? Auth.getUser()?.id : null;
+
   filtered = allSetups.filter(s => {
+    // Filtro de Visibilidade (Público vs Meus Setups)
+    if (currentTab === 'public') {
+      if (s.isPublic === false) return false;
+    } else if (currentTab === 'private') {
+      if (!currentUserId || s.userId !== currentUserId) return false;
+    }
+
     if (filters.classId   && s.classId   !== filters.classId)   return false;
     if (filters.carId     && s.carId     !== filters.carId)     return false;
     if (filters.trackId   && s.trackId   !== filters.trackId)   return false;
@@ -91,7 +115,10 @@ function applyFilters() {
   // Aplica ordenação
   filtered.sort((a, b) => {
     let valA, valB;
-    if (sortCol === 'car') {
+    if (sortCol === 'class') {
+      valA = LMU_DATA.getClassById(a.classId)?.name || '';
+      valB = LMU_DATA.getClassById(b.classId)?.name || '';
+    } else if (sortCol === 'car') {
       valA = LMU_DATA.getCarById(a.carId)?.name || '';
       valB = LMU_DATA.getCarById(b.carId)?.name || '';
     } else if (sortCol === 'track') {
@@ -158,7 +185,7 @@ function renderTable() {
       <table class="setups-table" role="grid" aria-label="Lista de setups">
         <thead>
           <tr>
-            <th>Classe</th>
+            <th class="sortable" onclick="setSort('class')">Classe <span class="sort-icon">${getSortIcon('class')}</span></th>
             <th class="sortable" onclick="setSort('car')">Carro <span class="sort-icon">${getSortIcon('car')}</span></th>
             <th class="sortable" onclick="setSort('track')"><div style="width:170px; margin:0 auto; text-align:left;">Pista <span class="sort-icon">${getSortIcon('track')}</span></div></th>
             <th><div style="width:105px; margin:0 auto; text-align:left;">Condição</div></th>
@@ -296,7 +323,7 @@ window.setSort = function(col) {
     sortDesc = !sortDesc;
   } else {
     sortCol = col;
-    sortDesc = (col === 'laptime' || col === 'car' || col === 'track') ? false : true; 
+    sortDesc = (col === 'laptime' || col === 'car' || col === 'track' || col === 'class') ? false : true; 
   }
   applyFilters();
 }
@@ -308,6 +335,12 @@ window.getSortIcon = function(col) {
 
 // ── ACTIONS ───────────────────────────────────────────────────
 function viewSetup(id) {
+  const isLoggedIn = (typeof Auth !== 'undefined') ? Auth.isAuthenticated() : false;
+  if (!isLoggedIn) {
+    showToast('Você precisa fazer login para visualizar os detalhes do setup.', 'error');
+    if (typeof Auth !== 'undefined') Auth.openModal();
+    return;
+  }
   window.location.href = `setup-detail.html?id=${id}`;
 }
 
@@ -379,6 +412,29 @@ function bindEvents() {
   });
 
   document.getElementById('btn-reset-filters').addEventListener('click', resetFilters);
+
+  // Abas de visibilidade
+  const tabs = document.querySelectorAll('.visibility-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const isPrivateTab = tab.dataset.tab === 'private';
+      const isLoggedIn = (typeof Auth !== 'undefined') ? Auth.isAuthenticated() : false;
+      
+      if (isPrivateTab && !isLoggedIn) {
+        showToast('Faça login para ver seus setups privados.', 'error');
+        if (typeof Auth !== 'undefined') Auth.openModal();
+        return;
+      }
+      
+      tabs.forEach(t => {
+        t.classList.toggle('active', t === tab);
+        t.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+      });
+      
+      currentTab = tab.dataset.tab;
+      applyFilters();
+    });
+  });
 }
 
 // ── TOAST ─────────────────────────────────────────────────────

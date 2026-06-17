@@ -225,6 +225,7 @@ const Storage = {
       date: s.date,
       rating: s.rating,
       notes: s.notes,
+      is_public: s.isPublic !== undefined ? s.isPublic : true,
       created_at: s.createdAt,
       updated_at: s.updatedAt
     };
@@ -252,6 +253,7 @@ const Storage = {
       date: d.date,
       rating: d.rating,
       notes: d.notes,
+      isPublic: d.is_public !== undefined ? d.is_public : true,
       createdAt: d.created_at,
       updatedAt: d.updated_at
     };

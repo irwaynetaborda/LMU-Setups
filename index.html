@@ -44,8 +44,8 @@
       </div>
     </section>
 
-    <!-- STATS BAND — fundo sólido, separado da hero -->
-    <section class="stats-band auth-only" aria-label="Estatísticas" style="display:none">
+    <!-- STATS BAND -->
+    <section class="stats-band" aria-label="Estatísticas">
       <div class="container">
         <div class="stats-grid stagger" id="stats-grid">
 
@@ -90,7 +90,7 @@
 
 
     <!-- FILTROS -->
-    <section class="filters-wrap auth-only" aria-label="Filtros" style="display:none">
+    <section class="filters-wrap" aria-label="Filtros">
       <div class="container">
         <div class="filters-inner">
 
@@ -154,11 +154,14 @@
     </section>
 
     <!-- TABELA DE SETUPS -->
-    <section class="setups-section auth-only" style="display:none">
+    <section class="setups-section">
       <div class="container">
 
         <div class="setups-header">
-          <h2>Resultados</h2>
+          <div class="visibility-tabs" id="visibility-tabs">
+            <button class="visibility-tab active" data-tab="public" role="tab" aria-selected="true">Setups Públicos</button>
+            <button class="visibility-tab" data-tab="private" role="tab" aria-selected="false">Meus Setups</button>
+          </div>
           <span class="setups-count" id="setups-count">0 setups</span>
         </div>
 
@@ -169,12 +172,7 @@
       </div>
     </section>
 
-    <!-- MENSAGEM PARA USUÁRIOS NÃO AUTENTICADOS -->
-    <div class="container unauth-only" style="display:none; text-align: center; padding: var(--s16) 0;">
-      <h2 style="font-family: var(--f-outfit); color: #fff; margin-bottom: var(--s4); font-size: 2rem;">Faça login para acessar os setups</h2>
-      <p style="color: var(--text-2); margin-bottom: var(--s6);">A sua biblioteca de setups é privada. Autentique-se para visualizar, editar e gerenciar suas configurações.</p>
-      <a href="login.html" class="btn btn-primary" style="font-size: 1.1rem; padding: var(--s3) var(--s6);">Fazer Login</a>
-    </div>
+    <!-- Mensagem removida: setups agora são públicos para visualização -->
 
   </main>
 

@@ -21,25 +21,27 @@ Uma biblioteca pessoal e painel de controle interativo para gerenciar configura�
 - Agenda de corridas sincronizada com o formato do simulador (**Temporada 11**).
 - Exibe o calendário das corridas Diárias (Daily) e Semanais (Weekly) com informações cruciais: nível de Safety Rating (SR) exigido, classes de carros elegíveis, mapas vetorizados dinâmicos das pistas, extensão do circuito, tipo de setup da prova (Fixo ou Aberto), duração e multiplicadores de desgaste de pneus e combustível.
 
-### 4. 🔒 Autenticação e Armazenamento Local
-- Controle de privacidade com login básico para visualização, edição e adição de setups pessoais.
-- Persistência 100% local no navegador (`localStorage`), permitindo velocidade máxima sem dependência de APIs externas nesta versão.
+### 4. 🔒 Autenticação e Compartilhamento (Supabase)
+- **Login por Usuário e Senha:** Autenticação real integrada ao **Supabase Auth** para controle de acesso seguro.
+- **Público vs. Privado:** Escolha se o seu setup será visível para toda a comunidade na aba de setups públicos ou privado (exclusivo para sua conta).
+- **Persistência em Nuvem e Fallback:** Sincronização em tempo real com o banco de dados PostgreSQL do Supabase, contendo fallback automático para `localStorage` caso o cliente perca conectividade.
 
 ---
 
 ## 🎨 Design & Interface
 O projeto possui um estilo visual moderno e de alta fidelidade:
 - **Tema Escuro Nativo:** Layout voltado para o conforto visual durante longas sessões de jogatina ou consultas rápidas de setup.
-- **Glassmorphism e Gradientes:** Visual premium inspirado nos maiores portais de automobilismo virtual.
-- **Design Responsivo:** Adaptado para celulares, tablets e computadores, permitindo consultar os setups no celular enquanto pilota no PC.
+- **Visual Responsivo Premium:** Visual clean com sublinhados vermelhos interativos e animações de scroll otimizadas de alta taxa de quadros (60 FPS).
+- **Design Adaptativo:** Consultas ideais para telas secundárias ou celulares enquanto você corre no cockpit principal.
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
 - **HTML5:** Estruturação semântica.
-- **CSS3 (Vanilla):** Variáveis de ambiente, flexbox/grid layouts e animações fluidas baseadas no estilo premium customizado.
-- **JavaScript (Vanilla):** Lógica da aplicação, cálculos de combustível, manipulação dinâmica do DOM, autenticação fictícia e persistência com `localStorage`.
+- **CSS3 (Vanilla):** Animações com aceleração de GPU, transições e variáveis de ambiente.
+- **JavaScript (Vanilla):** Lógica de estados, cálculos de consumo e integração.
+- **Supabase (PostgreSQL & Auth):** Persistência remota segura e gerenciamento de sessões com regras de segurança RLS (Row Level Security).
 
 ---
 

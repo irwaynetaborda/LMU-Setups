@@ -61,6 +61,19 @@ function renderDetail(s) {
   const root = document.getElementById('detail-root');
   root.style.display = 'block';
 
+  const isLoggedIn = (typeof Auth !== 'undefined') ? Auth.isAuthenticated() : false;
+  const currentUserId = isLoggedIn ? Auth.getUser()?.id : null;
+  const isOwner = s.userId && s.userId === currentUserId;
+
+  const actionsHtml = isOwner ? `
+            <a href="add-setup.html?edit=${s.id}" class="btn btn-secondary btn-sm" title="Editar setup">
+              ✏️ Editar
+            </a>
+            <button class="btn btn-danger btn-sm" id="btn-delete" title="Deletar setup">
+              🗑 Deletar
+            </button>
+  ` : '';
+
   root.innerHTML = `
     <!-- HERO -->
     <section class="detail-hero animate-in">
@@ -68,13 +81,7 @@ function renderDetail(s) {
         <div class="detail-hero-layout">
           
           <div class="detail-hero-actions">
-
-            <a href="add-setup.html?edit=${s.id}" class="btn btn-secondary btn-sm" title="Editar setup">
-              ✏️ Editar
-            </a>
-            <button class="btn btn-danger btn-sm" id="btn-delete" title="Deletar setup">
-              🗑 Deletar
-            </button>
+            ${actionsHtml}
           </div>
 
           <div class="detail-hero-content">
@@ -203,7 +210,8 @@ function renderDetail(s) {
     </section>`;
 
   // Bind buttons
-  document.getElementById('btn-delete').addEventListener('click', () => openModal());
+  const btnDelete = document.getElementById('btn-delete');
+  if (btnDelete) btnDelete.addEventListener('click', () => openModal());
 
   // Animate bars after render
   requestAnimationFrame(() => {
