@@ -576,6 +576,15 @@ async function voteSetup(id, event) {
       const rpcName = diff > 0 ? 'increment_votes' : 'decrement_votes';
       const { error } = await supabaseClient.rpc(rpcName, { row_id: id });
       if (error) throw error;
+
+      // Mantém o cache local atualizado caso fique offline posteriormente
+      const allLocal = Storage._getAllLocal();
+      const idx = allLocal.findIndex(s => s.id === id);
+      if (idx !== -1) {
+        allLocal[idx].votes = newCount;
+        allLocal[idx].updatedAt = new Date().toISOString();
+        Storage._persist(allLocal);
+      }
     } catch (err) {
       console.error("[Supabase] Erro ao alterar voto:", err);
       // Fallback local update

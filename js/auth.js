@@ -400,7 +400,7 @@ const Auth = (() => {
         _user = session?.user || null;
         _updateHeader();
 
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if (event === 'SIGNED_IN') {
           if (typeof loadAndRender === 'function') await loadAndRender();
         }
         if (event === 'SIGNED_OUT') {

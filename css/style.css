@@ -2855,14 +2855,23 @@ tr:hover .row-actions {
 }
 
 .btn-vote:hover {
-  background: rgba(232, 0, 45, 0.1);
-  border-color: var(--red);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--border-hover);
+  color: var(--text-1);
 }
 
 .btn-vote.voted {
-  background: rgba(232, 0, 45, 0.15);
+  background: rgba(232, 0, 45, 0.12);
   border-color: var(--red);
-  box-shadow: 0 0 8px rgba(232, 0, 45, 0.2);
+  color: var(--red);
+  box-shadow: 0 0 8px rgba(232, 0, 45, 0.15);
+}
+
+.btn-vote.voted:hover {
+  background: rgba(232, 0, 45, 0.2);
+  border-color: var(--red);
+  color: var(--red);
+  box-shadow: 0 0 10px rgba(232, 0, 45, 0.25);
 }
 
 /* ── TABLE COLUMN WIDTHS ─────────────────────────────────── */
