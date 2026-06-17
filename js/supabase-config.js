@@ -5,8 +5,8 @@
 
 // IMPORTANTE: Insira abaixo a URL e a Anon Key do seu projeto Supabase.
 // Você pode obter esses dados nas configurações de API do seu painel do Supabase.
-const SUPABASE_URL = "INSIRA_SUA_URL_AQUI";
-const SUPABASE_ANON_KEY = "INSIRA_SUA_ANON_KEY_AQUI";
+const SUPABASE_URL = "https://onfghiehtyswvhwpcwct.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uZmdoaWVodHlzd3Zod3Bjd2N0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2OTY0OTksImV4cCI6MjA5NzI3MjQ5OX0.3zmG-hXZq2fJsg-N04JhzbV3dn0PjNDrPEHjOWoejUE";
 
 let supabaseClient = null;
 
