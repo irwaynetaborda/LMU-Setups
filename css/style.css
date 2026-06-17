@@ -2886,14 +2886,15 @@ tr:hover .row-actions {
 .th-date { width: 9%; }
 .th-votes { width: 10%; }
 .th-votes .th-content {
-  justify-content: flex-end;
+  justify-content: center;
 }
 .cell-vote {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   width: 100%;
 }
 .setups-table th.th-votes,
 .setups-table td:last-child {
-  padding-right: 35px !important;
+  padding-left: 14px !important;
+  padding-right: 14px !important;
 }

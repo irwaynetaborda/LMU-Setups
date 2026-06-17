@@ -253,12 +253,16 @@ function renderRow(s, index) {
     logoHtml = `<div class="car-logo-fallback">?</div>`;
   }
 
-  // Verifica se o usuário já votou
+  // Verifica se o usuário já votou (apenas se estiver logado)
   let hasVoted = false;
-  try {
-    const voted = JSON.parse(localStorage.getItem('voted_setups') || '[]');
-    hasVoted = voted.includes(s.id);
-  } catch(e) {}
+  const isLoggedIn = (typeof Auth !== 'undefined') ? Auth.isAuthenticated() : false;
+  if (isLoggedIn) {
+    try {
+      const userId = Auth.getUser()?.id || 'anon';
+      const voted = JSON.parse(localStorage.getItem(`voted_setups_${userId}`) || '[]');
+      hasVoted = voted.includes(s.id);
+    } catch(e) {}
+  }
 
   const creatorName = s.creatorUsername || 'Piloto';
   const initials = getInitials(creatorName);
@@ -525,8 +529,10 @@ async function voteSetup(id, event) {
   }
 
   let voted = [];
+  const userId = Auth.getUser()?.id || 'anon';
+  const votedKey = `voted_setups_${userId}`;
   try {
-    voted = JSON.parse(localStorage.getItem('voted_setups') || '[]');
+    voted = JSON.parse(localStorage.getItem(votedKey) || '[]');
   } catch (e) {
     voted = [];
   }
@@ -543,7 +549,7 @@ async function voteSetup(id, event) {
     voted.push(id);
     diff = 1;
   }
-  localStorage.setItem('voted_setups', JSON.stringify(voted));
+  localStorage.setItem(votedKey, JSON.stringify(voted));
 
   // Incrementa/decrementa no estado local da UI
   const setup = allSetups.find(s => s.id === id);
