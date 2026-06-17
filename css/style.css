@@ -902,6 +902,7 @@ tr:hover .row-actions {
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--s2);
   padding: 0.55rem var(--s5);
   border-radius: var(--r-sm);
@@ -2313,4 +2314,251 @@ tr:hover .row-actions {
 
 .sch-map-sebring {
   transform: rotate(90deg);
+}
+
+/* ── AUTH MODAL ──────────────────────────────────────────── */
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  padding: var(--s4);
+}
+
+.auth-modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.auth-modal {
+  background: rgba(10, 10, 18, 0.97);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--red);
+  border-radius: var(--r-xl);
+  padding: var(--s8) var(--s7);
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8);
+  position: relative;
+  transform: translateY(16px);
+  transition: transform 0.25s ease;
+}
+
+.auth-modal-overlay.open .auth-modal {
+  transform: translateY(0);
+}
+
+.auth-modal-close {
+  position: absolute;
+  top: var(--s4);
+  right: var(--s4);
+  background: transparent;
+  border: none;
+  color: var(--text-3);
+  font-size: 1.5rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: var(--s1) var(--s2);
+  border-radius: var(--r-sm);
+  transition: var(--t-fast);
+}
+
+.auth-modal-close:hover {
+  color: var(--text-1);
+  background: var(--bg-elevated);
+}
+
+.auth-modal-logo {
+  font-family: var(--f-outfit);
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  text-align: center;
+  margin-bottom: var(--s5);
+}
+
+.auth-modal-logo em {
+  color: var(--red);
+  font-style: normal;
+}
+
+.auth-modal-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--s6);
+}
+
+.auth-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-3);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  padding: var(--s3) var(--s4);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: var(--t-fast);
+}
+
+.auth-tab:hover {
+  color: var(--text-1);
+}
+
+.auth-tab.active {
+  color: #fff;
+  border-bottom-color: var(--red);
+}
+
+.auth-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+}
+
+.auth-modal-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--r-md);
+  color: #f87171;
+  font-size: 0.875rem;
+  padding: var(--s3) var(--s4);
+  text-align: center;
+}
+
+.auth-modal-submit {
+  width: 100%;
+  justify-content: center;
+  padding: 0.75rem;
+  font-size: 1rem;
+  margin-top: var(--s1);
+}
+
+/* ── USER CHIP ───────────────────────────────────────────── */
+.user-chip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  padding: 5px var(--s3) 5px 5px;
+  cursor: pointer;
+  transition: var(--t-fast);
+  user-select: none;
+}
+
+.user-chip:hover {
+  border-color: var(--red);
+}
+
+.user-chip-avatar {
+  width: 28px;
+  height: 28px;
+  background: var(--red);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.user-chip-email {
+  font-size: 0.8125rem;
+  color: var(--text-2);
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-chip-caret {
+  width: 14px;
+  height: 14px;
+  color: var(--text-3);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.user-chip:hover .user-chip-caret {
+  color: var(--text-2);
+}
+
+.user-chip-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: rgba(10, 10, 18, 0.98);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  min-width: 200px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 200;
+}
+
+.user-chip-dropdown.open {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+
+.user-chip-dropdown-email {
+  padding: var(--s3) var(--s4);
+  font-size: 0.8125rem;
+  color: var(--text-3);
+  border-bottom: 1px solid var(--border);
+  word-break: break-all;
+}
+
+.user-chip-logout {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #f87171;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: var(--s3) var(--s4);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.user-chip-logout:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* ── TOAST UPDATE ─────────────────────────────────────────── */
+.toast-hide {
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.toast-success {
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #4ade80;
+}
+
+.toast-error {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
 }

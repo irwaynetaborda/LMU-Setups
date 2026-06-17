@@ -7,6 +7,8 @@
   <meta name="description" content="Minha biblioteca pessoal de setups para Le Mans Ultimate. Consulte configurações por carro, pista e condição antes de cada corrida." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏁</text></svg>" />
   <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
   <script src="js/auth.js"></script>
 </head>
 <body>
@@ -24,15 +26,8 @@
       <a href="schedule.html" class="nav-link" id="nav-schedule">Corridas Diárias</a>
     </nav>
 
-    <div class="header-actions">
-      <a href="add-setup.html" class="btn btn-primary auth-only" id="btn-new-setup" style="display:none">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
-        Novo Setup
-      </a>
-      <button class="btn btn-ghost auth-only" onclick="Auth.logout()" title="Sair do sistema" style="display:none">
-        Sair
-      </button>
-      <a href="login.html" class="btn btn-primary unauth-only" style="display:none">Login</a>
+    <div class="header-actions" id="header-auth-area">
+      <!-- Preenchido dinamicamente por auth.js -->
     </div>
   </header>
 
@@ -190,8 +185,6 @@
 
   <!-- Scripts Javascript -->
   <script src="js/data.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase-config.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/seeds.js"></script>
   <script src="js/main.js"></script>

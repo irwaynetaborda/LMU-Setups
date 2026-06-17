@@ -7,10 +7,11 @@
   <meta name="description" content="Adicionar novo setup Fixed Setup para Le Mans Ultimate." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏁</text></svg>" />
   <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
   <script src="js/auth.js"></script>
-  <script>Auth.requireAuth();</script>
 </head>
-<body>
+<body data-auth-protected="true">
 
   <!-- ── HEADER ────────────────────────────────────────────── -->
   <header class="header">
@@ -23,8 +24,8 @@
       <a href="fuel.html" class="nav-link">Combustível</a>
       <a href="schedule.html" class="nav-link">Corridas Diárias</a>
     </nav>
-    <div class="header-actions">
-      <button class="btn btn-ghost" onclick="Auth.logout()" title="Sair do sistema">Sair</button>
+    <div class="header-actions" id="header-auth-area">
+      <!-- Preenchido dinamicamente por auth.js -->
     </div>
   </header>
 
@@ -294,8 +295,6 @@
   <div class="toast-container" id="toast-container" aria-live="polite"></div>
 
   <script src="js/data.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase-config.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/add-setup.js"></script>
 </body>

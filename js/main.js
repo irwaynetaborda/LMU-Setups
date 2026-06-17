@@ -60,6 +60,10 @@ function populateCarFilter(classId) {
 // ── LOAD & RENDER ─────────────────────────────────────────────
 async function loadAndRender() {
   allSetups = await Storage.getAll();
+  // Tenta popular seeds se for o primeiro acesso deste usuário
+  if (typeof seedIfEmpty === 'function') await seedIfEmpty();
+  // Recarrega após seeds para exibir os novos setups
+  if (allSetups.length === 0) allSetups = await Storage.getAll();
   applyFilters();
   renderStats();
 }

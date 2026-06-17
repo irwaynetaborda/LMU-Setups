@@ -258,16 +258,21 @@ const SEED_SETUPS = [
 ];
 
 // Popula o banco de dados/localStorage apenas se estiver vazio
-(async function seedIfEmpty() {
+// e somente quando o usuário estiver autenticado (para seeds receberem user_id correto)
+async function seedIfEmpty() {
   if (typeof Storage === 'undefined' || typeof LMU_DATA === 'undefined') return;
   try {
+    // Só executa seeds se houver usuário logado (necessário para o user_id)
+    const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
+    if (!user) return;
+
     const all = await Storage.getAll();
     if (all.length > 0) return;
 
     if (supabaseClient) {
-      console.log('[Seeds] Popuando banco de dados Supabase com setups de exemplo...');
-      // Insere cada um no Supabase
-      const dbRows = SEED_SETUPS.map(s => Storage._mapToDb(s));
+      console.log('[Seeds] Populando banco de dados Supabase com setups de exemplo...');
+      const userId = user.id;
+      const dbRows = SEED_SETUPS.map(s => ({ ...Storage._mapToDb(s), user_id: userId }));
       const { error } = await supabaseClient
         .from('setups')
         .insert(dbRows);
@@ -275,8 +280,8 @@ const SEED_SETUPS = [
     } else {
       Storage._persist(SEED_SETUPS);
     }
-    console.log('[Seeds] 10 setups de exemplo carregados.');
+    console.log('[Seeds] Setups de exemplo carregados para o usuário:', user.email);
   } catch (err) {
     console.error('[Seeds] Erro ao injetar setups de exemplo:', err);
   }
-})();
+}

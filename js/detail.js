@@ -68,9 +68,7 @@ function renderDetail(s) {
         <div class="detail-hero-layout">
           
           <div class="detail-hero-actions">
-            <button class="btn btn-secondary btn-sm" id="btn-copy" title="Copiar parâmetros">
-              📋 Copiar
-            </button>
+
             <a href="add-setup.html?edit=${s.id}" class="btn btn-secondary btn-sm" title="Editar setup">
               ✏️ Editar
             </a>
@@ -204,8 +202,7 @@ function renderDetail(s) {
       </div>
     </section>`;
 
-  // Bind copy button
-  document.getElementById('btn-copy').addEventListener('click', () => copyParams(s, hasABS));
+  // Bind buttons
   document.getElementById('btn-delete').addEventListener('click', () => openModal());
 
   // Animate bars after render
@@ -238,29 +235,6 @@ function renderParamItem(label, value, min, max, isPercent = false, isBB = false
       </div>
       <span class="param-item-val">${display}</span>
     </div>`;
-}
-
-// ── COPY PARAMS ───────────────────────────────────────────────
-function copyParams(s, hasABS) {
-  const car   = LMU_DATA.getCarById(s.carId);
-  const track = LMU_DATA.getTrackById(s.trackId);
-  const isLMP3= s.classId === 'lmp3';
-  const lines = [
-    `🏎️ ${car?.name || '?'} ${s.carYear || ''} @ ${track?.shortName || '?'}`,
-    s.trackLayout ? `   Layout: ${s.trackLayout}` : '',
-    '',
-    `Brake Bias:    ${formatBB(s.brakeBias)}`,
-    `TC:            ${s.tc ?? '—'}`,
-    `TC Power Cut:  ${s.tcPowerCut ?? '—'}`,
-    `TC Slip Angle: ${isLMP3 ? 'Linked' : (s.tcSlipAngle ?? '—')}`,
-    hasABS ? `ABS:           ${s.abs ?? '—'}` : '',
-    `Brake Pressure:${s.brakePressure ?? '—'}%`,
-    s.laptime ? `\nTempo: ${s.laptime}` : '',
-  ].filter(Boolean).join('\n');
-
-  navigator.clipboard.writeText(lines)
-    .then(() => showToast('Parâmetros copiados!', 'success'))
-    .catch(() => showToast('Não foi possível copiar.', 'error'));
 }
 
 // ── DELETE MODAL ──────────────────────────────────────────────

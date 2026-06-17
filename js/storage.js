@@ -36,6 +36,9 @@ const Storage = {
     if (supabaseClient) {
       try {
         const dbRow = this._mapToDb(newSetup);
+        // Injeta o user_id do usuário logado
+        const userId = (typeof Auth !== 'undefined') ? Auth.getUser()?.id : null;
+        if (userId) dbRow.user_id = userId;
         const { error } = await supabaseClient
           .from('setups')
           .insert([dbRow]);
@@ -203,6 +206,7 @@ const Storage = {
   _mapToDb(s) {
     return {
       id: s.id,
+      user_id: s.userId || null,
       class_id: s.classId,
       car_id: s.carId,
       car_year: s.carYear,
@@ -229,6 +233,7 @@ const Storage = {
   _mapFromDb(d) {
     return {
       id: d.id,
+      userId: d.user_id,
       classId: d.class_id,
       carId: d.car_id,
       carYear: d.car_year,
@@ -247,8 +252,8 @@ const Storage = {
       date: d.date,
       rating: d.rating,
       notes: d.notes,
-      createdAt: d.created_at || d.created_at,
-      updatedAt: d.updated_at || d.updated_at
+      createdAt: d.created_at,
+      updatedAt: d.updated_at
     };
   }
 };
