@@ -13,7 +13,10 @@ function getTrackMap(trackName) {
   if (trackName) {
     const t = trackName.toLowerCase();
     for (const key of TRACK_NAMES) {
-      if (t.includes(key.toLowerCase()) || (key === 'Portimao' && t.includes('algarve'))) {
+      if (t.includes(key.toLowerCase()) || 
+          (key === 'Portimao' && t.includes('algarve')) ||
+          (key === 'Le Mans' && t.includes('sarthe')) ||
+          (key === 'Interlagos' && (t.includes('interlagos') || t.includes('carlos pace')))) {
         foundKey = key;
         break;
       }
