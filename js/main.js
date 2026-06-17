@@ -194,10 +194,10 @@ function renderTable() {
             <th class="sortable" onclick="setSort('creator')">Criador <span class="sort-icon">${getSortIcon('creator')}</span></th>
             <th class="sortable" onclick="setSort('class')">Classe <span class="sort-icon">${getSortIcon('class')}</span></th>
             <th class="sortable" onclick="setSort('car')">Carro <span class="sort-icon">${getSortIcon('car')}</span></th>
-            <th class="sortable" onclick="setSort('track')"><div style="width:170px; margin:0 auto; text-align:left;">Pista <span class="sort-icon">${getSortIcon('track')}</span></div></th>
-            <th><div style="width:105px; margin:0 auto; text-align:left;">Condição</div></th>
-            <th><div style="width:105px; margin:0 auto; text-align:left;">Sessão</div></th>
-            <th class="sortable" onclick="setSort('laptime')">Tempo de Volta <span class="sort-icon">${getSortIcon('laptime')}</span></th>
+            <th class="sortable" onclick="setSort('track')">Pista <span class="sort-icon">${getSortIcon('track')}</span></th>
+            <th>Condição</th>
+            <th>Sessão</th>
+            <th class="sortable" onclick="setSort('laptime')">Tempo <span class="sort-icon">${getSortIcon('laptime')}</span></th>
             <th class="sortable" onclick="setSort('rating')">Nota <span class="sort-icon">${getSortIcon('rating')}</span></th>
             <th class="sortable" onclick="setSort('date')">Data <span class="sort-icon">${getSortIcon('date')}</span></th>
             <th class="sortable" onclick="setSort('votes')">Votos <span class="sort-icon">${getSortIcon('votes')}</span></th>
@@ -245,9 +245,8 @@ function renderRow(s, index) {
   } catch(e) {}
 
   const creatorName = s.creatorUsername || 'Piloto';
-  const initials = creatorName.slice(0, 2).toUpperCase();
-  const avatarBg = getAvatarColor(creatorName);
-  const avatarHtml = `<div class="avatar-small" style="background-color: ${avatarBg}">${initials}</div>`;
+  const initials = getInitials(creatorName);
+  const avatarHtml = `<div class="avatar-small">${initials}</div>`;
 
   const style = `animation-delay:${index * 40}ms`;
 
@@ -492,17 +491,10 @@ function checkToast() {
 }
 
 // ── VOTAÇÃO E AVATAR HELPERS ──────────────────────────────────
-function getAvatarColor(username) {
-  let hash = 0;
-  for (let i = 0; i < username.length; i++) {
-    hash = username.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const colors = [
-    '#e8002d', '#10b981', '#3b82f6', '#f59e0b', 
-    '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'
-  ];
-  const index = Math.abs(hash) % colors.length;
-  return colors[index];
+function getInitials(username) {
+  if (!username) return '?';
+  const parts = username.split(/[._-]/);
+  return parts.slice(0, 2).map(p => p[0]?.toUpperCase() || '').join('') || username[0].toUpperCase();
 }
 
 async function voteSetup(id, event) {
@@ -564,5 +556,5 @@ async function voteSetup(id, event) {
   showToast('Voto registrado! Obrigado.', 'success');
 }
 
-window.getAvatarColor = getAvatarColor;
+window.getInitials = getInitials;
 window.voteSetup = voteSetup;

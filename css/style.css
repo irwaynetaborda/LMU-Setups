@@ -671,8 +671,8 @@ ol {
 }
 
 .setups-table th {
-  padding: var(--s4) var(--s5);
-  font-size: 0.75rem;
+  padding: 10px 6px;
+  font-size: 0.725rem;
   font-weight: 700;
   text-transform: uppercase;
   color: var(--text-2);
@@ -713,7 +713,8 @@ ol {
 }
 
 .setups-table td {
-  padding: var(--s4) var(--s5);
+  padding: 10px 6px;
+  font-size: 0.8125rem;
   vertical-align: middle;
   text-align: center;
 }
@@ -817,7 +818,7 @@ ol {
   flex-direction: column;
   align-items: flex-start;
   gap: 3px;
-  width: 170px;
+  width: 130px;
   margin: 0 auto;
   text-align: left;
 }
@@ -2778,13 +2779,16 @@ tr:hover .row-actions {
 .cell-creator {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: var(--s2);
+  white-space: nowrap;
 }
 
 .avatar-small {
   width: 28px;
   height: 28px;
   border-radius: 50%;
+  background: var(--red);
   display: flex;
   align-items: center;
   justify-content: center;
