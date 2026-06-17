@@ -8,7 +8,7 @@ const SCHEDULE_DATA = {
   dateFrom: "16th June 2026",
   
   daily: [
-    // ── BEGINNER ──
+    // ── BEGINNER (BRONZE) ──
     {
       sr: "BRONZE",
       rankClass: "bronze",
@@ -16,7 +16,7 @@ const SCHEDULE_DATA = {
       title: "LMGT3 FIXED",
       track: "Spa-Francorchamps (WEC)",
       classes: ["GT3"],
-      duration: "20 MIN",
+      duration: "35 MIN",
       fuel: "100%",
       tyresLimit: "8",
       assists: "HIGH",
@@ -29,26 +29,10 @@ const SCHEDULE_DATA = {
       sr: "BRONZE",
       rankClass: "bronze",
       frequency: "Starts every 15m",
-      title: "LOGITECH G CHALLENGE",
-      track: "Le Mans (WEC)",
-      classes: ["GT3"], // McLaren 720S
-      duration: "20 MIN",
-      fuel: "100%",
-      tyresLimit: "8",
-      assists: "HIGH",
-      warmers: "ON",
-      splits: "20",
-      setup: "Fixed",
-      theme: "theme-bronze"
-    },
-    {
-      sr: "BRONZE",
-      rankClass: "bronze",
-      frequency: "Starts every 15m",
-      title: "LMP3 FIXED",
-      track: "Bahrain (WEC)",
-      classes: ["P3"],
-      duration: "20 MIN",
+      title: "LOGITECH MCLAREN G CHALLENGE Q4",
+      track: "Circuit de la Sarthe",
+      classes: ["GT3"],
+      duration: "34 MIN",
       fuel: "100%",
       tyresLimit: "8",
       assists: "HIGH",
@@ -58,7 +42,7 @@ const SCHEDULE_DATA = {
       theme: "theme-bronze"
     },
 
-    // ── INTERMEDIATE ──
+    // ── INTERMEDIATE (SILVER) ──
     {
       sr: "SILVER",
       rankClass: "silver",
@@ -66,7 +50,7 @@ const SCHEDULE_DATA = {
       title: "LMGT3 SPRINT CUP",
       track: "Interlagos (WEC)",
       classes: ["GT3"],
-      duration: "30 MIN",
+      duration: "45 MIN",
       fuel: "100%",
       tyresLimit: "8",
       assists: "LOW",
@@ -82,7 +66,7 @@ const SCHEDULE_DATA = {
       title: "PROTOTYPE FIXED",
       track: "Silverstone (WEC)",
       classes: ["P2", "P3"],
-      duration: "30 MIN",
+      duration: "45 MIN",
       fuel: "100%",
       tyresLimit: "8",
       assists: "LOW",
@@ -91,24 +75,8 @@ const SCHEDULE_DATA = {
       setup: "Fixed",
       theme: "theme-silver"
     },
-    {
-      sr: "SILVER",
-      rankClass: "silver",
-      frequency: "Starts every 20m",
-      title: "ELMS SPRINT TROPHY",
-      track: "Sebring (WEC)",
-      classes: ["P2", "P3", "GT3"],
-      duration: "30 MIN",
-      fuel: "100%",
-      tyresLimit: "8",
-      assists: "LOW",
-      warmers: "OFF",
-      splits: "38",
-      setup: "Open",
-      theme: "theme-silver"
-    },
 
-    // ── ADVANCED ──
+    // ── ADVANCED (GOLD) ──
     {
       sr: "GOLD",
       rankClass: "gold",
@@ -118,22 +86,6 @@ const SCHEDULE_DATA = {
       classes: ["HY", "GT3"],
       duration: "40 MIN",
       fuel: "100%",
-      tyresLimit: "8",
-      assists: "NONE",
-      warmers: "OFF",
-      splits: "38",
-      setup: "Open",
-      theme: "theme-gold"
-    },
-    {
-      sr: "GOLD",
-      rankClass: "gold",
-      frequency: "Starts every 30m",
-      title: "ELMS SUPER 60",
-      track: "Barcelona (ELMS)",
-      classes: ["P2", "P3", "GT3"],
-      duration: "60 MIN",
-      fuel: "Limited", // P2 full, P3 70L, GT3 75%
       tyresLimit: "8",
       assists: "NONE",
       warmers: "OFF",
@@ -167,7 +119,7 @@ const SCHEDULE_DATA = {
       title: "WEC WEEKLY",
       track: "Silverstone (ELMS)",
       classes: ["HY", "GT3"],
-      duration: "100 MIN",
+      duration: "2 HOURS",
       fuel: "100%",
       tyresLimit: "10",
       assists: "NONE",
@@ -184,7 +136,7 @@ const SCHEDULE_DATA = {
       title: "PROTOTYPE CHALLENGE",
       track: "Portimao (ELMS)",
       classes: ["P2", "P3"],
-      duration: "90 MIN",
+      duration: "1H 50M",
       fuel: "100%",
       tyresLimit: "10",
       assists: "NONE",
