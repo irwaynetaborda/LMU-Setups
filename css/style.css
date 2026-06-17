@@ -1931,25 +1931,36 @@ tr:hover .row-actions {
 
 .schedule-pane {
   display: none;
-  grid-template-columns: repeat(3, 1fr);
   gap: var(--s6);
   padding-bottom: var(--s10);
 }
 
+.schedule-pane.active {
+  display: grid;
+}
+
+#pane-daily {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+#pane-weekly {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
 @media (max-width: 1024px) {
-  .schedule-pane {
+  #pane-daily {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  .schedule-pane {
+  #pane-daily,
+  #pane-weekly {
     grid-template-columns: 1fr;
   }
-}
-
-.schedule-pane.active {
-  display: grid;
 }
 
 /* Schedule Cards */
