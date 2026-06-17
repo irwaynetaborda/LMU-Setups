@@ -4,6 +4,17 @@
 // ============================================================
 
 let currentTab = 'hypercar';
+
+function updateSliderTrack(slEl) {
+    if (!slEl) return;
+    const min = parseFloat(slEl.min) || 0;
+    const max = parseFloat(slEl.max) || 100;
+    const val = parseFloat(slEl.value) || 0;
+    const pct = ((val - min) / (max - min)) * 100;
+    slEl.style.background =
+      `linear-gradient(to right, var(--red) ${pct}%, var(--bg-overlay) ${pct}%)`;
+}
+
 window.switchTab = function(tab) {
     currentTab = tab;
     document.querySelectorAll('.calc-tab').forEach(el => el.classList.remove('active'));
@@ -18,6 +29,8 @@ window.switchTab = function(tab) {
         document.getElementById('field-max-energy').style.display = 'block';
         document.getElementById('field-fuel-usage-1').style.display = 'block';
         document.getElementById('req-energy-box').style.display = 'block';
+        
+        updateSliderTrack(document.getElementById('f-max-energy'));
     } else {
         document.getElementById('field-tank-capacity').style.display = 'block';
         document.getElementById('field-max-fuel').style.display = 'block';
@@ -27,6 +40,8 @@ window.switchTab = function(tab) {
         document.getElementById('field-max-energy').style.display = 'none';
         document.getElementById('field-fuel-usage-1').style.display = 'none';
         document.getElementById('req-energy-box').style.display = 'none';
+        
+        updateSliderTrack(document.getElementById('f-max-fuel'));
     }
 };
 
@@ -48,14 +63,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const maxEnergy = document.getElementById('f-max-energy');
   if (maxEnergy) {
+      updateSliderTrack(maxEnergy);
       maxEnergy.addEventListener('input', (e) => {
           document.getElementById('val-max-energy').textContent = e.target.value;
+          updateSliderTrack(e.target);
       });
   }
   const maxFuel = document.getElementById('f-max-fuel');
   if (maxFuel) {
+      updateSliderTrack(maxFuel);
       maxFuel.addEventListener('input', (e) => {
           document.getElementById('val-max-fuel').textContent = e.target.value;
+          updateSliderTrack(e.target);
       });
   }
 

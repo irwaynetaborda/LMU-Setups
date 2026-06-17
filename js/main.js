@@ -133,6 +133,12 @@ function applyFilters() {
     } else if (sortCol === 'date') {
       valA = new Date(a.date || 0).getTime();
       valB = new Date(b.date || 0).getTime();
+    } else if (sortCol === 'creator') {
+      valA = a.creatorUsername || '';
+      valB = b.creatorUsername || '';
+    } else if (sortCol === 'votes') {
+      valA = a.votes || 0;
+      valB = b.votes || 0;
     }
     
     if (valA < valB) return sortDesc ? 1 : -1;
@@ -185,6 +191,7 @@ function renderTable() {
       <table class="setups-table" role="grid" aria-label="Lista de setups">
         <thead>
           <tr>
+            <th class="sortable" onclick="setSort('creator')">Criador <span class="sort-icon">${getSortIcon('creator')}</span></th>
             <th class="sortable" onclick="setSort('class')">Classe <span class="sort-icon">${getSortIcon('class')}</span></th>
             <th class="sortable" onclick="setSort('car')">Carro <span class="sort-icon">${getSortIcon('car')}</span></th>
             <th class="sortable" onclick="setSort('track')"><div style="width:170px; margin:0 auto; text-align:left;">Pista <span class="sort-icon">${getSortIcon('track')}</span></div></th>
@@ -193,6 +200,7 @@ function renderTable() {
             <th class="sortable" onclick="setSort('laptime')">Tempo de Volta <span class="sort-icon">${getSortIcon('laptime')}</span></th>
             <th class="sortable" onclick="setSort('rating')">Nota <span class="sort-icon">${getSortIcon('rating')}</span></th>
             <th class="sortable" onclick="setSort('date')">Data <span class="sort-icon">${getSortIcon('date')}</span></th>
+            <th class="sortable" onclick="setSort('votes')">Votos <span class="sort-icon">${getSortIcon('votes')}</span></th>
           </tr>
         </thead>
         <tbody id="table-body">
@@ -229,6 +237,18 @@ function renderRow(s, index) {
     logoHtml = `<div class="car-logo-fallback">?</div>`;
   }
 
+  // Verifica se o usuário já votou
+  let hasVoted = false;
+  try {
+    const voted = JSON.parse(localStorage.getItem('voted_setups') || '[]');
+    hasVoted = voted.includes(s.id);
+  } catch(e) {}
+
+  const creatorName = s.creatorUsername || 'Piloto';
+  const initials = creatorName.slice(0, 2).toUpperCase();
+  const avatarBg = getAvatarColor(creatorName);
+  const avatarHtml = `<div class="avatar-small" style="background-color: ${avatarBg}">${initials}</div>`;
+
   const style = `animation-delay:${index * 40}ms`;
 
   return `
@@ -236,6 +256,12 @@ function renderRow(s, index) {
         onclick="viewSetup('${s.id}')"
         data-id="${s.id}"
         role="row">
+      <td>
+        <div class="cell-creator">
+          ${avatarHtml}
+          <span class="creator-name">${creatorName}</span>
+        </div>
+      </td>
       <td><span class="badge ${s.classId}">${clsName}</span></td>
       <td>
         <div class="cell-car">
@@ -261,6 +287,12 @@ function renderRow(s, index) {
       </td>
       <td>${renderStars(s.rating || 0)}</td>
       <td style="color:var(--text-3);font-size:0.8125rem;">${dateLabel}</td>
+      <td onclick="event.stopPropagation()">
+        <button class="btn-vote ${hasVoted ? 'voted' : ''}" onclick="voteSetup('${s.id}', event)" title="${hasVoted ? 'Você já votou' : 'Votar neste setup'}">
+          <span class="star-icon">★</span>
+          <span class="vote-count">${s.votes || 0}</span>
+        </button>
+      </td>
     </tr>`;
 }
 
@@ -458,3 +490,79 @@ function checkToast() {
     sessionStorage.removeItem('toast_type');
   }
 }
+
+// ── VOTAÇÃO E AVATAR HELPERS ──────────────────────────────────
+function getAvatarColor(username) {
+  let hash = 0;
+  for (let i = 0; i < username.length; i++) {
+    hash = username.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const colors = [
+    '#e8002d', '#10b981', '#3b82f6', '#f59e0b', 
+    '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'
+  ];
+  const index = Math.abs(hash) % colors.length;
+  return colors[index];
+}
+
+async function voteSetup(id, event) {
+  if (event) event.stopPropagation();
+
+  let voted = [];
+  try {
+    voted = JSON.parse(localStorage.getItem('voted_setups') || '[]');
+  } catch (e) {
+    voted = [];
+  }
+
+  if (voted.includes(id)) {
+    showToast('Você já votou neste setup!', 'info');
+    return;
+  }
+
+  voted.push(id);
+  localStorage.setItem('voted_setups', JSON.stringify(voted));
+
+  // Incrementa no estado local da UI
+  const setup = allSetups.find(s => s.id === id);
+  if (setup) {
+    setup.votes = (setup.votes || 0) + 1;
+  }
+  const filteredSetup = filtered.find(s => s.id === id);
+  if (filteredSetup) {
+    filteredSetup.votes = (filteredSetup.votes || 0) + 1;
+  }
+
+  // Atualiza elemento visual imediatamente
+  const row = document.querySelector(`tr[data-id="${id}"]`);
+  if (row) {
+    const btn = row.querySelector('.btn-vote');
+    if (btn) {
+      btn.classList.add('voted');
+      const countEl = btn.querySelector('.vote-count');
+      if (countEl) {
+        countEl.textContent = setup ? setup.votes : (parseInt(countEl.textContent) || 0) + 1;
+      }
+    }
+  }
+
+  // Persiste no banco usando RPC
+  if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+    try {
+      const { error } = await supabaseClient.rpc('increment_votes', { row_id: id });
+      if (error) throw error;
+    } catch (err) {
+      console.error("[Supabase] Erro ao incrementar voto:", err);
+      // Fallback local update
+      await Storage.update(id, { votes: setup ? setup.votes : 1 });
+    }
+  } else {
+    // Fallback local update
+    await Storage.update(id, { votes: setup ? setup.votes : 1 });
+  }
+
+  showToast('Voto registrado! Obrigado.', 'success');
+}
+
+window.getAvatarColor = getAvatarColor;
+window.voteSetup = voteSetup;

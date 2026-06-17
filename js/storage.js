@@ -26,9 +26,12 @@ const Storage = {
 
   /** Salva um novo setup */
   async save(setup) {
+    const activeUsername = (typeof Auth !== 'undefined') ? Auth.getUsername() : null;
     const newSetup = {
       ...setup,
       id: setup.id || this._uuid(),
+      creatorUsername: setup.creatorUsername || activeUsername || 'Piloto',
+      votes: setup.votes !== undefined ? setup.votes : 0,
       createdAt: setup.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -226,6 +229,8 @@ const Storage = {
       rating: s.rating,
       notes: s.notes,
       is_public: s.isPublic !== undefined ? s.isPublic : true,
+      creator_username: s.creatorUsername || null,
+      votes: s.votes !== undefined ? s.votes : 0,
       created_at: s.createdAt,
       updated_at: s.updatedAt
     };
@@ -254,6 +259,8 @@ const Storage = {
       rating: d.rating,
       notes: d.notes,
       isPublic: d.is_public !== undefined ? d.is_public : true,
+      creatorUsername: d.creator_username || 'Piloto',
+      votes: d.votes !== undefined ? d.votes : 0,
       createdAt: d.created_at,
       updatedAt: d.updated_at
     };
