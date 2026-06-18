@@ -49,3 +49,10 @@ ALTER TABLE setups ADD COLUMN IF NOT EXISTS open_params JSONB;
 -- 7. Adiciona coluna car_version (versão física/jogo do carro extraído do arquivo .svm)
 ALTER TABLE setups ADD COLUMN IF NOT EXISTS car_version TEXT;
 
+-- ============================================================
+-- MIGRATION: LMU Setups - Soft deletes support (active column)
+-- ============================================================
+
+-- 8. Adiciona coluna active para soft delete (ocultar do site sem deletar do banco)
+ALTER TABLE setups ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT TRUE;
+

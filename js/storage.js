@@ -13,15 +13,16 @@ const Storage = {
         const { data, error } = await supabaseClient
           .from('setups')
           .select('*')
+          .eq('active', true)
           .order('created_at', { ascending: false });
         if (error) throw error;
         return data.map(row => this._mapFromDb(row));
       } catch (err) {
         console.error("[Supabase] Erro ao buscar setups do banco:", err);
-        return this._getAllLocal();
+        return this._getAllLocal().filter(s => s.active !== false);
       }
     }
-    return this._getAllLocal();
+    return this._getAllLocal().filter(s => s.active !== false);
   },
 
   /** Salva um novo setup */
@@ -93,13 +94,13 @@ const Storage = {
     return all[idx];
   },
 
-  /** Remove um setup por id */
+  /** Remove um setup por id (soft delete: altera active para false) */
   async delete(id) {
     if (supabaseClient) {
       try {
         const { error } = await supabaseClient
           .from('setups')
-          .delete()
+          .update({ active: false })
           .eq('id', id);
         if (error) throw error;
         return;
@@ -109,8 +110,12 @@ const Storage = {
     }
 
     // Fallback local
-    const filtered = this._getAllLocal().filter(s => s.id !== id);
-    this._persist(filtered);
+    const all = this._getAllLocal();
+    const idx = all.findIndex(s => s.id === id);
+    if (idx !== -1) {
+      all[idx].active = false;
+      this._persist(all);
+    }
   },
 
   /** Busca um setup por id */
@@ -121,15 +126,18 @@ const Storage = {
           .from('setups')
           .select('*')
           .eq('id', id)
+          .eq('active', true)
           .single();
         if (error) throw error;
         return this._mapFromDb(data);
       } catch (err) {
         console.error("[Supabase] Erro ao buscar setup por id:", err);
-        return this._getAllLocal().find(s => s.id === id) || null;
+        const local = this._getAllLocal().find(s => s.id === id);
+        return (local && local.active !== false) ? local : null;
       }
     }
-    return this._getAllLocal().find(s => s.id === id) || null;
+    const local = this._getAllLocal().find(s => s.id === id);
+    return (local && local.active !== false) ? local : null;
   },
 
   /** Importa setups de um arquivo JSON */
@@ -234,6 +242,7 @@ const Storage = {
       setup_type: s.setupType || 'fixed',
       open_params: s.openParams || null,
       car_version: s.carVersion || null,
+      active: s.active !== undefined ? s.active : true,
       created_at: s.createdAt,
       updated_at: s.updatedAt
     };
@@ -267,6 +276,7 @@ const Storage = {
       setupType: d.setup_type || 'fixed',
       openParams: d.open_params || null,
       carVersion: d.car_version || null,
+      active: d.active !== undefined ? d.active : true,
       createdAt: d.created_at,
       updatedAt: d.updated_at
     };

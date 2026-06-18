@@ -1,0 +1,27 @@
+name: Supabase Daily Backup
+
+on:
+  schedule:
+    # Rodará todos os dias à meia-noite UTC (21h00 no horário de Brasília)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Permite executar manualmente o backup a qualquer momento no site do GitHub
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Instalar cliente do PostgreSQL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Efetuar dump do banco de dados (Backup)
+        run: |
+          pg_dump "${{ secrets.DATABASE_URL }}" > backup_lmu_setups_$(date +%Y-%m-%d).sql
+
+      - name: Guardar o backup como artefato no GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_id }}
+          path: backup_lmu_setups_*.sql
+          retention-days: 30 # Armazena cada backup por 30 dias gratuitamente no GitHub
