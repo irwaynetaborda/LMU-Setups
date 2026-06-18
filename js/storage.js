@@ -172,6 +172,14 @@ const Storage = {
     LMU_DATA.classes.forEach(c => { byClass[c.id] = 0; });
     all.forEach(s => { if (byClass[s.classId] !== undefined) byClass[s.classId]++; });
 
+    const byBrand = {};
+    all.forEach(s => {
+      const car = LMU_DATA.getCarById(s.carId);
+      if (car && car.brand) {
+        byBrand[car.brand] = (byBrand[car.brand] || 0) + 1;
+      }
+    });
+
     const avgRating = all.length
       ? (all.reduce((sum, s) => sum + (s.rating || 0), 0) / all.length).toFixed(1)
       : '—';
@@ -186,6 +194,7 @@ const Storage = {
     return {
       total: all.length,
       byClass,
+      byBrand,
       avgRating,
       topTrack: topTrack ? topTrack.shortName : '—',
     };

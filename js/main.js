@@ -154,8 +154,38 @@ function renderStats() {
   const stats = Storage.getStats(allSetups);
 
   document.getElementById('stat-total').textContent   = stats.total;
-  document.getElementById('stat-rating').textContent  = stats.avgRating;
   document.getElementById('stat-top-track').textContent = stats.topTrack;
+
+  // Renderizar logomarcas dos carros (Por Carro)
+  const brandContainer = document.getElementById('brand-stats-container');
+  if (brandContainer) {
+    const allBrandIds = Object.keys(LMU_DATA.brands || {});
+    // Ordenar para mostrar as marcas com setups primeiro (decrescente), depois as outras alfabeticamente
+    allBrandIds.sort((a, b) => {
+      const countA = stats.byBrand[a] || 0;
+      const countB = stats.byBrand[b] || 0;
+      if (countA !== countB) return countB - countA;
+      const nameA = LMU_DATA.brands[a]?.name || a;
+      const nameB = LMU_DATA.brands[b]?.name || b;
+      return nameA.localeCompare(nameB);
+    });
+
+    brandContainer.innerHTML = allBrandIds.map(brandId => {
+      const brand = LMU_DATA.brands[brandId];
+      const count = stats.byBrand[brandId] || 0;
+      const logoUrl = brand?.logo;
+      const brandName = brand?.name || brandId;
+      const logoHtml = logoUrl
+        ? `<img src="${logoUrl}" class="stat-brand-logo" alt="${brandName}" title="${brandName}">`
+        : `<span class="stat-brand-fallback">${brandName.charAt(0)}</span>`;
+      return `
+        <div class="stat-brand-item ${count > 0 ? 'active' : 'inactive'}" title="${brandName}: ${count} setups">
+          ${logoHtml}
+          <span class="stat-brand-count">${count}</span>
+        </div>
+      `;
+    }).join('');
+  }
 
   // Barras de categoria
   const barsEl = document.getElementById('class-bars');
@@ -213,9 +243,6 @@ function renderTable() {
             </th>
             <th class="sortable th-laptime" onclick="setSort('laptime')">
               <div class="th-content">Tempo <span class="sort-icon">${getSortIcon('laptime')}</span></div>
-            </th>
-            <th class="sortable th-rating" onclick="setSort('rating')">
-              <div class="th-content">Nota <span class="sort-icon">${getSortIcon('rating')}</span></div>
             </th>
             <th class="sortable th-date" onclick="setSort('date')">
               <div class="th-content">Data <span class="sort-icon">${getSortIcon('date')}</span></div>
@@ -312,7 +339,6 @@ function renderRow(s, index) {
           ${s.laptime || 'Sem tempo'}
         </span>
       </td>
-      <td>${renderStars(s.rating || 0)}</td>
       <td style="color:var(--text-3);font-size:0.8125rem;">${dateLabel}</td>
       <td onclick="event.stopPropagation()">
         <div class="cell-vote">

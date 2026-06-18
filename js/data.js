@@ -22,7 +22,7 @@ const LMU_DATA = {
     lexus:        { name: 'Lexus',        logo: 'img/logos/lexus.png' },
     mclaren:      { name: 'McLaren',      logo: 'img/logos/mclaren.png' },
     mercedes:     { name: 'Mercedes-AMG', logo: 'img/logos/mercedes.png' },
-    hyundai:      { name: 'Genesis',      logo: 'img/logos/genesis.png' },
+    hyundai:      { name: 'Genesis',      logo: 'img/logos/hyundai.png' },
     // Para as que não tem icon, usamos fallback de texto ou o usuário pode adicionar depois
     glickenhaus:  { name: 'Glickenhaus',  logo: 'img/logos/glickenhaus.png', short: 'GLI' },
     vanwall:      { name: 'Vanwall',      logo: 'img/logos/vanwall.png', short: 'VAN' },

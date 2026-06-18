@@ -361,6 +361,8 @@ ol {
   display: flex;
   align-items: center;
   gap: var(--s4);
+  height: 130px;
+  box-sizing: border-box;
   transition: border-color var(--t-base), transform var(--t-base), box-shadow var(--t-base);
 }
 
@@ -387,6 +389,7 @@ ol {
   flex-direction: column;
   gap: 3px;
   min-width: 0;
+  flex: 1;
 }
 
 .stat-value {
@@ -427,6 +430,80 @@ ol {
   font-size: 0.75rem;
   color: var(--text-3);
   margin-top: var(--s1);
+}
+
+/* ── BRAND STATS GRID ─────────────────────────────────────────── */
+.stat-card-brands {
+  padding: 12px 14px;
+}
+
+.brand-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 3px 4px;
+  align-items: center;
+}
+
+.stat-brand-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.02);
+  width: 100%;
+  height: 25px;
+  box-sizing: border-box;
+  padding: 0;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background var(--t-base), border-color var(--t-base), opacity var(--t-base);
+}
+
+.stat-brand-item.inactive {
+  opacity: 0.45;
+}
+
+.stat-brand-item.inactive:hover {
+  opacity: 0.85;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.stat-brand-item.active {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(232, 0, 45, 0.25);
+  box-shadow: 0 0 6px rgba(232, 0, 45, 0.05);
+}
+
+.stat-brand-item.active:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(232, 0, 45, 0.45);
+}
+
+.stat-brand-logo {
+  height: 19px;
+  width: auto;
+  max-width: 36px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+}
+
+.stat-brand-fallback {
+  font-size: 0.5625rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.stat-brand-count {
+  font-family: var(--f-outfit);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: var(--text-2);
+}
+
+.stat-brand-item.active .stat-brand-count {
+  color: var(--text-1);
 }
 
 /* ── CLASS MINI BARS ──────────────────────────────────────────── */
@@ -876,6 +953,7 @@ ol {
   gap: 6px;
   font-size: 0.8125rem;
   color: var(--text-2);
+  white-space: nowrap;
 }
 
 /* ── RATING STARS (display) ──────────────────────────────── */
@@ -2548,9 +2626,7 @@ tr:hover .row-actions {
   .setups-table th:nth-child(6),
   .setups-table td:nth-child(6),
   .setups-table th:nth-child(8),
-  .setups-table td:nth-child(8),
-  .setups-table th:nth-child(9),
-  .setups-table td:nth-child(9) {
+  .setups-table td:nth-child(8) {
     display: none;
   }
 
@@ -3032,7 +3108,7 @@ tr:hover .row-actions {
 
 /* ── TABLE COLUMN WIDTHS ─────────────────────────────────── */
 .th-creator {
-  width: 12%;
+  width: 15%;
 }
 
 .th-setup-type {
@@ -3044,11 +3120,11 @@ tr:hover .row-actions {
 }
 
 .th-car {
-  width: 20%;
+  width: 23%;
 }
 
 .th-track {
-  width: 12%;
+  width: 15%;
 }
 
 .th-cond {
@@ -3060,10 +3136,6 @@ tr:hover .row-actions {
 }
 
 .th-laptime {
-  width: 9%;
-}
-
-.th-rating {
   width: 9%;
 }
 
