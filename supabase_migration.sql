@@ -56,3 +56,21 @@ ALTER TABLE setups ADD COLUMN IF NOT EXISTS car_version TEXT;
 -- 8. Adiciona coluna active para soft delete (ocultar do site sem deletar do banco)
 ALTER TABLE setups ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT TRUE;
 
+-- ============================================================
+-- MIGRATION: LMU Setups - Admin Bypass for 'Taborda'
+-- ============================================================
+
+-- 9. Cria ou atualiza a política de UPDATE para permitir que o criador ou o admin 'Taborda' editem/deletem setups
+DROP POLICY IF EXISTS "Permitir update para donos e admin Taborda" ON setups;
+CREATE POLICY "Permitir update para donos e admin Taborda" ON setups
+FOR UPDATE
+TO authenticated
+USING (
+  auth.uid() = user_id 
+  OR (auth.jwt() -> 'user_metadata' ->> 'username') = 'Taborda'
+)
+WITH CHECK (
+  auth.uid() = user_id 
+  OR (auth.jwt() -> 'user_metadata' ->> 'username') = 'Taborda'
+);
+

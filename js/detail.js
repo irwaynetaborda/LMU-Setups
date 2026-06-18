@@ -63,7 +63,9 @@ function renderDetail(s) {
 
   const isLoggedIn = (typeof Auth !== 'undefined') ? Auth.isAuthenticated() : false;
   const currentUserId = isLoggedIn ? Auth.getUser()?.id : null;
-  const isOwner = s.userId && s.userId === currentUserId;
+  const activeUsername = (typeof Auth !== 'undefined') ? Auth.getUsername() : null;
+  const isAdmin = activeUsername && activeUsername.toLowerCase() === 'taborda';
+  const isOwner = (s.userId && s.userId === currentUserId) || isAdmin;
 
   let hasVoted = false;
   if (isLoggedIn && currentUserId) {
