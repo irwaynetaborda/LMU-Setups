@@ -21,7 +21,7 @@ jobs:
 
       - name: Efetuar dump do banco de dados (Backup)
         run: |
-          pg_dump "${{ secrets.DATABASE_URL }}" > backup_lmu_setups_$(date +%Y-%m-%d).sql
+          /usr/lib/postgresql/17/bin/pg_dump "${{ secrets.DATABASE_URL }}" > backup_lmu_setups_$(date +%Y-%m-%d).sql
 
       - name: Guardar o backup como artefato no GitHub
         uses: actions/upload-artifact@v4
