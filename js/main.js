@@ -132,6 +132,9 @@ function applyFilters() {
     } else if (sortCol === 'creator') {
       valA = a.creatorUsername || '';
       valB = b.creatorUsername || '';
+    } else if (sortCol === 'setupType') {
+      valA = a.setupType || 'fixed';
+      valB = b.setupType || 'fixed';
     } else if (sortCol === 'votes') {
       valA = a.votes || 0;
       valB = b.votes || 0;
@@ -190,6 +193,9 @@ function renderTable() {
             <th class="sortable th-creator" onclick="setSort('creator')">
               <div class="th-content">Criador <span class="sort-icon">${getSortIcon('creator')}</span></div>
             </th>
+            <th class="sortable th-setup-type" onclick="setSort('setupType')">
+              <div class="th-content">Setup <span class="sort-icon">${getSortIcon('setupType')}</span></div>
+            </th>
             <th class="sortable th-class" onclick="setSort('class')">
               <div class="th-content">Classe <span class="sort-icon">${getSortIcon('class')}</span></div>
             </th>
@@ -239,7 +245,7 @@ function renderRow(s, index) {
   const trackName = track?.shortName || s.trackId || '—';
   const clsName   = cls?.name   || s.classId || '—';
   const condLabel = cond ? `${cond.icon} ${cond.name}` : '—';
-  const sessLabel = sess ? `${sess.icon} ${sess.name}` : '—';
+  const sessLabel = sess ? sess.name : '—';
   const dateLabel = s.date ? formatDate(s.date) : '—';
 
   let logoHtml = '';
@@ -266,7 +272,8 @@ function renderRow(s, index) {
 
   const creatorName = s.creatorUsername || 'Piloto';
   const initials = getInitials(creatorName);
-  const avatarHtml = `<div class="avatar-small">${initials}</div>`;
+  const avatarColor = (typeof Auth !== 'undefined') ? Auth.getAvatarColor(creatorName) : '#e8002d';
+  const avatarHtml = `<div class="avatar-small" style="background:${avatarColor}">${initials}</div>`;
 
   const style = `animation-delay:${index * 40}ms`;
 
@@ -281,6 +288,7 @@ function renderRow(s, index) {
           <span class="creator-name">${creatorName}</span>
         </div>
       </td>
+      <td><span class="badge-setup-type ${s.setupType || 'fixed'}">${(s.setupType || 'fixed') === 'open' ? 'Aberto' : 'Fixo'}</span></td>
       <td><span class="badge ${s.classId}">${clsName}</span></td>
       <td>
         <div class="cell-car">
@@ -376,7 +384,7 @@ window.setSort = function(col) {
     sortDesc = !sortDesc;
   } else {
     sortCol = col;
-    sortDesc = (col === 'laptime' || col === 'car' || col === 'track' || col === 'class') ? false : true; 
+    sortDesc = (col === 'laptime' || col === 'car' || col === 'track' || col === 'class' || col === 'setupType') ? false : true; 
   }
   applyFilters();
 }

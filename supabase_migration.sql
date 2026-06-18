@@ -35,3 +35,17 @@ BEGIN
   WHERE id = row_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ============================================================
+-- MIGRATION: LMU Setups - Open setups support (.svm)
+-- ============================================================
+
+-- 5. Adiciona coluna setup_type (fixed ou open)
+ALTER TABLE setups ADD COLUMN IF NOT EXISTS setup_type TEXT DEFAULT 'fixed';
+
+-- 6. Adiciona coluna open_params (dados estruturados do arquivo .svm)
+ALTER TABLE setups ADD COLUMN IF NOT EXISTS open_params JSONB;
+
+-- 7. Adiciona coluna car_version (versão física/jogo do carro extraído do arquivo .svm)
+ALTER TABLE setups ADD COLUMN IF NOT EXISTS car_version TEXT;
+

@@ -231,6 +231,9 @@ const Storage = {
       is_public: s.isPublic !== undefined ? s.isPublic : true,
       creator_username: s.creatorUsername || null,
       votes: s.votes !== undefined ? s.votes : 0,
+      setup_type: s.setupType || 'fixed',
+      open_params: s.openParams || null,
+      car_version: s.carVersion || null,
       created_at: s.createdAt,
       updated_at: s.updatedAt
     };
@@ -261,6 +264,9 @@ const Storage = {
       isPublic: d.is_public !== undefined ? d.is_public : true,
       creatorUsername: d.creator_username || 'Piloto',
       votes: d.votes !== undefined ? d.votes : 0,
+      setupType: d.setup_type || 'fixed',
+      openParams: d.open_params || null,
+      carVersion: d.car_version || null,
       createdAt: d.created_at,
       updatedAt: d.updated_at
     };

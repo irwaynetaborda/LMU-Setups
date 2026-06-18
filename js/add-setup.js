@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setDefaultDate();
   checkEditMode();
   bindFormSubmit();
+  bindSvmImport();
 });
 
 // ── CLASS PICKER ──────────────────────────────────────────────
@@ -154,14 +155,39 @@ function bindSliders() {
 
     // Entrada numérica → controle deslizante
     valEl.addEventListener('input', () => {
-      const clamped = Math.min(
-        parseFloat(slEl.max),
-        Math.max(parseFloat(slEl.min), parseFloat(valEl.value) || parseFloat(slEl.min))
-      );
-      slEl.value  = clamped;
-      valEl.value = clamped;
-      updateSliderTrack(slEl);
+      // Se estiver vazio ou for apenas um sinal de menos/ponto, não atualizamos o slider ainda
+      if (valEl.value === '' || isNaN(parseFloat(valEl.value))) return;
+      
+      const val = parseFloat(valEl.value);
+      const min = parseFloat(slEl.min);
+      const max = parseFloat(slEl.max);
+      
+      // Apenas movemos o slider e a barra se estiver dentro dos limites válidos
+      if (val >= min && val <= max) {
+        slEl.value = val;
+        updateSliderTrack(slEl);
+      }
     });
+
+    // Quando o usuário sai do campo ou confirma o valor, fazemos o clamping oficial
+    const clampValue = () => {
+      let val = parseFloat(valEl.value);
+      const min = parseFloat(slEl.min);
+      const max = parseFloat(slEl.max);
+
+      if (isNaN(val)) {
+        val = parseFloat(slEl.value);
+      } else {
+        val = Math.min(max, Math.max(min, val));
+      }
+      
+      slEl.value = val;
+      valEl.value = val;
+      updateSliderTrack(slEl);
+    };
+
+    valEl.addEventListener('blur', clampValue);
+    valEl.addEventListener('change', clampValue);
 
     updateSliderTrack(slEl);
   });
@@ -258,6 +284,14 @@ async function checkEditMode() {
   document.getElementById('f-notes').value     = setup.notes || '';
   document.getElementById('f-public').checked  = setup.isPublic !== false;
 
+  // Carrega campos do Setup Aberto
+  document.getElementById('f-setup-type').value = setup.setupType || 'fixed';
+  document.getElementById('f-car-version').value = setup.carVersion || '';
+  window.importedOpenParams = setup.openParams || null;
+  if (setup.setupType === 'open') {
+    document.getElementById('btn-import-svm').textContent = '📥 Reimportar Setup Aberto (.svm)';
+  }
+
   // Parâmetros (Sliders e Valores numéricos)
   const paramMap = {
     'sl-bb':   setup.brakeBias,
@@ -316,6 +350,9 @@ function bindFormSubmit() {
       rating,
       notes:        document.getElementById('f-notes').value.trim(),
       isPublic:     document.getElementById('f-public').checked,
+      setupType:    document.getElementById('f-setup-type').value || 'fixed',
+      carVersion:   document.getElementById('f-car-version').value || null,
+      openParams:   window.importedOpenParams || null,
     };
 
     if (editId) {
@@ -364,3 +401,412 @@ function showToast(msg, type = 'info') {
   container.appendChild(el);
   setTimeout(() => el.remove(), 4000);
 }
+
+// ── SVM IMPORT LOGIC ──────────────────────────────────────────
+window.importedOpenParams = null;
+
+function bindSvmImport() {
+  const btn = document.getElementById('btn-import-svm');
+  const fileInput = document.getElementById('svm-file-input');
+  
+  if (!btn || !fileInput) return;
+  
+  btn.addEventListener('click', () => {
+    fileInput.click();
+  });
+  
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      try {
+        const text = evt.target.result;
+        const parsed = parseSVM(text);
+        
+        if (!parsed.vehicleClassSetting) {
+          showToast('Formato de arquivo .svm inválido ou vazio.', 'error');
+          return;
+        }
+        
+        // Auto-detect class and car
+        const { classId, carId } = matchClassAndCar(parsed.vehicleClassSetting);
+        if (classId) {
+          selectClass(classId);
+          setTimeout(() => {
+            const carSel = document.getElementById('f-car');
+            if (carId) {
+              carSel.value = carId;
+              populateYears(carId);
+              
+              // Select first year as default if available
+              setTimeout(() => {
+                const yearSel = document.getElementById('f-year');
+                if (yearSel.options.length > 1) {
+                  yearSel.selectedIndex = 1;
+                }
+              }, 50);
+            }
+          }, 50);
+        }
+        
+        // Auto-detect version from //VEH= line
+        let carVersion = '';
+        const vehLine = text.split('\n').find(l => l.trim().startsWith('//VEH='));
+        if (vehLine) {
+          const match = vehLine.match(/[\\/](\d+\.\d+)[\\/][^\\/]+\.VEH$/i);
+          if (match) {
+            carVersion = match[1];
+          }
+        }
+        document.getElementById('f-car-version').value = carVersion;
+        
+        // Set notes if present
+        if (parsed.notes) {
+          document.getElementById('f-notes').value = parsed.notes;
+        }
+        
+        // Parse key params (Brake Bias, TC, ABS, etc.)
+        const keyParams = extractKeyParams(parsed);
+        if (keyParams.brakeBias != null) {
+          updateParamVal('sl-bb', 'val-bb', keyParams.brakeBias);
+        }
+        if (keyParams.tc != null) {
+          updateParamVal('sl-tc', 'val-tc', keyParams.tc);
+        }
+        if (keyParams.tcPowerCut != null) {
+          updateParamVal('sl-tcpc', 'val-tcpc', keyParams.tcPowerCut);
+        }
+        if (keyParams.tcSlipAngle != null) {
+          if (keyParams.tcSlipAngle === 'Linked') {
+            document.getElementById('sl-tcsa').disabled = true;
+            document.getElementById('val-tcsa').disabled = true;
+            document.getElementById('val-tcsa').type = 'text';
+            document.getElementById('val-tcsa').value = 'Linked';
+          } else {
+            updateParamVal('sl-tcsa', 'val-tcsa', keyParams.tcSlipAngle);
+          }
+        }
+        if (keyParams.abs != null) {
+          updateParamVal('sl-abs', 'val-abs', keyParams.abs);
+        }
+        if (keyParams.brakePressure != null) {
+          updateParamVal('sl-bp', 'val-bp', keyParams.brakePressure);
+        }
+        
+        // Save the parsed structure globally
+        window.importedOpenParams = parsed.sections;
+        document.getElementById('f-setup-type').value = 'open';
+        btn.textContent = '📥 Reimportar Setup Aberto (.svm)';
+        
+        // Open modal to confirm or select track
+        openImportTrackModal(file.name, parsed.notes || '');
+        
+      } catch (err) {
+        console.error(err);
+        showToast('Erro ao processar arquivo .svm: ' + err.message, 'error');
+      }
+      
+      // Reset file input value so same file can be selected again
+      fileInput.value = '';
+    };
+    
+    reader.readAsText(file);
+  });
+}
+
+function updateParamVal(sliderId, inputId, value) {
+  const sl = document.getElementById(sliderId);
+  const input = document.getElementById(inputId);
+  if (sl && input) {
+    sl.value = value;
+    input.value = value;
+    updateSliderTrack(sl);
+  }
+}
+
+// Track confirmation modal logic
+function openImportTrackModal(fileName, notesText) {
+  const modal = document.getElementById('modal-import-track');
+  const select = document.getElementById('import-track-select');
+  
+  if (!modal || !select) return;
+  
+  // Populate select options with all tracks
+  select.innerHTML = '<option value="">-- Escolha uma Pista --</option>';
+  [...LMU_DATA.tracks]
+    .sort((a, b) => a.shortName.localeCompare(b.shortName))
+    .forEach(t => {
+      select.insertAdjacentHTML('beforeend', `<option value="${t.id}">${t.flag} ${t.name}</option>`);
+    });
+    
+  // Try to detect track from name/notes
+  const detectedId = detectTrack(fileName, notesText);
+  if (detectedId) {
+    select.value = detectedId;
+  }
+  
+  modal.style.display = 'flex';
+  
+  // Handlers
+  const cancelBtn = document.getElementById('btn-cancel-import-track');
+  const confirmBtn = document.getElementById('btn-confirm-import-track');
+  
+  const close = () => {
+    modal.style.display = 'none';
+    cleanup();
+  };
+  
+  const confirm = () => {
+    const selectedTrackId = select.value;
+    if (!selectedTrackId) {
+      showToast('Por favor, selecione uma pista.', 'error');
+      return;
+    }
+    document.getElementById('f-track').value = selectedTrackId;
+    populateLayouts(selectedTrackId);
+    
+    showToast('Setup Aberto (.svm) importado com sucesso! Complete os outros campos e clique em Salvar.', 'success');
+    close();
+  };
+  
+  const cleanup = () => {
+    cancelBtn.removeEventListener('click', close);
+    confirmBtn.removeEventListener('click', confirm);
+  };
+  
+  cancelBtn.addEventListener('click', close);
+  confirmBtn.addEventListener('click', confirm);
+}
+
+// SVM Parser
+function parseSVM(text) {
+  const lines = text.split(/\r?\n/);
+  const result = {
+    vehicleClassSetting: '',
+    notes: '',
+    sections: {}
+  };
+
+  let currentSection = '';
+
+  for (let line of lines) {
+    line = line.trim();
+    if (!line) continue;
+
+    if (line.startsWith('VehicleClassSetting=')) {
+      const match = line.match(/VehicleClassSetting="([^"]+)"/);
+      if (match) {
+        result.vehicleClassSetting = match[1];
+      }
+      continue;
+    }
+
+    if (line.startsWith('[') && line.endsWith(']')) {
+      currentSection = line.substring(1, line.length - 1).toUpperCase();
+      result.sections[currentSection] = {};
+      continue;
+    }
+
+    if (line.includes('=')) {
+      const eqIdx = line.indexOf('=');
+      const key = line.substring(0, eqIdx).trim();
+      let valueWithComment = line.substring(eqIdx + 1).trim();
+
+      if (key.toUpperCase() === 'NOTES') {
+        let notesVal = valueWithComment;
+        if (notesVal.startsWith('"') && notesVal.endsWith('"')) {
+          notesVal = notesVal.substring(1, notesVal.length - 1);
+        }
+        if (notesVal.startsWith('NOTES=')) {
+          notesVal = notesVal.substring(6);
+        }
+        result.notes = notesVal.replace(/\\n/g, '\n').trim();
+        continue;
+      }
+
+      let rawVal = valueWithComment;
+      let displayVal = '';
+      if (valueWithComment.includes('//')) {
+        const parts = valueWithComment.split('//');
+        rawVal = parts[0].trim();
+        displayVal = parts[1].trim();
+      } else {
+        displayVal = rawVal;
+      }
+
+      if (rawVal.startsWith('"') && rawVal.endsWith('"')) {
+        rawVal = rawVal.substring(1, rawVal.length - 1);
+      }
+      if (displayVal.startsWith('"') && displayVal.endsWith('"')) {
+        displayVal = displayVal.substring(1, displayVal.length - 1);
+      }
+
+      if (currentSection) {
+        result.sections[currentSection][key] = {
+          raw: rawVal,
+          display: displayVal
+        };
+      }
+    }
+  }
+
+  return result;
+}
+
+// Extract Key parameters from parsed SVM
+function extractKeyParams(parsed) {
+  const controls = parsed.sections['CONTROLS'] || {};
+  
+  let brakeBias = null;
+  let tc = null;
+  let tcPowerCut = null;
+  let tcSlipAngle = null;
+  let abs = null;
+  let brakePressure = null;
+
+  // 1. Brake Bias
+  if (controls['RearBrakeSetting']) {
+    const display = controls['RearBrakeSetting'].display;
+    if (display) {
+      const match = display.match(/^([\d.]+)/);
+      if (match) {
+        brakeBias = parseFloat(match[1]);
+      }
+    }
+  }
+
+  // 2. TC
+  if (controls['TractionControlMapSetting']) {
+    tc = parseInt(controls['TractionControlMapSetting'].display);
+  }
+
+  // 3. TC Power Cut
+  if (controls['TCPowerCutMapSetting']) {
+    tcPowerCut = parseInt(controls['TCPowerCutMapSetting'].display);
+  }
+
+  // 4. TC Slip Angle
+  if (controls['TCSlipAngleMapSetting']) {
+    const display = controls['TCSlipAngleMapSetting'].display;
+    if (display && display.toLowerCase() === 'linked') {
+      tcSlipAngle = 'Linked';
+    } else {
+      tcSlipAngle = parseInt(display);
+    }
+  }
+
+  // 5. ABS
+  if (controls['AntilockBrakeSystemMapSetting']) {
+    const display = controls['AntilockBrakeSystemMapSetting'].display;
+    if (display) {
+      const match = display.match(/^(\d+)/);
+      if (match) {
+        abs = parseInt(match[1]);
+      }
+    }
+  }
+
+  // 6. Brake Pressure
+  if (controls['BrakePressureSetting']) {
+    const display = controls['BrakePressureSetting'].display;
+    if (display) {
+      const match = display.match(/\((\d+)%\)/);
+      if (match) {
+        brakePressure = parseInt(match[1]);
+      } else {
+        const rawNum = parseInt(display);
+        if (!isNaN(rawNum) && rawNum <= 100) {
+          brakePressure = rawNum;
+        }
+      }
+    }
+  }
+
+  return { brakeBias, tc, tcPowerCut, tcSlipAngle, abs, brakePressure };
+}
+
+// Heuristic Class & Car mapping
+function matchClassAndCar(vehicleClassSetting) {
+  const text = vehicleClassSetting.toLowerCase();
+  let classId = '';
+  let carId = '';
+  
+  if (text.includes('lmgt3') || text.includes('gt3')) {
+    classId = 'lmgt3';
+  } else if (text.includes('lmp2')) {
+    classId = 'lmp2';
+  } else if (text.includes('lmp3')) {
+    classId = 'lmp3';
+  } else if (text.includes('gte')) {
+    classId = 'gte';
+  } else if (text.includes('hypercar') || text.includes('lmh') || text.includes('lmdh') || text.includes('toyota_gr010') || text.includes('ferrari_499') || text.includes('porsche_963') || text.includes('cadillac') || text.includes('valkyrie')) {
+    classId = 'hypercar';
+  }
+  
+  if (classId === 'lmgt3') {
+    if (text.includes('bmw') || text.includes('m4')) carId = 'bmw_m4_gt3';
+    else if (text.includes('porsche') || text.includes('911') || text.includes('992')) carId = 'porsche_992_gt3';
+    else if (text.includes('aston') || text.includes('vantage')) carId = 'aston_vantage_gt3';
+    else if (text.includes('corvette') || text.includes('z06') || text.includes('c8.r')) carId = 'corvette_z06';
+    else if (text.includes('ferrari') || text.includes('296')) carId = 'ferrari_296_gt3';
+    else if (text.includes('ford') || text.includes('mustang')) carId = 'ford_mustang_gt3';
+    else if (text.includes('lamborghini') || text.includes('huracan')) carId = 'lamborghini_evo2';
+    else if (text.includes('lexus')) carId = 'lexus_rcf';
+    else if (text.includes('mclaren') || text.includes('720s')) carId = 'mclaren_720s';
+    else if (text.includes('mercedes') || text.includes('amg')) carId = 'mercedes_amg_gt3';
+  } else if (classId === 'lmp2') {
+    if (text.includes('oreca') || text.includes('07')) carId = 'oreca_07';
+  } else if (classId === 'lmp3') {
+    if (text.includes('ligier')) carId = 'ligier_p325';
+    else if (text.includes('ginetta')) carId = 'ginetta_g61';
+    else if (text.includes('duqueine')) carId = 'duqueine_d09';
+  } else if (classId === 'gte') {
+    if (text.includes('aston')) carId = 'aston_gte';
+    else if (text.includes('corvette')) carId = 'corvette_gte';
+    else if (text.includes('ferrari')) carId = 'ferrari_488_gte';
+    else if (text.includes('porsche')) carId = 'porsche_rsr19';
+  } else if (classId === 'hypercar') {
+    if (text.includes('toyota')) carId = 'toyota_gr010';
+    else if (text.includes('ferrari') || text.includes('499p')) carId = 'ferrari_499p';
+    else if (text.includes('porsche') || text.includes('963')) carId = 'porsche_963';
+    else if (text.includes('cadillac')) carId = 'cadillac_vseriesr';
+    else if (text.includes('bmw') && text.includes('evo')) carId = 'bmw_m_hybrid_evo';
+    else if (text.includes('bmw')) carId = 'bmw_m_hybrid_v8';
+    else if (text.includes('alpine')) carId = 'alpine_a424';
+    else if (text.includes('peugeot') && text.includes('2023')) carId = 'peugeot_9x8_23';
+    else if (text.includes('peugeot')) carId = 'peugeot_9x8_24';
+    else if (text.includes('glickenhaus')) carId = 'glickenhaus_007';
+    else if (text.includes('vanwall')) carId = 'vanwall_680';
+    else if (text.includes('isotta')) carId = 'isotta_tipo6';
+    else if (text.includes('lamborghini')) carId = 'lamborghini_sc63';
+    else if (text.includes('aston') || text.includes('valkyrie')) carId = 'aston_valkyrie';
+    else if (text.includes('genesis')) carId = 'genesis_gmr001';
+  }
+  
+  return { classId, carId };
+}
+
+// Guess Track ID from filename/notes
+function detectTrack(fileName, notesText) {
+  const combined = (fileName + " " + notesText).toLowerCase();
+  
+  if (combined.includes('sarthe') || combined.includes('le_mans') || combined.includes('le mans')) return 'le_mans';
+  if (combined.includes('spa')) return 'spa';
+  if (combined.includes('monza')) return 'monza';
+  if (combined.includes('bahrain')) return 'bahrain';
+  if (combined.includes('fuji')) return 'fuji';
+  if (combined.includes('portimao') || combined.includes('portimão') || combined.includes('algarve')) return 'portimao';
+  if (combined.includes('sebring')) return 'sebring';
+  if (combined.includes('imola')) return 'imola';
+  if (combined.includes('interlagos') || combined.includes('carlos pace') || combined.includes(' pace') || combined.includes('itl')) return 'interlagos';
+  if (combined.includes('cota') || combined.includes('americas')) return 'cota';
+  if (combined.includes('qatar') || combined.includes('lusail')) return 'qatar';
+  if (combined.includes('silverstone')) return 'silverstone';
+  if (combined.includes('ricard')) return 'paul_ricard';
+  if (combined.includes('barcelona') || combined.includes('catalunya')) return 'barcelona';
+  
+  return '';
+}
+

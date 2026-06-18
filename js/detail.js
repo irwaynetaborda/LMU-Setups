@@ -88,6 +88,7 @@ function renderDetail(s) {
   const creatorName = s.creatorUsername || 'Piloto';
   const initials = getInitials(creatorName);
   const trackMapUrl = getTrackMapUrl(trackName);
+  const avatarColor = (typeof Auth !== 'undefined') ? Auth.getAvatarColor(creatorName) : '#e8002d';
 
   root.innerHTML = `
     <!-- HERO -->
@@ -98,9 +99,11 @@ function renderDetail(s) {
           <div class="detail-hero-content">
             <div class="detail-badge-row">
               <span class="badge ${s.classId}">${clsName}</span>
+              <span class="badge-setup-type ${s.setupType || 'fixed'}">${(s.setupType || 'fixed') === 'open' ? 'Aberto' : 'Fixo'}</span>
               ${s.carYear ? `<span class="badge" style="background:var(--bg-overlay);color:var(--text-2);border:1px solid var(--border)">${s.carYear}</span>` : ''}
+              ${s.carVersion ? `<span class="badge" style="background:var(--bg-overlay);color:var(--gold-light);border:1px solid rgba(245,166,35,0.35)" title="Versão do carro/física">v${s.carVersion}</span>` : ''}
               <div class="detail-creator-chip" title="Criador do setup">
-                <div class="avatar-small">${initials}</div>
+                <div class="avatar-small" style="background:${avatarColor}">${initials}</div>
                 <span>Criador: <strong>${creatorName}</strong></span>
               </div>
               <button class="btn-vote ${hasVoted ? 'voted' : ''}" onclick="voteSetup('${s.id}', event)" title="${hasVoted ? 'Você já votou' : 'Votar neste setup'}">
@@ -181,29 +184,33 @@ function renderDetail(s) {
 
           <!-- Left: Parameters -->
           <div>
-            <div class="detail-card" style="margin-bottom:var(--s5)">
-              <div class="detail-card-title">⚙️ Parâmetros Fixed Setup</div>
-              <div class="param-items">
-                ${renderParamItem('Brake Bias', s.brakeBias, 45, 70, false, true)}
-                ${renderParamItem('TC', s.tc, 1, 11)}
-                ${renderParamItem('TC Power Cut', s.tcPowerCut, 1, 11)}
-                ${isLMP3
-                  ? `<div class="param-item" style="opacity:0.35">
-                       <span class="param-item-label">TC Slip Angle</span>
-                       <span class="param-item-val" style="font-size:0.875rem;color:var(--text-3)">Linked</span>
-                     </div>`
-                  : renderParamItem('TC Slip Angle', s.tcSlipAngle, 1, 11)
-                }
-                ${hasABS
-                  ? renderParamItem('ABS', s.abs, 1, 11)
-                  : `<div class="param-item" style="opacity:0.35">
-                       <span class="param-item-label">ABS</span>
-                       <span class="param-item-val" style="font-size:0.75rem;color:var(--text-3)">N/A (LMP3)</span>
-                     </div>`
-                }
-                ${renderParamItem('Brake Pressure', s.brakePressure, 50, 100, true)}
-              </div>
-            </div>
+            ${s.setupType === 'open' 
+              ? renderOpenParams(s.openParams, isLMP3, hasABS)
+              : `
+              <div class="detail-card" style="margin-bottom:var(--s5)">
+                <div class="detail-card-title">⚙️ Parâmetros Fixed Setup</div>
+                <div class="param-items">
+                  ${renderParamItem('Brake Bias', s.brakeBias, 45, 70, false, true)}
+                  ${renderParamItem('TC', s.tc, 1, 11)}
+                  ${renderParamItem('TC Power Cut', s.tcPowerCut, 1, 11)}
+                  ${isLMP3
+                    ? `<div class="param-item" style="opacity:0.35">
+                         <span class="param-item-label">TC Slip Angle</span>
+                         <span class="param-item-val" style="font-size:0.875rem;color:var(--text-3)">Linked</span>
+                       </div>`
+                    : renderParamItem('TC Slip Angle', s.tcSlipAngle, 1, 11)
+                  }
+                  ${hasABS
+                    ? renderParamItem('ABS', s.abs, 1, 11)
+                    : `<div class="param-item" style="opacity:0.35">
+                         <span class="param-item-label">ABS</span>
+                         <span class="param-item-val" style="font-size:0.75rem;color:var(--text-3)">N/A (LMP3)</span>
+                       </div>`
+                  }
+                  ${renderParamItem('Brake Pressure', s.brakePressure, 50, 100, true)}
+                </div>
+              </div>`
+            }
 
             <!-- Notes -->
             <div class="detail-card">
@@ -247,6 +254,9 @@ function renderDetail(s) {
   // Bind buttons
   const btnDelete = document.getElementById('btn-delete');
   if (btnDelete) btnDelete.addEventListener('click', () => openModal());
+  if (s.setupType === 'open') {
+    bindOpenParamsTabs();
+  }
 
   // Animate bars after render
   requestAnimationFrame(() => {
@@ -459,3 +469,194 @@ async function voteSetup(id, event) {
   }
 }
 window.voteSetup = voteSetup;
+
+function bindOpenParamsTabs() {
+  const tabs = document.querySelectorAll('.setup-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.setup-tab-content').forEach(content => {
+        content.style.display = 'none';
+        content.classList.remove('active');
+      });
+      
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+      const contentId = `tab-${tab.dataset.tab}`;
+      const content = document.getElementById(contentId);
+      if (content) {
+        content.style.display = 'block';
+        content.classList.add('active');
+      }
+    });
+  });
+}
+
+function renderOpenParams(openParams, isLMP3, hasABS) {
+  if (!openParams) {
+    return `
+      <div class="detail-card" style="margin-bottom:var(--s5); text-align:center; padding:var(--s10);">
+        <p style="color:var(--text-3);">Nenhum detalhe adicional de setup aberto disponível.</p>
+      </div>`;
+  }
+
+  const getP = (section, key, fallback = '—') => {
+    return openParams?.[section]?.[key]?.display || fallback;
+  };
+
+  const renderRow = (label, val) => `
+    <div class="w-param">
+      <span class="w-lbl">${label}</span>
+      <span class="w-val">${val}</span>
+    </div>`;
+
+  const renderWheelGrid = (title, itemsMapper) => `
+    <div class="wheel-grid-title">${title}</div>
+    <div class="wheel-grid">
+      <!-- FL -->
+      <div class="wheel-card FL">
+        <div class="wheel-header">FL <span class="wheel-sub">Dianteira Esquerda</span></div>
+        <div class="wheel-params">
+          ${itemsMapper('FRONTLEFT')}
+        </div>
+      </div>
+      <!-- FR -->
+      <div class="wheel-card FR">
+        <div class="wheel-header">FR <span class="wheel-sub">Dianteira Direita</span></div>
+        <div class="wheel-params">
+          ${itemsMapper('FRONTRIGHT')}
+        </div>
+      </div>
+      <!-- RL -->
+      <div class="wheel-card RL">
+        <div class="wheel-header">RL <span class="wheel-sub">Traseira Esquerda</span></div>
+        <div class="wheel-params">
+          ${itemsMapper('REARLEFT')}
+        </div>
+      </div>
+      <!-- RR -->
+      <div class="wheel-card RR">
+        <div class="wheel-header">RR <span class="wheel-sub">Traseira Direita</span></div>
+        <div class="wheel-params">
+          ${itemsMapper('REARRIGHT')}
+        </div>
+      </div>
+    </div>`;
+
+  return `
+    <div class="setup-tabs-container animate-in" style="margin-bottom:var(--s5)">
+      <div class="setup-tabs" role="tablist">
+        <button class="setup-tab active" data-tab="elec" role="tab" aria-selected="true">⚡ Eletrônica & Freios</button>
+        <button class="setup-tab" data-tab="aero" role="tab" aria-selected="false">🏎️ Aero & Pneus</button>
+        <button class="setup-tab" data-tab="susp" role="tab" aria-selected="false">🛠️ Suspensão</button>
+        <button class="setup-tab" data-tab="damp" role="tab" aria-selected="false">📈 Amortecedores</button>
+        <button class="setup-tab" data-tab="trans" role="tab" aria-selected="false">⚙️ Transmissão</button>
+      </div>
+
+      <!-- Tab 1: Eletrônica & Freios -->
+      <div class="setup-tab-content active" id="tab-elec" role="tabpanel">
+        <div class="detail-card">
+          <div class="detail-card-title">⚡ Controles Eletrônicos & Freios</div>
+          <div class="param-items grid-2col">
+            ${renderRow('Controle de Tração (TC)', getP('CONTROLS', 'TractionControlMapSetting'))}
+            ${renderRow('TC Power Cut', getP('CONTROLS', 'TCPowerCutMapSetting'))}
+            ${renderRow('TC Slip Angle', isLMP3 ? 'Linked' : getP('CONTROLS', 'TCSlipAngleMapSetting'))}
+            ${hasABS ? renderRow('ABS', getP('CONTROLS', 'AntilockBrakeSystemMapSetting')) : ''}
+            ${renderRow('Viés de Freio (Brake Bias)', getP('CONTROLS', 'RearBrakeSetting'))}
+            ${renderRow('Brake Migration', getP('CONTROLS', 'BrakeMigrationSetting'))}
+            ${renderRow('Pressão de Freio (Brake Pressure)', getP('CONTROLS', 'BrakePressureSetting'))}
+            ${renderRow('Mistura de Combustível', getP('ENGINE', 'EngineMixtureSetting'))}
+            ${renderRow('Limitador de Giros (Rev Limit)', getP('ENGINE', 'RevLimitSetting'))}
+            ${renderRow('Mapa de Regeneração', getP('ENGINE', 'RegenerationMapSetting'))}
+            ${renderRow('Mapa do Motor Elétrico', getP('ENGINE', 'ElectricMotorMapSetting'))}
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Aero & Pneus -->
+      <div class="setup-tab-content" id="tab-aero" style="display:none" role="tabpanel">
+        <div class="detail-card" style="margin-bottom:var(--s4)">
+          <div class="detail-card-title">✈️ Aerodinâmica Geral</div>
+          <div class="param-items grid-2col">
+            ${renderRow('Asa Traseira (Rear Wing)', getP('REARWING', 'RWSetting'))}
+            ${renderRow('Asa Dianteira (Front Wing)', getP('FRONTWING', 'FWSetting'))}
+            ${renderRow('Duto de Freio Dianteiro', getP('BODYAERO', 'BrakeDuctSetting'))}
+            ${renderRow('Duto de Freio Traseiro', getP('BODYAERO', 'BrakeDuctRearSetting'))}
+            ${renderRow('Radiador de Água', getP('BODYAERO', 'WaterRadiatorSetting'))}
+            ${renderRow('Radiador de Óleo', getP('BODYAERO', 'OilRadiatorSetting'))}
+            ${renderRow('Flares Paralama (Esquerdo)', getP('LEFTFENDER', 'FenderFlareSetting'))}
+            ${renderRow('Flares Paralama (Direito)', getP('RIGHTFENDER', 'FenderFlareSetting'))}
+          </div>
+        </div>
+        
+        <div class="detail-card">
+          ${renderWheelGrid('🎈 Pneus (Pressão & Composto)', wheel => `
+            ${renderRow('Pressão', getP(wheel, 'PressureSetting'))}
+            ${renderRow('Composto', getP(wheel, 'CompoundSetting'))}
+            ${renderRow('Brake Disc', getP(wheel, 'BrakeDiscSetting'))}
+            ${renderRow('Brake Pad', getP(wheel, 'BrakePadSetting'))}
+          `)}
+        </div>
+      </div>
+
+      <!-- Tab 3: Suspensão -->
+      <div class="setup-tab-content" id="tab-susp" style="display:none" role="tabpanel">
+        <div class="detail-card" style="margin-bottom:var(--s4)">
+          <div class="detail-card-title">🛠️ Geometria de Suspensão Geral</div>
+          <div class="param-items grid-2col">
+            ${renderRow('Barra Dianteira (Front Anti-Sway)', getP('SUSPENSION', 'FrontAntiSwaySetting'))}
+            ${renderRow('Barra Traseira (Rear Anti-Sway)', getP('SUSPENSION', 'RearAntiSwaySetting'))}
+            ${renderRow('Toe Dianteiro (Front Toe-in)', getP('SUSPENSION', 'FrontToeInSetting'))}
+            ${renderRow('Toe Traseiro (Rear Toe-in)', getP('SUSPENSION', 'RearToeInSetting'))}
+          </div>
+        </div>
+
+        <div class="detail-card">
+          ${renderWheelGrid('📐 Parâmetros de Suspensão por Roda', wheel => `
+            ${renderRow('Altura (Ride Height)', getP(wheel, 'RideHeightSetting'))}
+            ${renderRow('Cambagem (Camber)', getP(wheel, 'CamberSetting'))}
+            ${renderRow('Mola (Spring)', getP(wheel, 'SpringSetting'))}
+            ${renderRow('Tender Spring', getP(wheel, 'TenderSpringSetting'))}
+            ${renderRow('Tender Travel', getP(wheel, 'TenderTravelSetting'))}
+            ${renderRow('Packer', getP(wheel, 'PackerSetting'))}
+          `)}
+        </div>
+      </div>
+
+      <!-- Tab 4: Amortecedores -->
+      <div class="setup-tab-content" id="tab-damp" style="display:none" role="tabpanel">
+        <div class="detail-card">
+          ${renderWheelGrid('📈 Configuração de Amortecedores (Dampers)', wheel => `
+            ${renderRow('Bump Lento', getP(wheel, 'SlowBumpSetting'))}
+            ${renderRow('Bump Rápido', getP(wheel, 'FastBumpSetting'))}
+            ${renderRow('Rebound Lento', getP(wheel, 'SlowReboundSetting'))}
+            ${renderRow('Rebound Rápido', getP(wheel, 'FastReboundSetting'))}
+          `)}
+        </div>
+      </div>
+
+      <!-- Tab 5: Transmissão -->
+      <div class="setup-tab-content" id="tab-trans" style="display:none" role="tabpanel">
+        <div class="detail-card">
+          <div class="detail-card-title">⚙️ Transmissão &amp; Diferencial</div>
+          <div class="param-items grid-2col">
+            ${renderRow('Relação Final (Final Drive)', getP('DRIVELINE', 'FinalDriveSetting'))}
+            ${renderRow('Ratio Set', getP('DRIVELINE', 'RatioSetSetting'))}
+            ${renderRow('1ª Marcha', getP('DRIVELINE', 'Gear1Setting'))}
+            ${renderRow('2ª Marcha', getP('DRIVELINE', 'Gear2Setting'))}
+            ${renderRow('3ª Marcha', getP('DRIVELINE', 'Gear3Setting'))}
+            ${renderRow('4ª Marcha', getP('DRIVELINE', 'Gear4Setting'))}
+            ${renderRow('5ª Marcha', getP('DRIVELINE', 'Gear5Setting'))}
+            ${renderRow('6ª Marcha', getP('DRIVELINE', 'Gear6Setting'))}
+            ${renderRow('Ré (Reverse)', getP('DRIVELINE', 'ReverseSetting'))}
+            ${renderRow('Diff Power', getP('DRIVELINE', 'DiffPowerSetting'))}
+            ${renderRow('Diff Coast', getP('DRIVELINE', 'DiffCoastSetting'))}
+            ${renderRow('Diff Preload', getP('DRIVELINE', 'DiffPreloadSetting'))}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}

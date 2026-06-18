@@ -20,9 +20,15 @@ const Auth = (() => {
 
   function _fromFakeEmail(email) {
     if (!email) return '';
-    return email.endsWith(`@${FAKE_DOMAIN}`)
+    const raw = email.endsWith(`@${FAKE_DOMAIN}`)
       ? email.replace(`@${FAKE_DOMAIN}`, '')
       : email.split('@')[0];
+    
+    // Capitaliza a primeira letra de cada palavra separada por ponto, traço ou underline
+    return raw.split(/([._-])/).map(part => {
+      if (/^[._-]$/.test(part)) return part; // mantém o separador
+      return part.charAt(0).toUpperCase() + part.slice(1);
+    }).join('');
   }
 
   function _getInitials(email) {
@@ -30,6 +36,29 @@ const Auth = (() => {
     if (!username) return '?';
     const parts = username.split(/[._-]/);
     return parts.slice(0, 2).map(p => p[0]?.toUpperCase() || '').join('') || username[0].toUpperCase();
+  }
+
+  function _getAvatarColor(username) {
+    const AVATAR_COLORS = [
+      '#e8002d', // Vermelho LMU
+      '#f5a623', // Amarelo/Ouro
+      '#2563eb', // Azul
+      '#8b5cf6', // Roxo
+      '#ec4899', // Rosa
+      '#10b981', // Verde
+      '#06b6d4', // Ciano
+      '#f97316', // Laranja
+      '#14b8a6', // Teal
+      '#a855f7', // Roxo claro
+      '#6366f1'  // Indigo
+    ];
+    if (!username) return AVATAR_COLORS[0];
+    let hash = 0;
+    for (let i = 0; i < username.length; i++) {
+      hash = username.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % AVATAR_COLORS.length;
+    return AVATAR_COLORS[index];
   }
 
   function _validateUsername(username) {
@@ -61,6 +90,7 @@ const Auth = (() => {
     if (_user) {
       const username = _fromFakeEmail(_user.email);
       const initials = _getInitials(_user.email);
+      const avatarColor = _getAvatarColor(username);
 
       area.innerHTML = `
         <a href="add-setup.html" class="btn btn-primary" id="btn-new-setup">
@@ -68,7 +98,7 @@ const Auth = (() => {
           <span class="btn-text">Novo Setup</span>
         </a>
         <div class="user-chip" id="user-chip-btn" title="${username}">
-          <span class="user-chip-avatar">${initials}</span>
+          <span class="user-chip-avatar" style="background:${avatarColor}">${initials}</span>
           <span class="user-chip-email">${username}</span>
           <svg class="user-chip-caret" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
           <div class="user-chip-dropdown" id="user-dropdown">
@@ -428,6 +458,10 @@ const Auth = (() => {
     /** Retorna o username legível (sem o domínio fake) */
     getUsername() {
       return _user ? _fromFakeEmail(_user.email) : null;
+    },
+
+    getAvatarColor(username) {
+      return _getAvatarColor(username);
     },
 
     async logout() {

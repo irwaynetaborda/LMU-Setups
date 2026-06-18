@@ -6,10 +6,10 @@
   <title>Novo Setup — Taborda Setups</title>
   <meta name="description" content="Adicionar novo setup Fixed Setup para Le Mans Ultimate." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏁</text></svg>" />
-  <link rel="stylesheet" href="css/style.css?v=2.1" />
+  <link rel="stylesheet" href="css/style.css?v=2.7" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js?v=1.9"></script>
-  <script src="js/auth.js?v=1.9"></script>
+  <script src="js/auth.js?v=2.1"></script>
 </head>
 <body data-auth-protected="true">
 
@@ -39,6 +39,20 @@
       </div>
 
       <form id="setup-form" novalidate>
+
+        <!-- IMPORT ZONE -->
+        <div class="import-zone animate-in" style="margin-bottom: var(--s6);">
+          <button type="button" class="btn btn-secondary btn-import-svm" id="btn-import-svm" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: var(--s2); font-weight: 700; background: #08080eeb; border: 1px dashed var(--border); padding: var(--s5); border-radius: var(--r-md); transition: all 0.3s ease;">
+            📥 Importar Setup Aberto (.svm)
+          </button>
+          <div class="import-hint" style="font-size: 0.75rem; color: #ffffff; margin-top: var(--s2); text-align: center; line-height: 1.4;">
+            💡 <strong>Dica:</strong> Os setups do jogo ficam salvos em:<br>
+            <code style="background: var(--bg-surface); padding: 2px 6px; border-radius: var(--r-sm); font-family: monospace; font-size: 0.7rem; color: #ffffff; word-break: break-all; display: inline-block; margin-top: 4px;">C:\Program Files (x86)\Steam\steamapps\common\Le Mans Ultimate\UserData\player\Settings\[Nome_da_Pista]</code>
+          </div>
+          <input type="file" id="svm-file-input" accept=".svm" style="display:none;" />
+          <input type="hidden" id="f-setup-type" name="setupType" value="fixed" />
+          <input type="hidden" id="f-car-version" name="carVersion" value="" />
+        </div>
 
         <!-- ── 1. IDENTIFICAÇÃO ──────────────────────────── -->
         <div class="form-card animate-in">
@@ -306,6 +320,26 @@
       </form>
     </div><!-- /form-page -->
   </main>
+
+  <!-- Modal de Pista para Importação -->
+  <div class="modal-backdrop" id="modal-import-track" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="modal-import-track-title">
+    <div class="modal">
+      <h3 id="modal-import-track-title">📍 Qual é a pista do Setup?</h3>
+      <p style="margin-bottom:var(--s4); font-size:0.875rem; color:var(--text-3); line-height: 1.5;">
+        Os arquivos de configuração do jogo (.svm) não contêm informação sobre a pista. Confirme a pista correspondente abaixo:
+      </p>
+      <div class="form-field" style="margin-bottom:var(--s5)">
+        <label class="form-label" for="import-track-select">Selecione a Pista</label>
+        <select class="form-select" id="import-track-select">
+          <!-- Populado via Javascript -->
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="btn-cancel-import-track">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btn-confirm-import-track">Confirmar</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Toast -->
   <div class="toast-container" id="toast-container" aria-live="polite"></div>
