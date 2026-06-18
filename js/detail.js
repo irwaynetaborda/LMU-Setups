@@ -65,6 +65,17 @@ function renderDetail(s) {
   const currentUserId = isLoggedIn ? Auth.getUser()?.id : null;
   const isOwner = s.userId && s.userId === currentUserId;
 
+  let hasVoted = false;
+  if (isLoggedIn && currentUserId) {
+    try {
+      const votedKey = `voted_setups_${currentUserId}`;
+      const voted = JSON.parse(localStorage.getItem(votedKey) || '[]');
+      hasVoted = voted.includes(s.id);
+    } catch (e) {
+      hasVoted = false;
+    }
+  }
+
   const actionsHtml = isOwner ? `
             <a href="add-setup.html?edit=${s.id}" class="btn btn-secondary btn-sm" title="Editar setup">
               ✏️ Editar
@@ -74,20 +85,28 @@ function renderDetail(s) {
             </button>
   ` : '';
 
+  const creatorName = s.creatorUsername || 'Piloto';
+  const initials = getInitials(creatorName);
+  const trackMapUrl = getTrackMapUrl(trackName);
+
   root.innerHTML = `
     <!-- HERO -->
     <section class="detail-hero animate-in">
       <div class="container">
         <div class="detail-hero-layout">
-          
-          <div class="detail-hero-actions">
-            ${actionsHtml}
-          </div>
 
           <div class="detail-hero-content">
             <div class="detail-badge-row">
               <span class="badge ${s.classId}">${clsName}</span>
               ${s.carYear ? `<span class="badge" style="background:var(--bg-overlay);color:var(--text-2);border:1px solid var(--border)">${s.carYear}</span>` : ''}
+              <div class="detail-creator-chip" title="Criador do setup">
+                <div class="avatar-small">${initials}</div>
+                <span>Criador: <strong>${creatorName}</strong></span>
+              </div>
+              <button class="btn-vote ${hasVoted ? 'voted' : ''}" onclick="voteSetup('${s.id}', event)" title="${hasVoted ? 'Você já votou' : 'Votar neste setup'}">
+                <span class="star-icon">★</span>
+                <span class="vote-count">${s.votes || 0}</span>
+              </button>
             </div>
 
             <h1 class="detail-title" style="display:flex; align-items:center; gap:var(--s3);">
@@ -109,18 +128,47 @@ function renderDetail(s) {
                 <strong>Data</strong>
                 ${s.date ? formatDate(s.date) : '—'}
               </div>
-              <div class="detail-meta-item">
-                <strong>Salvo em</strong>
-                ${formatDateTime(s.createdAt)}
-              </div>
-              ${s.updatedAt && s.updatedAt !== s.createdAt ? `
-              <div class="detail-meta-item">
-                <strong>Atualizado</strong>
-                ${formatDateTime(s.updatedAt)}
-              </div>` : ''}
             </div>
 
           </div> <!-- /detail-hero-content -->
+
+          <!-- Sidebar container for actions & reference -->
+          <div class="detail-hero-sidebar">
+            ${actionsHtml ? `<div class="detail-hero-actions">${actionsHtml}</div>` : ''}
+            
+            <div class="detail-hero-reference">
+              <div class="detail-hero-reference-title">📋 Referência Rápida</div>
+              <div class="detail-hero-reference-grid">
+                <div class="ref-item">
+                  <span class="ref-label">Brake Bias</span>
+                  <span class="ref-value">${formatBB(s.brakeBias)}</span>
+                </div>
+                <div class="ref-item">
+                  <span class="ref-label">Traction Control</span>
+                  <span class="ref-value">${s.tc ?? '—'}</span>
+                </div>
+                <div class="ref-item">
+                  <span class="ref-label">TC Power Cut</span>
+                  <span class="ref-value">${s.tcPowerCut ?? '—'}</span>
+                </div>
+                <div class="ref-item">
+                  <span class="ref-label">TC Slip Angle</span>
+                  <span class="ref-value">${isLMP3 ? 'Linked' : (s.tcSlipAngle ?? '—')}</span>
+                </div>
+                ${hasABS ? `
+                <div class="ref-item">
+                  <span class="ref-label">ABS</span>
+                  <span class="ref-value">${s.abs ?? '—'}</span>
+                </div>` : ''}
+                <div class="ref-item">
+                  <span class="ref-label">Brake Pressure</span>
+                  <span class="ref-value">${s.brakePressure ?? '—'}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <img src="${trackMapUrl}" class="detail-hero-track-map" alt="Mapa da pista" onerror="this.style.display='none'" />
 
         </div> <!-- /detail-hero-layout -->
       </div>
@@ -179,28 +227,15 @@ function renderDetail(s) {
             </div>
 
             <!-- Rating -->
-            <div class="detail-card" style="text-align:center">
+            <div class="detail-card detail-rating-card" style="text-align:center">
               <div class="detail-card-title">⭐ Avaliação</div>
-              <div class="rating-display" style="margin-top:var(--s2);justify-content:center">
+              <div class="rating-display" style="margin-top:var(--s2)">
                 <div class="stars">
                   ${[1,2,3,4,5].map(i =>
                     `<span class="star ${i <= (s.rating||0) ? 'on' : ''}">★</span>`
                   ).join('')}
                 </div>
                 <span class="rating-text">${ratingLabel(s.rating)}</span>
-              </div>
-            </div>
-
-            <!-- Quick params copy box -->
-            <div class="detail-card" id="copy-box" style="text-align:center">
-              <div class="detail-card-title">📋 Referência Rápida</div>
-              <div style="font-family:var(--f-outfit);font-size:0.8125rem;line-height:2;color:#fff">
-                <div>Brake Bias: <strong style="color:var(--text-1)">${formatBB(s.brakeBias)}</strong></div>
-                <div>Traction Control: <strong style="color:var(--text-1)">${s.tc ?? '—'}</strong></div>
-                <div>TC Power Cut: <strong style="color:var(--text-1)">${s.tcPowerCut ?? '—'}</strong></div>
-                <div>TC Slip Angle: <strong style="color:var(--text-1)">${isLMP3 ? 'Linked' : (s.tcSlipAngle ?? '—')}</strong></div>
-                ${hasABS ? `<div>ABS: <strong style="color:var(--text-1)">${s.abs ?? '—'}</strong></div>` : ''}
-                <div>Brake Pressure: <strong style="color:var(--text-1)">${s.brakePressure ?? '—'}%</strong></div>
               </div>
             </div>
 
@@ -266,7 +301,7 @@ async function confirmDelete() {
 
 // ── HELPERS ───────────────────────────────────────────────────
 function ratingLabel(r) {
-  const labels = ['Sem avaliação', '😬 Horrível', '😕 Ruim', '🙂 OK', '😊 Bom', '🤩 Excelente'];
+  const labels = ['Sem avaliação', 'Horrível', 'Ruim', 'OK', 'Bom', 'Excelente'];
   return labels[r || 0];
 }
 
@@ -306,3 +341,121 @@ function showToast(msg, type = 'info') {
   container.appendChild(el);
   setTimeout(() => el.remove(), 3500);
 }
+
+// ── CREATOR & TRACK MAP HELPERS ────────────────────────────────
+function getInitials(username) {
+  if (!username) return '?';
+  const parts = username.split(/[._-]/);
+  return parts.slice(0, 2).map(p => p[0]?.toUpperCase() || '').join('') || username[0].toUpperCase();
+}
+
+function getTrackMapUrl(trackName) {
+  const TRACK_NAMES = [
+    'Spa-Francorchamps', 'Le Mans', 'Bahrain', 'Fuji', 'Monza', 'Sebring', 
+    'Portimao', 'Algarve', 'Imola', 'Interlagos', 'COTA', 'Silverstone', 'Lusail', 'Paul Ricard', 'Barcelona'
+  ];
+  let foundKey = 'default';
+  if (trackName) {
+    const t = trackName.toLowerCase();
+    for (const key of TRACK_NAMES) {
+      if (t.includes(key.toLowerCase()) || 
+          (key === 'Portimao' && t.includes('algarve')) ||
+          (key === 'Algarve' && t.includes('portimao')) ||
+          (key === 'Le Mans' && t.includes('sarthe')) ||
+          (key === 'Interlagos' && (t.includes('interlagos') || t.includes('carlos pace')))) {
+        foundKey = key;
+        break;
+      }
+    }
+  }
+  
+  // Normaliza o nome do arquivo (ex: 'Paul Ricard' -> 'paul-ricard', 'Spa-Francorchamps' -> 'spa-francorchamps')
+  let fileName = foundKey.toLowerCase().replace(/\s+/g, '-');
+  if (fileName === 'algarve') fileName = 'portimao';
+  return `img/maps/${fileName}.png`;
+}
+
+// ── VOTING LOGIC ───────────────────────────────────────────────
+async function voteSetup(id, event) {
+  if (event) event.stopPropagation();
+
+  const isLoggedIn = (typeof Auth !== 'undefined') ? Auth.isAuthenticated() : false;
+  if (!isLoggedIn) {
+    showToast('Você precisa fazer login para votar.', 'error');
+    return;
+  }
+
+  let voted = [];
+  const userId = Auth.getUser()?.id || 'anon';
+  const votedKey = `voted_setups_${userId}`;
+  try {
+    voted = JSON.parse(localStorage.getItem(votedKey) || '[]');
+  } catch (e) {
+    voted = [];
+  }
+
+  const alreadyVoted = voted.includes(id);
+  let diff = 0;
+
+  if (alreadyVoted) {
+    voted = voted.filter(x => x !== id);
+    diff = -1;
+  } else {
+    voted.push(id);
+    diff = 1;
+  }
+  localStorage.setItem(votedKey, JSON.stringify(voted));
+
+  // Update detail object
+  if (currentSetup && currentSetup.id === id) {
+    currentSetup.votes = Math.max((currentSetup.votes || 0) + diff, 0);
+  }
+
+  const newCount = currentSetup ? currentSetup.votes : 0;
+
+  // Update UI immediately
+  const btn = document.querySelector(`.btn-vote`);
+  if (btn) {
+    if (alreadyVoted) {
+      btn.classList.remove('voted');
+      btn.setAttribute('title', 'Votar neste setup');
+    } else {
+      btn.classList.add('voted');
+      btn.setAttribute('title', 'Você já votou');
+    }
+    const countEl = btn.querySelector('.vote-count');
+    if (countEl) {
+      countEl.textContent = newCount;
+    }
+  }
+
+  // Update database
+  if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+    try {
+      const rpcName = diff > 0 ? 'increment_votes' : 'decrement_votes';
+      const { error } = await supabaseClient.rpc(rpcName, { row_id: id });
+      if (error) throw error;
+
+      // Update offline Storage cache
+      const allLocal = Storage._getAllLocal();
+      const idx = allLocal.findIndex(s => s.id === id);
+      if (idx !== -1) {
+        allLocal[idx].votes = newCount;
+        allLocal[idx].updatedAt = new Date().toISOString();
+        Storage._persist(allLocal);
+      }
+    } catch (err) {
+      console.error("[Supabase] Erro ao alterar voto:", err);
+      await Storage.update(id, { votes: newCount });
+    }
+  } else {
+    await Storage.update(id, { votes: newCount });
+  }
+
+  if (alreadyVoted) {
+    showToast('Voto removido.', 'error');
+  } else {
+    showToast('Voto registrado! Obrigado.', 'success');
+  }
+}
+window.voteSetup = voteSetup;

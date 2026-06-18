@@ -400,6 +400,11 @@ const Auth = (() => {
         _user = session?.user || null;
         _updateHeader();
 
+        if (options.protected && !_user) {
+          window.location.replace('index.html');
+          return;
+        }
+
         if (event === 'SIGNED_IN') {
           if (typeof loadAndRender === 'function') await loadAndRender();
         }
