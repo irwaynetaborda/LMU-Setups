@@ -1,7 +1,10 @@
 // ============================================================
 //  LMU SETUPS — detail.js
 //  Lógica da página de detalhe (setup-detail.html)
-// ============================================================
+// ===========================================================
+//  LMU SETUPS — detail.js
+//  Lógica da página de detalhe (setup-detail.html)
+// ===========================================================
 
 let currentSetup = null;
 
@@ -78,14 +81,23 @@ function renderDetail(s) {
     }
   }
 
-  const actionsHtml = isOwner ? `
-            <a href="add-setup.html?edit=${s.id}" class="btn btn-secondary btn-sm" title="Editar setup">
-              ✏️ Editar
-            </a>
-            <button class="btn btn-danger btn-sm" id="btn-delete" title="Deletar setup">
-              🗑 Deletar
-            </button>
-  ` : '';
+  const canDownload = s.isPublic || isOwner;
+  const downloadBtn = canDownload
+    ? `<button class="btn-icon-download" id="btn-download-svm" title="Baixar .svm"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Download</span></button>`
+    : '';
+
+  const ownerButtons = isOwner
+    ? `<a href="add-setup.html?edit=${s.id}" class="btn btn-secondary btn-sm" title="Editar setup">✏️ Editar</a>
+       <button class="btn btn-danger btn-sm" id="btn-delete" title="Deletar setup">🗑 Deletar</button>`
+    : '';
+
+  // actionsHtml — só renderiza se houver algo
+  const hasActions = isOwner || canDownload;
+  const actionsHtml = hasActions
+    ? (isOwner
+        ? `${downloadBtn}${ownerButtons}`
+        : downloadBtn)
+    : '';
 
   const creatorName = s.creatorUsername || 'Piloto';
   const initials = getInitials(creatorName);
@@ -104,10 +116,6 @@ function renderDetail(s) {
               <span class="badge-setup-type ${s.setupType || 'fixed'}">${(s.setupType || 'fixed') === 'open' ? 'Aberto' : 'Fixo'}</span>
               ${s.carYear ? `<span class="badge" style="background:var(--bg-overlay);color:var(--text-2);border:1px solid var(--border)">${s.carYear}</span>` : ''}
               ${s.carVersion ? `<span class="badge" style="background:var(--bg-overlay);color:var(--gold-light);border:1px solid rgba(245,166,35,0.35)" title="Versão do carro/física">v${s.carVersion}</span>` : ''}
-              <div class="detail-creator-chip" title="Criador do setup">
-                <div class="avatar-small" style="background:${avatarColor}">${initials}</div>
-                <span>Criador: <strong>${creatorName}</strong></span>
-              </div>
               <button class="btn-vote ${hasVoted ? 'voted' : ''}" onclick="voteSetup('${s.id}', event)" title="${hasVoted ? 'Você já votou' : 'Votar neste setup'}">
                 <span class="star-icon">★</span>
                 <span class="vote-count">${s.votes || 0}</span>
@@ -119,21 +127,30 @@ function renderDetail(s) {
               <span>${carName}</span>
             </h1>
             <p class="detail-sub">
-              ${track?.flag || ''} ${trackName}${s.trackLayout ? ` — ${s.trackLayout}` : ''}
+              ${track?.flag || ''} ${track?.shortName ? `${track.shortName} — ` : ''}${trackName}${s.trackLayout ? ` — ${s.trackLayout}` : ''}
             </p>
 
-            <div class="detail-tags">
-              ${cond  ? `<span class="detail-tag">${cond.icon}  ${cond.name}</span>`   : ''}
-              ${sess  ? `<span class="detail-tag">${sess.icon}  ${sess.name}</span>`   : ''}
-              ${series? `<span class="detail-tag">🏆 ${series.name}</span>`            : ''}
+            <div class="detail-creator-chip" title="Criador do setup" style="margin-top:var(--s4); margin-bottom:var(--s4);">
+              <div class="avatar-small" style="background:${avatarColor}">${initials}</div>
+              <span>Criador: <strong>${creatorName}</strong></span>
             </div>
+
+            ${(cond || sess || series) ? `
+            <div class="detail-tags">
+              ${cond   ? `<span class="detail-tag">${cond.icon}  ${cond.name}</span>`   : ''}
+              ${sess   ? `<span class="detail-tag">${sess.icon}  ${sess.name}</span>`   : ''}
+              ${series ? `<span class="detail-tag">🏆 ${series.name}</span>`            : ''}
+            </div>` : ''}
 
           </div> <!-- /detail-hero-content -->
 
           <!-- Sidebar container for actions & reference -->
           <div class="detail-hero-sidebar">
-            ${actionsHtml ? `<div class="detail-hero-actions">${actionsHtml}</div>` : ''}
-            
+            ${isOwner
+              ? `<div class="detail-hero-actions">${actionsHtml}</div>`
+              : (canDownload ? `<div class="detail-hero-actions">${downloadBtn}</div>` : '')
+            }
+
             <div class="detail-hero-reference">
               <div class="detail-hero-reference-title">📋 Referência Rápida</div>
               <div class="detail-hero-reference-grid">
@@ -256,6 +273,24 @@ function renderDetail(s) {
   // Bind buttons
   const btnDelete = document.getElementById('btn-delete');
   if (btnDelete) btnDelete.addEventListener('click', () => openModal());
+  const btnDownload = document.getElementById('btn-download-svm');
+  if (btnDownload) {
+    btnDownload.addEventListener('click', async () => {
+      const setup = await Storage.getById(s.id);
+      const content = window.SVM.gerarSVM(setup);
+      const blob = new Blob([content], { type: 'application/octet-stream' });
+      const trackObj = LMU_DATA.getTrackById(setup.trackId);
+      const trackSlug = (trackObj?.shortName || setup.trackId || 'track')
+        .toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/(^_|_$)/g, '');
+      const name = `${trackSlug}-${setup.carId}-${setup.setupType || 'fixed'}.svm`;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      showToast('📥 Arquivo .svm baixado com sucesso.', 'success');
+    });
+  }
   if (s.setupType === 'open') {
     bindOpenParamsTabs();
   }
@@ -277,7 +312,9 @@ function formatBB(val) {
 
 function renderParamItem(label, value, min, max, isPercent = false, isBB = false) {
   if (value == null) return '';
-  const pct = Math.round(((value - min) / (max - min)) * 100);
+  const rawPct = Math.round(((value - min) / (max - min)) * 100);
+  // Garante barra mínima visível (4%) mesmo no valor mínimo
+  const pct = rawPct === 0 ? 4 : rawPct;
   let display = value;
   if (isPercent) display = `${value}%`;
   if (isBB) display = formatBB(value);

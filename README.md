@@ -10,6 +10,8 @@ Uma biblioteca pessoal e painel de controle interativo para gerenciar configura�
 - **Filtros Avançados:** Busque e filtre seus setups por classe (Hypercar, LMP2, LMGTE), carro, pista, condição de pista (Seco, Chuva, Misto) e tipo de sessão (Qualifying, Sprint Race, Endurance).
 - **Métricas e Avaliações:** Registre tempos de volta, notas de desempenho, nível de aderência e anotações detalhadas de telemetria ou comportamento do carro.
 - **Painel de Estatísticas:** Acompanhe o total de setups cadastrados, média de avaliação, pista mais utilizada e distribuição gráfica por classe de veículos.
+- **Exportação .SVM de Alta Fidelidade:** Baixe suas configurações diretamente em arquivos `.svm` compatíveis com o jogo. O gerador recria todas as 15 seções originais e converte parâmetros do usuário (como Brake Bias e Brake Pressure) em índices brutos de física do LMU, garantindo arquivos estruturalmente idênticos aos gerados pelo simulador.
+
 
 ### 2. ⛽ Calculadora de Pitstop Avançada
 - **Abas de Categoria Dinâmicas**: Layout especializado que se adapta de acordo com o veículo (Hypercar/LMGT3 com uso de Energia Virtual, e LMP2/LMP3/LMGTE com tanques físicos tradicionais).

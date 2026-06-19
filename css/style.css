@@ -456,6 +456,15 @@ ol {
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
 }
 
+@media (max-width: 600px) {
+  .stat-card-map {
+    display: none !important;
+  }
+  .detail-hero-track-map {
+    display: none !important;
+  }
+}
+
 /* ── BRAND STATS GRID ─────────────────────────────────────────── */
 .stat-card-brands {
   padding: 12px 14px;
@@ -1566,7 +1575,7 @@ tr:hover .row-actions {
 /* ── DETAIL PAGE ─────────────────────────────────────────── */
 .detail-hero {
   background: transparent;
-  padding: var(--s6) 0 0 0;
+  padding: var(--s4) 0 0 0;
   position: relative;
 }
 
@@ -1574,7 +1583,7 @@ tr:hover .row-actions {
   display: flex;
   gap: var(--s8);
   align-items: flex-start;
-  justify-content: center;
+  justify-content: flex-start;
   flex-direction: column;
   text-align: left;
   position: relative;
@@ -1583,7 +1592,7 @@ tr:hover .row-actions {
   background: #08080eeb;
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
-  padding: var(--s8) var(--s6);
+  padding: var(--s5) var(--s6);
   overflow: hidden;
 }
 
@@ -1619,6 +1628,37 @@ tr:hover .row-actions {
   display: flex;
   gap: var(--s3);
   justify-content: flex-end;
+  align-items: center;
+}
+
+/* Botão ícone de download .svm */
+.btn-icon-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  width: auto;
+  padding: 0 var(--s4);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-2);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast), transform var(--t-fast);
+  flex-shrink: 0;
+}
+.btn-icon-download:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--white);
+  border-color: rgba(255,255,255,0.3);
+  transform: translateY(-1px);
+}
+.btn-icon-download:active {
+  transform: translateY(0);
 }
 
 .detail-hero-reference {
@@ -1714,7 +1754,7 @@ tr:hover .row-actions {
 @media (min-width: 769px) {
   .detail-hero-layout {
     flex-direction: row;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
   }
   
@@ -1745,7 +1785,7 @@ tr:hover .row-actions {
   align-items: center;
   justify-content: flex-start;
   gap: var(--s2);
-  margin-bottom: var(--s4);
+  margin-bottom: var(--s6);
   flex-wrap: wrap;
 }
 
@@ -1805,7 +1845,7 @@ tr:hover .row-actions {
 
 /* ── DETAIL CONTENT ──────────────────────────────────────── */
 .detail-content {
-  padding: var(--s8) 0 var(--s16);
+  padding: var(--s4) 0 var(--s16);
 }
 
 .detail-layout {
@@ -1877,8 +1917,9 @@ tr:hover .row-actions {
   font-size: 1rem;
   font-weight: 700;
   color: var(--text-1);
-  min-width: 54px;
+  min-width: 80px;
   text-align: right;
+  white-space: nowrap;
 }
 
 /* Exibição do tempo de volta */

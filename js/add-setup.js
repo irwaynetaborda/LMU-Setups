@@ -443,7 +443,10 @@ function bindSvmImport() {
   fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
+    if (!file.name.toLowerCase().endsWith('.svm')) {
+      showToast('Apenas arquivos .svm são permitidos.', 'error');
+      return;
+    }
     const reader = new FileReader();
     reader.onload = function(evt) {
       try {
