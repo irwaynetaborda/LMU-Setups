@@ -57,7 +57,7 @@ const LMU_DATA = {
       name: 'Circuit de Spa-Francorchamps',
       shortName: 'Spa',
       country: 'Bélgica', flag: '🇧🇪',
-      layouts: ['Grand Prix', 'Endurance'],
+      layouts: ['Grand Prix', 'Endurance Layout'],
       dlc: false, series: 'WEC',
     },
     {
@@ -65,7 +65,7 @@ const LMU_DATA = {
       name: 'Autodromo Nazionale Monza',
       shortName: 'Monza',
       country: 'Itália', flag: '🇮🇹',
-      layouts: ['Grand Prix'],
+      layouts: ['Grand Prix', 'Curva Grande Layout'],
       dlc: false, series: 'WEC',
     },
     {
@@ -73,7 +73,7 @@ const LMU_DATA = {
       name: 'Bahrain International Circuit',
       shortName: 'Bahrain',
       country: 'Bahrein', flag: '🇧🇭',
-      layouts: ['Endurance Circuit', 'Grand Prix Circuit', 'Outer Circuit', 'Paddock Circuit'],
+      layouts: ['Grand Prix', 'Endurance', 'Outer', 'Paddock'],
       dlc: false, series: 'WEC',
     },
     {
@@ -81,7 +81,7 @@ const LMU_DATA = {
       name: 'Fuji Speedway',
       shortName: 'Fuji',
       country: 'Japão', flag: '🇯🇵',
-      layouts: ['Grand Prix'],
+      layouts: ['Grand Prix', 'Classic Layout (No Chicane)'],
       dlc: false, series: 'WEC',
     },
     {
@@ -89,7 +89,7 @@ const LMU_DATA = {
       name: 'Algarve International Circuit',
       shortName: 'Portimão',
       country: 'Portugal', flag: '🇵🇹',
-      layouts: ['Full Circuit'],
+      layouts: ['Grand Prix', 'ELMS Layout'],
       dlc: false, series: 'WEC',
     },
     {
@@ -97,7 +97,7 @@ const LMU_DATA = {
       name: 'Sebring International Raceway',
       shortName: 'Sebring',
       country: 'EUA', flag: '🇺🇸',
-      layouts: ['Full Circuit'],
+      layouts: ['Full Circuit', 'School Circuit'],
       dlc: false, series: 'WEC',
     },
     {
@@ -105,7 +105,7 @@ const LMU_DATA = {
       name: 'Autodromo Enzo e Dino Ferrari',
       shortName: 'Imola',
       country: 'Itália', flag: '🇮🇹',
-      layouts: ['Grand Prix'],
+      layouts: ['Grand Prix', 'ELMS Layout'],
       dlc: true, series: 'WEC',
     },
     {
@@ -121,7 +121,7 @@ const LMU_DATA = {
       name: 'Circuit of the Americas',
       shortName: 'COTA',
       country: 'EUA', flag: '🇺🇸',
-      layouts: ['Grand Prix'],
+      layouts: ['Grand Prix', 'National Circuit'],
       dlc: true, series: 'WEC',
     },
     {
@@ -129,7 +129,7 @@ const LMU_DATA = {
       name: 'Lusail International Circuit',
       shortName: 'Qatar',
       country: 'Catar', flag: '🇶🇦',
-      layouts: ['Grand Prix'],
+      layouts: ['Grand Prix', 'Short'],
       dlc: true, series: 'WEC',
     },
     {
@@ -137,7 +137,7 @@ const LMU_DATA = {
       name: 'Silverstone Circuit',
       shortName: 'Silverstone',
       country: 'Reino Unido', flag: '🇬🇧',
-      layouts: ['National', 'International', 'WEC Grand Prix'],
+      layouts: ['GP (WEC)', 'International', 'National'],
       dlc: true, series: 'ELMS',
     },
     {
@@ -145,7 +145,7 @@ const LMU_DATA = {
       name: 'Circuit Paul Ricard',
       shortName: 'Paul Ricard',
       country: 'França', flag: '🇫🇷',
-      layouts: ['WEC', 'Short Circuit', 'Long Circuit', 'Grand Prix'],
+      layouts: ['1a', '1av2', '1av2-Short', '3a'],
       dlc: true, series: 'ELMS',
     },
     {
