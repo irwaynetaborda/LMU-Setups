@@ -226,6 +226,12 @@ const Storage = {
   },
 
   _mapToDb(s) {
+    const parseNum = (val, isFloat = false) => {
+      if (val === 'Linked' || val === 'linked') return null;
+      const parsed = isFloat ? parseFloat(val) : parseInt(val);
+      return isNaN(parsed) ? null : parsed;
+    };
+
     return {
       id: s.id,
       user_id: s.userId || null,
@@ -237,19 +243,19 @@ const Storage = {
       condition: s.condition,
       session_type: s.sessionType,
       series: s.series,
-      brake_bias: s.brakeBias,
-      tc: s.tc,
-      tc_power_cut: s.tcPowerCut,
-      tc_slip_angle: s.tcSlipAngle,
-      abs: s.abs,
-      brake_pressure: s.brakePressure,
+      brake_bias: parseNum(s.brakeBias, true),
+      tc: parseNum(s.tc),
+      tc_power_cut: parseNum(s.tcPowerCut),
+      tc_slip_angle: parseNum(s.tcSlipAngle),
+      abs: parseNum(s.abs),
+      brake_pressure: parseNum(s.brakePressure),
       laptime: s.laptime,
       date: s.date,
-      rating: s.rating,
+      rating: parseNum(s.rating),
       notes: s.notes,
       is_public: s.isPublic !== undefined ? s.isPublic : true,
       creator_username: s.creatorUsername || null,
-      votes: s.votes !== undefined ? s.votes : 0,
+      votes: parseNum(s.votes) || 0,
       setup_type: s.setupType || 'fixed',
       open_params: s.openParams || null,
       car_version: s.carVersion || null,
@@ -260,6 +266,7 @@ const Storage = {
   },
 
   _mapFromDb(d) {
+    const isLinkedClass = d.class_id === 'lmp2' || d.class_id === 'lmp3';
     return {
       id: d.id,
       userId: d.user_id,
@@ -274,7 +281,7 @@ const Storage = {
       brakeBias: d.brake_bias ? parseFloat(d.brake_bias) : null,
       tc: d.tc,
       tcPowerCut: d.tc_power_cut,
-      tcSlipAngle: d.tc_slip_angle,
+      tcSlipAngle: (d.tc_slip_angle === null && isLinkedClass) ? 'Linked' : d.tc_slip_angle,
       abs: d.abs,
       brakePressure: d.brake_pressure,
       laptime: d.laptime,
