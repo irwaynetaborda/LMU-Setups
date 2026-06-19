@@ -1631,25 +1631,34 @@ tr:hover .row-actions {
   align-items: center;
 }
 
+.detail-hero-actions .btn {
+  height: 36px;
+  box-sizing: border-box;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 /* Botão ícone de download .svm */
 .btn-icon-download {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 34px;
+  height: 36px;
   width: auto;
-  padding: 0 var(--s4);
+  padding: 0 var(--s3);
   border-radius: var(--r-sm);
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.07);
   color: var(--text-2);
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-family: var(--f-outfit);
+  font-size: 0.8125rem;
+  font-weight: 700;
   letter-spacing: 0.01em;
   cursor: pointer;
   transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast), transform var(--t-fast);
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 .btn-icon-download:hover {
   background: rgba(255, 255, 255, 0.15);
