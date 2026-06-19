@@ -288,8 +288,13 @@ async function checkEditMode() {
   document.getElementById('f-setup-type').value = setup.setupType || 'fixed';
   document.getElementById('f-car-version').value = setup.carVersion || '';
   window.importedOpenParams = setup.openParams || null;
-  if (setup.setupType === 'open') {
-    document.getElementById('btn-import-svm').textContent = '📥 Reimportar Setup Aberto (.svm)';
+  if (setup.setupType === 'open' && setup.openParams) {
+    // Mostrar painel open com dados preenchidos
+    fillOpenParamsPanel(setup.openParams);
+    switchToOpenMode();
+    document.getElementById('btn-import-svm').textContent = '📥 Reimportar Setup (.svm)';
+  } else if (setup.setupType === 'open') {
+    document.getElementById('btn-import-svm').textContent = '📥 Reimportar Setup (.svm)';
   }
 
   // Parâmetros (Sliders e Valores numéricos)
@@ -352,8 +357,31 @@ function bindFormSubmit() {
       isPublic:     document.getElementById('f-public').checked,
       setupType:    document.getElementById('f-setup-type').value || 'fixed',
       carVersion:   document.getElementById('f-car-version').value || null,
-      openParams:   window.importedOpenParams || null,
     };
+
+    // Se for setup open, capturar os dados editados do painel de abas
+    if (data.setupType === 'open') {
+      data.openParams = readOpenParamsFromPanel();
+      // Extrair também os key params do painel open para o hero
+      const ctrl = data.openParams['CONTROLS'] || {};
+      if (ctrl['RearBrakeSetting']?.display) {
+        const bbM = ctrl['RearBrakeSetting'].display.match(/^([\d.]+)/);
+        if (bbM) data.brakeBias = parseFloat(bbM[1]);
+      }
+      if (ctrl['TractionControlMapSetting']?.display) data.tc = parseInt(ctrl['TractionControlMapSetting'].display);
+      if (ctrl['TCPowerCutMapSetting']?.display) data.tcPowerCut = parseInt(ctrl['TCPowerCutMapSetting'].display);
+      if (ctrl['TCSlipAngleMapSetting']?.display) data.tcSlipAngle = ctrl['TCSlipAngleMapSetting'].display.toLowerCase() === 'linked' ? 'Linked' : parseInt(ctrl['TCSlipAngleMapSetting'].display);
+      if (ctrl['AntilockBrakeSystemMapSetting']?.display) {
+        const absM = ctrl['AntilockBrakeSystemMapSetting'].display.match(/^(\d+)/);
+        if (absM) data.abs = parseInt(absM[1]);
+      }
+      if (ctrl['BrakePressureSetting']?.display) {
+        const bpM = ctrl['BrakePressureSetting'].display.match(/\((\d+)%\)/);
+        if (bpM) data.brakePressure = parseInt(bpM[1]);
+      }
+    } else {
+      data.openParams = null;
+    }
 
     if (editId) {
       await Storage.update(editId, data);
@@ -408,28 +436,25 @@ window.importedOpenParams = null;
 function bindSvmImport() {
   const btn = document.getElementById('btn-import-svm');
   const fileInput = document.getElementById('svm-file-input');
-  
   if (!btn || !fileInput) return;
-  
-  btn.addEventListener('click', () => {
-    fileInput.click();
-  });
-  
+
+  btn.addEventListener('click', () => fileInput.click());
+
   fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    
+
     const reader = new FileReader();
     reader.onload = function(evt) {
       try {
         const text = evt.target.result;
         const parsed = parseSVM(text);
-        
+
         if (!parsed.vehicleClassSetting) {
           showToast('Formato de arquivo .svm inválido ou vazio.', 'error');
           return;
         }
-        
+
         // Auto-detect class and car
         const { classId, carId } = matchClassAndCar(parsed.vehicleClassSetting);
         if (classId) {
@@ -439,79 +464,83 @@ function bindSvmImport() {
             if (carId) {
               carSel.value = carId;
               populateYears(carId);
-              
-              // Select first year as default if available
               setTimeout(() => {
                 const yearSel = document.getElementById('f-year');
-                if (yearSel.options.length > 1) {
-                  yearSel.selectedIndex = 1;
-                }
+                if (yearSel.options.length > 1) yearSel.selectedIndex = 1;
               }, 50);
             }
           }, 50);
         }
-        
+
         // Auto-detect version from //VEH= line
         let carVersion = '';
         const vehLine = text.split('\n').find(l => l.trim().startsWith('//VEH='));
         if (vehLine) {
-          const match = vehLine.match(/[\\/](\d+\.\d+)[\\/][^\\/]+\.VEH$/i);
-          if (match) {
-            carVersion = match[1];
-          }
+          const match = vehLine.match(/[\/\\](\d+\.\d+)[\/\\][^\/\\]+\.VEH$/i);
+          if (match) carVersion = match[1];
         }
         document.getElementById('f-car-version').value = carVersion;
-        
+
         // Set notes if present
         if (parsed.notes) {
           document.getElementById('f-notes').value = parsed.notes;
         }
-        
-        // Parse key params (Brake Bias, TC, ABS, etc.)
+
+        // Parse key params for sliders
         const keyParams = extractKeyParams(parsed);
-        if (keyParams.brakeBias != null) {
-          updateParamVal('sl-bb', 'val-bb', keyParams.brakeBias);
-        }
-        if (keyParams.tc != null) {
-          updateParamVal('sl-tc', 'val-tc', keyParams.tc);
-        }
-        if (keyParams.tcPowerCut != null) {
-          updateParamVal('sl-tcpc', 'val-tcpc', keyParams.tcPowerCut);
-        }
-        if (keyParams.tcSlipAngle != null) {
-          if (keyParams.tcSlipAngle === 'Linked') {
-            document.getElementById('sl-tcsa').disabled = true;
-            document.getElementById('val-tcsa').disabled = true;
-            document.getElementById('val-tcsa').type = 'text';
-            document.getElementById('val-tcsa').value = 'Linked';
-          } else {
-            updateParamVal('sl-tcsa', 'val-tcsa', keyParams.tcSlipAngle);
+
+        if (parsed.setupType === 'fixed') {
+          // ── FIXED SETUP ───────────────────────────────────
+          document.getElementById('f-setup-type').value = 'fixed';
+          window.importedOpenParams = null;
+
+          if (keyParams.brakeBias != null)    updateParamVal('sl-bb',   'val-bb',   keyParams.brakeBias);
+          if (keyParams.tc != null)           updateParamVal('sl-tc',   'val-tc',   keyParams.tc);
+          if (keyParams.tcPowerCut != null)   updateParamVal('sl-tcpc', 'val-tcpc', keyParams.tcPowerCut);
+          if (keyParams.abs != null)          updateParamVal('sl-abs',  'val-abs',  keyParams.abs);
+          if (keyParams.brakePressure != null) updateParamVal('sl-bp',  'val-bp',   keyParams.brakePressure);
+          if (keyParams.tcSlipAngle != null) {
+            if (keyParams.tcSlipAngle === 'Linked') {
+              document.getElementById('sl-tcsa').disabled = true;
+              document.getElementById('val-tcsa').disabled = true;
+              document.getElementById('val-tcsa').type = 'text';
+              document.getElementById('val-tcsa').value = 'Linked';
+            } else {
+              updateParamVal('sl-tcsa', 'val-tcsa', keyParams.tcSlipAngle);
+            }
           }
+
+          switchToFixedMode();
+          btn.textContent = '📥 Reimportar Setup (.svm)';
+          openImportTrackModal(file.name, parsed.notes || '', 'fixed');
+
+        } else {
+          // ── OPEN SETUP ────────────────────────────────────
+          document.getElementById('f-setup-type').value = 'open';
+          window.importedOpenParams = parsed.sections;
+
+          fillOpenParamsPanel(parsed.sections);
+          switchToOpenMode();
+
+          // Também atualizar sliders (para referência)
+          if (keyParams.brakeBias != null)    updateParamVal('sl-bb',   'val-bb',   keyParams.brakeBias);
+          if (keyParams.tc != null)           updateParamVal('sl-tc',   'val-tc',   keyParams.tc);
+          if (keyParams.tcPowerCut != null)   updateParamVal('sl-tcpc', 'val-tcpc', keyParams.tcPowerCut);
+          if (keyParams.abs != null)          updateParamVal('sl-abs',  'val-abs',  keyParams.abs);
+          if (keyParams.brakePressure != null) updateParamVal('sl-bp',  'val-bp',   keyParams.brakePressure);
+
+          btn.textContent = '📥 Reimportar Setup (.svm)';
+          openImportTrackModal(file.name, parsed.notes || '', 'open');
         }
-        if (keyParams.abs != null) {
-          updateParamVal('sl-abs', 'val-abs', keyParams.abs);
-        }
-        if (keyParams.brakePressure != null) {
-          updateParamVal('sl-bp', 'val-bp', keyParams.brakePressure);
-        }
-        
-        // Save the parsed structure globally
-        window.importedOpenParams = parsed.sections;
-        document.getElementById('f-setup-type').value = 'open';
-        btn.textContent = '📥 Reimportar Setup Aberto (.svm)';
-        
-        // Open modal to confirm or select track
-        openImportTrackModal(file.name, parsed.notes || '');
-        
+
       } catch (err) {
         console.error(err);
         showToast('Erro ao processar arquivo .svm: ' + err.message, 'error');
       }
-      
-      // Reset file input value so same file can be selected again
+
       fileInput.value = '';
     };
-    
+
     reader.readAsText(file);
   });
 }
@@ -527,37 +556,28 @@ function updateParamVal(sliderId, inputId, value) {
 }
 
 // Track confirmation modal logic
-function openImportTrackModal(fileName, notesText) {
+function openImportTrackModal(fileName, notesText, setupType) {
   const modal = document.getElementById('modal-import-track');
   const select = document.getElementById('import-track-select');
-  
   if (!modal || !select) return;
-  
-  // Populate select options with all tracks
+
   select.innerHTML = '<option value="">-- Escolha uma Pista --</option>';
   [...LMU_DATA.tracks]
     .sort((a, b) => a.shortName.localeCompare(b.shortName))
     .forEach(t => {
       select.insertAdjacentHTML('beforeend', `<option value="${t.id}">${t.flag} ${t.name}</option>`);
     });
-    
-  // Try to detect track from name/notes
+
   const detectedId = detectTrack(fileName, notesText);
-  if (detectedId) {
-    select.value = detectedId;
-  }
-  
+  if (detectedId) select.value = detectedId;
+
   modal.style.display = 'flex';
-  
-  // Handlers
+
   const cancelBtn = document.getElementById('btn-cancel-import-track');
   const confirmBtn = document.getElementById('btn-confirm-import-track');
-  
-  const close = () => {
-    modal.style.display = 'none';
-    cleanup();
-  };
-  
+
+  const close = () => { modal.style.display = 'none'; cleanup(); };
+
   const confirm = () => {
     const selectedTrackId = select.value;
     if (!selectedTrackId) {
@@ -566,16 +586,16 @@ function openImportTrackModal(fileName, notesText) {
     }
     document.getElementById('f-track').value = selectedTrackId;
     populateLayouts(selectedTrackId);
-    
-    showToast('Setup Aberto (.svm) importado com sucesso! Complete os outros campos e clique em Salvar.', 'success');
+    const tipoLabel = (setupType === 'fixed') ? 'Fixo' : 'Aberto';
+    showToast(`Setup ${tipoLabel} (.svm) importado! Revise os campos e clique em Salvar.`, 'success');
     close();
   };
-  
+
   const cleanup = () => {
     cancelBtn.removeEventListener('click', close);
     confirmBtn.removeEventListener('click', confirm);
   };
-  
+
   cancelBtn.addEventListener('click', close);
   confirmBtn.addEventListener('click', confirm);
 }
@@ -586,6 +606,7 @@ function parseSVM(text) {
   const result = {
     vehicleClassSetting: '',
     notes: '',
+    setupType: 'open', // default; será sobrescrito pela detecção abaixo
     sections: {}
   };
 
@@ -594,6 +615,12 @@ function parseSVM(text) {
   for (let line of lines) {
     line = line.trim();
     if (!line) continue;
+
+    // Detectar tipo Fixed vs Open via cabeçalho "//Gear ratios="
+    const gearRatiosMatch = line.match(/^\/\/Gear ratios=(\d+)/);
+    if (gearRatiosMatch) {
+      result.setupType = gearRatiosMatch[1] === '1' ? 'fixed' : 'open';
+    }
 
     if (line.startsWith('VehicleClassSetting=')) {
       const match = line.match(/VehicleClassSetting="([^"]+)"/);
@@ -609,7 +636,7 @@ function parseSVM(text) {
       continue;
     }
 
-    if (line.includes('=')) {
+    if (line.includes('=') && !line.startsWith('//')) {
       const eqIdx = line.indexOf('=');
       const key = line.substring(0, eqIdx).trim();
       let valueWithComment = line.substring(eqIdx + 1).trim();
@@ -653,6 +680,72 @@ function parseSVM(text) {
   }
 
   return result;
+}
+
+// ── OPEN PARAMS PANEL HELPERS ─────────────────────────────────
+
+// Preenche todos os inputs do painel de open setup com os dados de sections
+function fillOpenParamsPanel(sections) {
+  const inputs = document.querySelectorAll('#open-params-panel .open-param-input');
+  inputs.forEach(input => {
+    const section = input.dataset.section;
+    const key = input.dataset.key;
+    if (section && key && sections[section] && sections[section][key]) {
+      input.value = sections[section][key].display || sections[section][key].raw || '';
+    } else {
+      input.value = '';
+    }
+  });
+}
+
+// Lê todos os inputs do painel e retorna um objeto sections atualizado
+function readOpenParamsFromPanel() {
+  const sections = JSON.parse(JSON.stringify(window.importedOpenParams || {}));
+  const inputs = document.querySelectorAll('#open-params-panel .open-param-input');
+  inputs.forEach(input => {
+    const section = input.dataset.section;
+    const key = input.dataset.key;
+    if (section && key) {
+      if (!sections[section]) sections[section] = {};
+      if (!sections[section][key]) sections[section][key] = { raw: '', display: '' };
+      sections[section][key].display = input.value;
+      sections[section][key].raw = input.value;
+    }
+  });
+  return sections;
+}
+
+// Mostra o painel open e oculta o card fixed (ou vice-versa)
+function switchToOpenMode() {
+  const fixedCard = document.querySelector('#param-list')?.closest('.form-card');
+  const openPanel = document.getElementById('open-params-panel');
+  if (fixedCard) fixedCard.style.display = 'none';
+  if (openPanel) openPanel.style.display = 'block';
+
+  // Bind das abas do painel open (previne listeners duplicados)
+  const panel = document.getElementById('open-params-panel');
+  if (panel && !panel._tabsBound) {
+    panel._tabsBound = true;
+    const tabs = panel.querySelectorAll('.setup-tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+        panel.querySelectorAll('.setup-tab-content').forEach(c => { c.style.display = 'none'; c.classList.remove('active'); });
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+        const contentId = `edit-tab-${tab.dataset.tab}`;
+        const content = document.getElementById(contentId);
+        if (content) { content.style.display = 'block'; content.classList.add('active'); }
+      });
+    });
+  }
+}
+
+function switchToFixedMode() {
+  const fixedCard = document.querySelector('#param-list')?.closest('.form-card');
+  const openPanel = document.getElementById('open-params-panel');
+  if (fixedCard) fixedCard.style.display = '';
+  if (openPanel) openPanel.style.display = 'none';
 }
 
 // Extract Key parameters from parsed SVM

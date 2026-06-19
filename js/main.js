@@ -156,6 +156,45 @@ function renderStats() {
   document.getElementById('stat-total').textContent   = stats.total;
   document.getElementById('stat-top-track').textContent = stats.topTrack;
 
+  // Renderizar o mapa da pista mais usada no lado direito do card
+  const topTrackMapContainer = document.getElementById('stat-top-track-map-container');
+  if (topTrackMapContainer) {
+    if (stats.topTrackId && stats.topTrackName) {
+      // Normaliza o nome da pista da mesma forma que getTrackMapUrl no detail.js
+      const TRACK_NAMES = [
+        'Spa-Francorchamps', 'Le Mans', 'Bahrain', 'Fuji', 'Monza', 'Sebring', 
+        'Portimao', 'Algarve', 'Imola', 'Interlagos', 'COTA', 'Silverstone', 'Lusail', 'Paul Ricard', 'Barcelona'
+      ];
+      let foundKey = 'default';
+      const t = stats.topTrackName.toLowerCase();
+      for (const key of TRACK_NAMES) {
+        if (t.includes(key.toLowerCase()) || 
+            (key === 'Portimao' && t.includes('algarve')) ||
+            (key === 'Algarve' && t.includes('portimao')) ||
+            (key === 'Le Mans' && t.includes('sarthe')) ||
+            (key === 'Interlagos' && (t.includes('interlagos') || t.includes('carlos pace')))) {
+          foundKey = key;
+          break;
+        }
+      }
+      let fileName = foundKey.toLowerCase().replace(/\s+/g, '-');
+      if (fileName === 'algarve') fileName = 'portimao';
+      
+      // Checa se há uma rotação correspondente
+      let rotationClass = '';
+      if (fileName === 'le-mans') rotationClass = 'sch-map-le-mans';
+      else if (fileName === 'spa-francorchamps') rotationClass = 'sch-map-spa-francorchamps';
+      else if (fileName === 'interlagos') rotationClass = 'sch-map-interlagos';
+      else if (fileName === 'sebring') rotationClass = 'sch-map-sebring';
+
+      topTrackMapContainer.innerHTML = `<img src="img/maps/${fileName}.png" class="stat-card-map-img ${rotationClass}" alt="Mapa de ${stats.topTrack}" onerror="this.parentElement.style.display='none'" />`;
+      topTrackMapContainer.style.display = 'block';
+    } else {
+      topTrackMapContainer.style.display = 'none';
+      topTrackMapContainer.innerHTML = '';
+    }
+  }
+
   // Renderizar logomarcas dos carros (Por Carro)
   const brandContainer = document.getElementById('brand-stats-container');
   if (brandContainer) {

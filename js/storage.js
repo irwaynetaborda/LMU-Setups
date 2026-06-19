@@ -197,6 +197,8 @@ const Storage = {
       byBrand,
       avgRating,
       topTrack: topTrack ? topTrack.shortName : '—',
+      topTrackId: topTrackId || null,
+      topTrackName: topTrack ? topTrack.name : null,
     };
   },
 

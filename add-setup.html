@@ -6,7 +6,7 @@
   <title>Novo Setup — Taborda Setups</title>
   <meta name="description" content="Adicionar novo setup Fixed Setup para Le Mans Ultimate." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏁</text></svg>" />
-  <link rel="stylesheet" href="css/style.css?v=2.7" />
+  <link rel="stylesheet" href="css/style.css?v=2.8" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js?v=1.9"></script>
   <script src="js/auth.js?v=2.1"></script>
@@ -43,7 +43,7 @@
         <!-- IMPORT ZONE -->
         <div class="import-zone animate-in" style="margin-bottom: var(--s6);">
           <button type="button" class="btn btn-secondary btn-import-svm" id="btn-import-svm" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: var(--s2); font-weight: 700; background: #08080eeb; border: 1px dashed var(--border); padding: var(--s5); border-radius: var(--r-md); transition: all 0.3s ease;">
-            📥 Importar Setup Aberto (.svm)
+            📥 Importar Setup (.svm)
           </button>
           <div class="import-hint" style="font-size: 0.75rem; color: #ffffff; margin-top: var(--s2); text-align: center; line-height: 1.4;">
             💡 <strong>Dica:</strong> Os setups do jogo ficam salvos em:<br>
@@ -237,6 +237,181 @@
           </div><!-- /param-list -->
         </div>
 
+        <!-- ── 3b. PAINEL OPEN SETUP (mostrado após importar .svm open) ── -->
+        <div id="open-params-panel" class="open-params-panel" style="display:none;">
+          <div class="form-card animate-in">
+            <div class="form-card-title">
+              <span class="num">3</span>
+              <h2>Parâmetros Open Setup <span id="open-setup-type-badge" class="badge" style="font-size:0.7rem;margin-left:var(--s2);vertical-align:middle;background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.4);">Aberto</span></h2>
+            </div>
+
+            <!-- Abas -->
+            <div class="setup-tabs-container">
+              <div class="setup-tabs" role="tablist">
+                <button type="button" class="setup-tab active" data-tab="elec" role="tab" aria-selected="true">⚡ Eletrônica</button>
+                <button type="button" class="setup-tab" data-tab="aero" role="tab" aria-selected="false">🏎️ Aero</button>
+                <button type="button" class="setup-tab" data-tab="susp" role="tab" aria-selected="false">🛠️ Suspensão</button>
+                <button type="button" class="setup-tab" data-tab="damp" role="tab" aria-selected="false">📈 Amortecedor</button>
+                <button type="button" class="setup-tab" data-tab="trans" role="tab" aria-selected="false">⚙️ Transmissão</button>
+              </div>
+
+              <!-- Tab Eletrônica -->
+              <div class="setup-tab-content active open-tab-body" id="edit-tab-elec" role="tabpanel">
+                <div class="open-params-grid">
+                  <div class="open-param-row"><label>TC Map</label><input type="text" class="open-param-input" id="op-tc" data-section="CONTROLS" data-key="TractionControlMapSetting" /></div>
+                  <div class="open-param-row"><label>TC Power Cut</label><input type="text" class="open-param-input" id="op-tcpc" data-section="CONTROLS" data-key="TCPowerCutMapSetting" /></div>
+                  <div class="open-param-row"><label>TC Slip Angle</label><input type="text" class="open-param-input" id="op-tcsa" data-section="CONTROLS" data-key="TCSlipAngleMapSetting" /></div>
+                  <div class="open-param-row"><label>ABS</label><input type="text" class="open-param-input" id="op-abs" data-section="CONTROLS" data-key="AntilockBrakeSystemMapSetting" /></div>
+                  <div class="open-param-row"><label>Brake Bias</label><input type="text" class="open-param-input" id="op-bb" data-section="CONTROLS" data-key="RearBrakeSetting" /></div>
+                  <div class="open-param-row"><label>Brake Migration</label><input type="text" class="open-param-input" id="op-bm" data-section="CONTROLS" data-key="BrakeMigrationSetting" /></div>
+                  <div class="open-param-row"><label>Brake Pressure</label><input type="text" class="open-param-input" id="op-bp" data-section="CONTROLS" data-key="BrakePressureSetting" /></div>
+                  <div class="open-param-row"><label>Rev Limit</label><input type="text" class="open-param-input" id="op-rev" data-section="ENGINE" data-key="RevLimitSetting" /></div>
+                  <div class="open-param-row"><label>Engine Mixture</label><input type="text" class="open-param-input" id="op-mix" data-section="ENGINE" data-key="EngineMixtureSetting" /></div>
+                  <div class="open-param-row"><label>Regeneração</label><input type="text" class="open-param-input" id="op-regen" data-section="ENGINE" data-key="RegenerationMapSetting" /></div>
+                  <div class="open-param-row"><label>Motor Elétrico</label><input type="text" class="open-param-input" id="op-emot" data-section="ENGINE" data-key="ElectricMotorMapSetting" /></div>
+                </div>
+              </div>
+
+              <!-- Tab Aero -->
+              <div class="setup-tab-content open-tab-body" id="edit-tab-aero" style="display:none" role="tabpanel">
+                <div class="open-params-grid">
+                  <div class="open-param-row"><label>Asa Traseira (RW)</label><input type="text" class="open-param-input" id="op-rw" data-section="REARWING" data-key="RWSetting" /></div>
+                  <div class="open-param-row"><label>Asa Dianteira (FW)</label><input type="text" class="open-param-input" id="op-fw" data-section="FRONTWING" data-key="FWSetting" /></div>
+                  <div class="open-param-row"><label>Duto Freio Diant.</label><input type="text" class="open-param-input" id="op-bdf" data-section="BODYAERO" data-key="BrakeDuctSetting" /></div>
+                  <div class="open-param-row"><label>Duto Freio Tras.</label><input type="text" class="open-param-input" id="op-bdr" data-section="BODYAERO" data-key="BrakeDuctRearSetting" /></div>
+                  <div class="open-param-row"><label>Radiador Água</label><input type="text" class="open-param-input" id="op-wrad" data-section="BODYAERO" data-key="WaterRadiatorSetting" /></div>
+                  <div class="open-param-row"><label>Radiador Óleo</label><input type="text" class="open-param-input" id="op-orad" data-section="BODYAERO" data-key="OilRadiatorSetting" /></div>
+                </div>
+                <div class="open-params-section-title">🎈 Pneus por Roda</div>
+                <div class="open-params-wheel-grid">
+                  <div class="open-wheel-col">
+                    <div class="open-wheel-header">FL — Diant. Esq.</div>
+                    <div class="open-param-row"><label>Pressão</label><input type="text" class="open-param-input" data-section="FRONTLEFT" data-key="PressureSetting" /></div>
+                    <div class="open-param-row"><label>Composto</label><input type="text" class="open-param-input" data-section="FRONTLEFT" data-key="CompoundSetting" /></div>
+                    <div class="open-param-row"><label>Brake Disc</label><input type="text" class="open-param-input" data-section="FRONTLEFT" data-key="BrakeDiscSetting" /></div>
+                    <div class="open-param-row"><label>Brake Pad</label><input type="text" class="open-param-input" data-section="FRONTLEFT" data-key="BrakePadSetting" /></div>
+                  </div>
+                  <div class="open-wheel-col">
+                    <div class="open-wheel-header">FR — Diant. Dir.</div>
+                    <div class="open-param-row"><label>Pressão</label><input type="text" class="open-param-input" data-section="FRONTRIGHT" data-key="PressureSetting" /></div>
+                    <div class="open-param-row"><label>Composto</label><input type="text" class="open-param-input" data-section="FRONTRIGHT" data-key="CompoundSetting" /></div>
+                    <div class="open-param-row"><label>Brake Disc</label><input type="text" class="open-param-input" data-section="FRONTRIGHT" data-key="BrakeDiscSetting" /></div>
+                    <div class="open-param-row"><label>Brake Pad</label><input type="text" class="open-param-input" data-section="FRONTRIGHT" data-key="BrakePadSetting" /></div>
+                  </div>
+                  <div class="open-wheel-col">
+                    <div class="open-wheel-header">RL — Tras. Esq.</div>
+                    <div class="open-param-row"><label>Pressão</label><input type="text" class="open-param-input" data-section="REARLEFT" data-key="PressureSetting" /></div>
+                    <div class="open-param-row"><label>Composto</label><input type="text" class="open-param-input" data-section="REARLEFT" data-key="CompoundSetting" /></div>
+                    <div class="open-param-row"><label>Brake Disc</label><input type="text" class="open-param-input" data-section="REARLEFT" data-key="BrakeDiscSetting" /></div>
+                    <div class="open-param-row"><label>Brake Pad</label><input type="text" class="open-param-input" data-section="REARLEFT" data-key="BrakePadSetting" /></div>
+                  </div>
+                  <div class="open-wheel-col">
+                    <div class="open-wheel-header">RR — Tras. Dir.</div>
+                    <div class="open-param-row"><label>Pressão</label><input type="text" class="open-param-input" data-section="REARRIGHT" data-key="PressureSetting" /></div>
+                    <div class="open-param-row"><label>Composto</label><input type="text" class="open-param-input" data-section="REARRIGHT" data-key="CompoundSetting" /></div>
+                    <div class="open-param-row"><label>Brake Disc</label><input type="text" class="open-param-input" data-section="REARRIGHT" data-key="BrakeDiscSetting" /></div>
+                    <div class="open-param-row"><label>Brake Pad</label><input type="text" class="open-param-input" data-section="REARRIGHT" data-key="BrakePadSetting" /></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tab Suspensão -->
+              <div class="setup-tab-content open-tab-body" id="edit-tab-susp" style="display:none" role="tabpanel">
+                <div class="open-params-grid">
+                  <div class="open-param-row"><label>Anti-Sway Diant.</label><input type="text" class="open-param-input" data-section="SUSPENSION" data-key="FrontAntiSwaySetting" /></div>
+                  <div class="open-param-row"><label>Anti-Sway Tras.</label><input type="text" class="open-param-input" data-section="SUSPENSION" data-key="RearAntiSwaySetting" /></div>
+                  <div class="open-param-row"><label>Toe Dianteiro</label><input type="text" class="open-param-input" data-section="SUSPENSION" data-key="FrontToeInSetting" /></div>
+                  <div class="open-param-row"><label>Toe Traseiro</label><input type="text" class="open-param-input" data-section="SUSPENSION" data-key="RearToeInSetting" /></div>
+                </div>
+                <div class="open-params-section-title">📐 Suspensão por Roda</div>
+                <div class="open-params-wheel-grid">
+                  <div class="open-wheel-col">
+                    <div class="open-wheel-header">FL</div>
+                    <div class="open-param-row"><label>Ride Height</label><input type="text" class="open-param-input" data-section="FRONTLEFT" data-key="RideHeightSetting" /></div>
+                    <div class="open-param-row"><label>Camber</label><input type="text" class="open-param-input" data-section="FRONTLEFT" data-key="CamberSetting" /></div>
+                    <div class="open-param-row"><label>Mola (Spring)</label><input type="text" class="open-param-input" data-section="FRONTLEFT" data-key="SpringSetting" /></div>
+                    <div class="open-param-row"><label>Packer</label><input type="text" class="open-param-input" data-section="FRONTLEFT" data-key="PackerSetting" /></div>
+                  </div>
+                  <div class="open-wheel-col">
+                    <div class="open-wheel-header">FR</div>
+                    <div class="open-param-row"><label>Ride Height</label><input type="text" class="open-param-input" data-section="FRONTRIGHT" data-key="RideHeightSetting" /></div>
+                    <div class="open-param-row"><label>Camber</label><input type="text" class="open-param-input" data-section="FRONTRIGHT" data-key="CamberSetting" /></div>
+                    <div class="open-param-row"><label>Mola (Spring)</label><input type="text" class="open-param-input" data-section="FRONTRIGHT" data-key="SpringSetting" /></div>
+                    <div class="open-param-row"><label>Packer</label><input type="text" class="open-param-input" data-section="FRONTRIGHT" data-key="PackerSetting" /></div>
+                  </div>
+                  <div class="open-wheel-col">
+                    <div class="open-wheel-header">RL</div>
+                    <div class="open-param-row"><label>Ride Height</label><input type="text" class="open-param-input" data-section="REARLEFT" data-key="RideHeightSetting" /></div>
+                    <div class="open-param-row"><label>Camber</label><input type="text" class="open-param-input" data-section="REARLEFT" data-key="CamberSetting" /></div>
+                    <div class="open-param-row"><label>Mola (Spring)</label><input type="text" class="open-param-input" data-section="REARLEFT" data-key="SpringSetting" /></div>
+                    <div class="open-param-row"><label>Packer</label><input type="text" class="open-param-input" data-section="REARLEFT" data-key="PackerSetting" /></div>
+                  </div>
+                  <div class="open-wheel-col">
+                    <div class="open-wheel-header">RR</div>
+                    <div class="open-param-row"><label>Ride Height</label><input type="text" class="open-param-input" data-section="REARRIGHT" data-key="RideHeightSetting" /></div>
+                    <div class="open-param-row"><label>Camber</label><input type="text" class="open-param-input" data-section="REARRIGHT" data-key="CamberSetting" /></div>
+                    <div class="open-param-row"><label>Mola (Spring)</label><input type="text" class="open-param-input" data-section="REARRIGHT" data-key="SpringSetting" /></div>
+                    <div class="open-param-row"><label>Packer</label><input type="text" class="open-param-input" data-section="REARRIGHT" data-key="PackerSetting" /></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tab Amortecedor -->
+              <div class="setup-tab-content open-tab-body" id="edit-tab-damp" style="display:none" role="tabpanel">
+                <div class="open-params-wheel-grid">
+                  <div class="open-wheel-col">
+                    <div class="open-wheel-header">FL</div>
+                    <div class="open-param-row"><label>Bump Lento</label><input type="text" class="open-param-input" data-section="FRONTLEFT" data-key="SlowBumpSetting" /></div>
+                    <div class="open-param-row"><label>Bump Rápido</label><input type="text" class="open-param-input" data-section="FRONTLEFT" data-key="FastBumpSetting" /></div>
+                    <div class="open-param-row"><label>Rebound Lento</label><input type="text" class="open-param-input" data-section="FRONTLEFT" data-key="SlowReboundSetting" /></div>
+                    <div class="open-param-row"><label>Rebound Rápido</label><input type="text" class="open-param-input" data-section="FRONTLEFT" data-key="FastReboundSetting" /></div>
+                  </div>
+                  <div class="open-wheel-col">
+                    <div class="open-wheel-header">FR</div>
+                    <div class="open-param-row"><label>Bump Lento</label><input type="text" class="open-param-input" data-section="FRONTRIGHT" data-key="SlowBumpSetting" /></div>
+                    <div class="open-param-row"><label>Bump Rápido</label><input type="text" class="open-param-input" data-section="FRONTRIGHT" data-key="FastBumpSetting" /></div>
+                    <div class="open-param-row"><label>Rebound Lento</label><input type="text" class="open-param-input" data-section="FRONTRIGHT" data-key="SlowReboundSetting" /></div>
+                    <div class="open-param-row"><label>Rebound Rápido</label><input type="text" class="open-param-input" data-section="FRONTRIGHT" data-key="FastReboundSetting" /></div>
+                  </div>
+                  <div class="open-wheel-col">
+                    <div class="open-wheel-header">RL</div>
+                    <div class="open-param-row"><label>Bump Lento</label><input type="text" class="open-param-input" data-section="REARLEFT" data-key="SlowBumpSetting" /></div>
+                    <div class="open-param-row"><label>Bump Rápido</label><input type="text" class="open-param-input" data-section="REARLEFT" data-key="FastBumpSetting" /></div>
+                    <div class="open-param-row"><label>Rebound Lento</label><input type="text" class="open-param-input" data-section="REARLEFT" data-key="SlowReboundSetting" /></div>
+                    <div class="open-param-row"><label>Rebound Rápido</label><input type="text" class="open-param-input" data-section="REARLEFT" data-key="FastReboundSetting" /></div>
+                  </div>
+                  <div class="open-wheel-col">
+                    <div class="open-wheel-header">RR</div>
+                    <div class="open-param-row"><label>Bump Lento</label><input type="text" class="open-param-input" data-section="REARRIGHT" data-key="SlowBumpSetting" /></div>
+                    <div class="open-param-row"><label>Bump Rápido</label><input type="text" class="open-param-input" data-section="REARRIGHT" data-key="FastBumpSetting" /></div>
+                    <div class="open-param-row"><label>Rebound Lento</label><input type="text" class="open-param-input" data-section="REARRIGHT" data-key="SlowReboundSetting" /></div>
+                    <div class="open-param-row"><label>Rebound Rápido</label><input type="text" class="open-param-input" data-section="REARRIGHT" data-key="FastReboundSetting" /></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tab Transmissão -->
+              <div class="setup-tab-content open-tab-body" id="edit-tab-trans" style="display:none" role="tabpanel">
+                <div class="open-params-grid">
+                  <div class="open-param-row"><label>Final Drive</label><input type="text" class="open-param-input" data-section="DRIVELINE" data-key="FinalDriveSetting" /></div>
+                  <div class="open-param-row"><label>Ratio Set</label><input type="text" class="open-param-input" data-section="DRIVELINE" data-key="RatioSetSetting" /></div>
+                  <div class="open-param-row"><label>1ª Marcha</label><input type="text" class="open-param-input" data-section="DRIVELINE" data-key="Gear1Setting" /></div>
+                  <div class="open-param-row"><label>2ª Marcha</label><input type="text" class="open-param-input" data-section="DRIVELINE" data-key="Gear2Setting" /></div>
+                  <div class="open-param-row"><label>3ª Marcha</label><input type="text" class="open-param-input" data-section="DRIVELINE" data-key="Gear3Setting" /></div>
+                  <div class="open-param-row"><label>4ª Marcha</label><input type="text" class="open-param-input" data-section="DRIVELINE" data-key="Gear4Setting" /></div>
+                  <div class="open-param-row"><label>5ª Marcha</label><input type="text" class="open-param-input" data-section="DRIVELINE" data-key="Gear5Setting" /></div>
+                  <div class="open-param-row"><label>6ª Marcha</label><input type="text" class="open-param-input" data-section="DRIVELINE" data-key="Gear6Setting" /></div>
+                  <div class="open-param-row"><label>Ré (Reverse)</label><input type="text" class="open-param-input" data-section="DRIVELINE" data-key="ReverseSetting" /></div>
+                  <div class="open-param-row"><label>Diff Power</label><input type="text" class="open-param-input" data-section="DRIVELINE" data-key="DiffPowerSetting" /></div>
+                  <div class="open-param-row"><label>Diff Coast</label><input type="text" class="open-param-input" data-section="DRIVELINE" data-key="DiffCoastSetting" /></div>
+                  <div class="open-param-row"><label>Diff Preload</label><input type="text" class="open-param-input" data-section="DRIVELINE" data-key="DiffPreloadSetting" /></div>
+                </div>
+              </div>
+
+            </div><!-- /setup-tabs-container -->
+          </div><!-- /form-card -->
+        </div><!-- /open-params-panel -->
+
         <!-- ── 4. RESULTADO & AVALIAÇÃO ──────────────────── -->
         <div class="form-card animate-in" style="animation-delay:160ms">
           <div class="form-card-title">
@@ -346,7 +521,7 @@
 
   <script src="js/data.js?v=1.9"></script>
   <script src="js/storage.js?v=1.9"></script>
-  <script src="js/add-setup.js?v=1.9"></script>
+  <script src="js/add-setup.js?v=2.0"></script>
 
   <!-- Vercel Web Analytics & Speed Insights -->
   <script>

@@ -128,13 +128,6 @@ function renderDetail(s) {
               ${series? `<span class="detail-tag">🏆 ${series.name}</span>`            : ''}
             </div>
 
-            <div class="detail-meta">
-              <div class="detail-meta-item">
-                <strong>Data</strong>
-                ${s.date ? formatDate(s.date) : '—'}
-              </div>
-            </div>
-
           </div> <!-- /detail-hero-content -->
 
           <!-- Sidebar container for actions & reference -->
@@ -170,6 +163,13 @@ function renderDetail(s) {
                   <span class="ref-value">${s.brakePressure ?? '—'}%</span>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <div class="detail-meta" style="position: absolute; bottom: var(--s4); left: var(--s6); z-index: 2;">
+            <div class="detail-meta-item" style="display: flex; gap: var(--s2); align-items: center;">
+              <strong style="margin-bottom: 0;">Data:</strong>
+              <span>${s.date ? formatDate(s.date) : '—'}</span>
             </div>
           </div>
 
