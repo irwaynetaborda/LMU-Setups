@@ -276,7 +276,7 @@ window.SVM = window.SVM || {};
       section: 'CONTROLS',
       keys: [
         { name: 'SteerLockSetting', defaultRaw: '6', defaultComment: '516 deg(19.7 )' },
-        { name: 'RearBrakeSetting', defaultRaw: '36', defaultComment: '48.0:52.0' },
+        { name: 'RearBrakeSetting', defaultRaw: '36', defaultComment: '48.0 / 52.0' },
         { name: 'BrakeMigrationSetting', defaultRaw: '0', defaultComment: ' 0.0' },
         { name: 'BrakePressureSetting', defaultRaw: '62', defaultComment: '102 kgf (85%)' },
         { name: 'HandfrontbrakePressSetting', defaultRaw: '0', defaultComment: 'N/A' },
@@ -458,7 +458,7 @@ window.SVM = window.SVM || {};
     
     return {
       raw: raw.toString(),
-      display: `${actualFront.toFixed(1)}:${rearBias.toFixed(1)}`
+      display: `${actualFront.toFixed(1)} / ${rearBias.toFixed(1)}`
     };
   }
 

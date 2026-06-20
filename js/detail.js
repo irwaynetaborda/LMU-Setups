@@ -307,7 +307,7 @@ function renderDetail(s) {
 function formatBB(val) {
   if (val == null) return '—';
   const rear = (100 - val).toFixed(1);
-  return `${Number(val).toFixed(1)}:${rear}`;
+  return `${Number(val).toFixed(1)} / ${rear}`;
 }
 
 function renderParamItem(label, value, min, max, isPercent = false, isBB = false) {

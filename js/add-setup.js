@@ -141,6 +141,19 @@ function populateLayouts(trackId) {
   }
 }
 
+function updateBrakeBiasRear() {
+  const valEl = document.getElementById('val-bb');
+  const rearEl = document.getElementById('val-bb-rear');
+  if (valEl && rearEl) {
+    const val = parseFloat(valEl.value);
+    if (!isNaN(val)) {
+      rearEl.textContent = (100 - val).toFixed(1);
+    } else {
+      rearEl.textContent = '—';
+    }
+  }
+}
+
 // ── SLIDERS ───────────────────────────────────────────────────
 function bindSliders() {
   PARAMS.forEach(({ slider, val }) => {
@@ -151,6 +164,7 @@ function bindSliders() {
     slEl.addEventListener('input', () => {
       valEl.value = slEl.value;
       updateSliderTrack(slEl);
+      if (slider === 'sl-bb') updateBrakeBiasRear();
     });
 
     // Entrada numérica → controle deslizante
@@ -167,6 +181,7 @@ function bindSliders() {
         slEl.value = val;
         updateSliderTrack(slEl);
       }
+      if (slider === 'sl-bb') updateBrakeBiasRear();
     });
 
     // Quando o usuário sai do campo ou confirma o valor, fazemos o clamping oficial
@@ -184,6 +199,7 @@ function bindSliders() {
       slEl.value = val;
       valEl.value = val;
       updateSliderTrack(slEl);
+      if (slider === 'sl-bb') updateBrakeBiasRear();
     };
 
     valEl.addEventListener('blur', clampValue);
@@ -191,6 +207,9 @@ function bindSliders() {
 
     updateSliderTrack(slEl);
   });
+  
+  // Inicializa o valor traseiro
+  updateBrakeBiasRear();
 }
 
 function updateSliderTrack(slEl) {
@@ -325,6 +344,8 @@ async function checkEditMode() {
   Object.entries(valMap).forEach(([id, val]) => {
     if (val != null) document.getElementById(id).value = val;
   });
+
+  updateBrakeBiasRear();
 
   if (setup.rating) setRating(setup.rating);
 }
@@ -555,6 +576,7 @@ function updateParamVal(sliderId, inputId, value) {
     sl.value = value;
     input.value = value;
     updateSliderTrack(sl);
+    if (sliderId === 'sl-bb') updateBrakeBiasRear();
   }
 }
 
