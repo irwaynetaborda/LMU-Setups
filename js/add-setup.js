@@ -121,7 +121,7 @@ function populateTracks() {
     .sort((a, b) => a.shortName.localeCompare(b.shortName))
     .forEach(t => {
       trackSel.insertAdjacentHTML('beforeend',
-        `<option value="${t.id}">${t.flag} ${t.name}</option>`);
+        `<option value="${t.id}">${t.flag} ${t.shortName} — ${t.name}</option>`);
     });
 
   trackSel.addEventListener('change', e => populateLayouts(e.target.value));
@@ -590,7 +590,7 @@ function openImportTrackModal(fileName, notesText, setupType) {
   [...LMU_DATA.tracks]
     .sort((a, b) => a.shortName.localeCompare(b.shortName))
     .forEach(t => {
-      select.insertAdjacentHTML('beforeend', `<option value="${t.id}">${t.flag} ${t.name}</option>`);
+      select.insertAdjacentHTML('beforeend', `<option value="${t.id}">${t.flag} ${t.shortName} — ${t.name}</option>`);
     });
 
   const detectedId = detectTrack(fileName, notesText);
