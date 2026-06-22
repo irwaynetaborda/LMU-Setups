@@ -89,7 +89,7 @@ function renderCards(type, containerId) {
           </div>
           <div class="sch-stat">
             <span class="sch-stat-lbl">Revezamento</span>
-            <span class="sch-stat-val">Não</span>
+            <span class="sch-stat-val">${item.relay || 'Não'}</span>
           </div>
           <div class="sch-stat">
             <span class="sch-stat-lbl">Mult. Combustível</span>

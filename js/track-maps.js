@@ -16,6 +16,7 @@ function getTrackMap(trackName) {
       if (t.includes(key.toLowerCase()) || 
           (key === 'Portimao' && t.includes('algarve')) ||
           (key === 'Le Mans' && t.includes('sarthe')) ||
+          (key === 'Lusail' && t.includes('qatar')) ||
           (key === 'Interlagos' && (t.includes('interlagos') || t.includes('carlos pace')))) {
         foundKey = key;
         break;

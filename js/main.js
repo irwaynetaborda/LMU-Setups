@@ -172,6 +172,7 @@ function renderStats() {
             (key === 'Portimao' && t.includes('algarve')) ||
             (key === 'Algarve' && t.includes('portimao')) ||
             (key === 'Le Mans' && t.includes('sarthe')) ||
+            (key === 'Lusail' && t.includes('qatar')) ||
             (key === 'Interlagos' && (t.includes('interlagos') || t.includes('carlos pace')))) {
           foundKey = key;
           break;
