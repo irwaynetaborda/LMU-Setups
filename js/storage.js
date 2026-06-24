@@ -290,6 +290,18 @@ const Storage = {
     if (error) throw error;
   },
 
+  /** Deleta um feedback */
+  async deleteComment(commentId) {
+    if (!supabaseClient) {
+      throw new Error("O servidor de banco de dados não está disponível.");
+    }
+    const { error } = await supabaseClient
+      .from('setup_comments')
+      .delete()
+      .eq('id', commentId);
+    if (error) throw error;
+  },
+
   // ── Internos ────────────────────────────────────────────
   _getAllLocal() {
     try {

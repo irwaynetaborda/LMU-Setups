@@ -755,6 +755,8 @@ async function loadAndRenderComments(setupId) {
 
   const isLoggedIn = (typeof Auth !== 'undefined') ? Auth.isAuthenticated() : false;
   const currentUserId = isLoggedIn ? Auth.getUser()?.id : null;
+  const activeUsername = (typeof Auth !== 'undefined') ? Auth.getUsername() : null;
+  const isAdmin = activeUsername && activeUsername.toLowerCase() === 'taborda';
   const isOwner = currentSetup && currentSetup.userId && currentSetup.userId === currentUserId;
 
   let commentsHtml = '';
@@ -788,6 +790,11 @@ async function loadAndRenderComments(setupId) {
                     <button type="button" class="btn-comment-like ${likedClass}" onclick="likeComment('${c.id}', event)">
                       👍 <span class="like-count">${c.likes || 0}</span>
                     </button>
+                    ${isAdmin ? `
+                      <button type="button" class="btn-comment-delete" onclick="deleteComment('${c.id}', event)" title="Excluir feedback" style="background: none; border: none; cursor: pointer; font-size: 0.875rem; padding: 2px 6px; color: var(--text-3); transition: color 0.2s;" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text-3)'">
+                        🗑️
+                      </button>
+                    ` : ''}
                   </div>
                 </div>
                 <div class="comment-text">${escapeHtml(c.comment)}</div>
@@ -905,3 +912,21 @@ async function likeComment(commentId, event) {
   }
 }
 window.likeComment = likeComment;
+
+async function deleteComment(commentId, event) {
+  if (event) event.stopPropagation();
+
+  if (!confirm('Deseja realmente excluir este feedback? Esta ação não pode ser desfeita.')) return;
+
+  try {
+    await Storage.deleteComment(commentId);
+    showToast('Feedback excluído com sucesso.', 'success');
+    
+    // Atualiza a interface de comentários
+    const id = new URLSearchParams(window.location.search).get('id');
+    await loadAndRenderComments(id);
+  } catch (err) {
+    showToast(err.message || 'Erro ao excluir feedback.', 'error');
+  }
+}
+window.deleteComment = deleteComment;
