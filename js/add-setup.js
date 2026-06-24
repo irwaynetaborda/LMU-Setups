@@ -16,6 +16,24 @@ function bankersRound(num, decimals = 1) {
   return Math.round(n) / d;
 }
 
+// Obtém o valor de Brake Bias formatado de acordo com a lista ou arredondamento bancário
+function getFormattedBrakeBias(classId, value) {
+  const list = BRAKE_BIAS_DATA[classId];
+  if (list) {
+    let closestVal = list[0];
+    let minDiff = Infinity;
+    for (let i = 0; i < list.length; i++) {
+      const diff = Math.abs(list[i] - value);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestVal = list[i];
+      }
+    }
+    return closestVal.toFixed(1);
+  }
+  return bankersRound(value, 1).toFixed(1);
+}
+
 // ── STATE ─────────────────────────────────────────────────────
 let editId   = null;
 let rating   = 0;
@@ -29,6 +47,48 @@ const PARAMS = [
   { slider: 'sl-abs',  val: 'val-abs',  suffix: ''  },
   { slider: 'sl-bp',   val: 'val-bp',   suffix: '%' }
 ];
+
+// Valores reais de Brake Bias mapeados do jogo por categoria
+const BRAKE_BIAS_DATA = {
+  hypercar: [
+    60.0, 59.5, 59.1, 58.6, 58.2, 57.7, 57.3, 56.9, 56.4, 56.0,
+    55.5, 55.0, 54.6, 54.1, 53.7, 53.2, 52.8, 52.3, 51.9, 51.4,
+    51.0, 50.5, 50.1, 49.6, 49.2, 48.8, 48.3, 47.8, 47.4, 47.0,
+    46.5, 46.1, 45.6, 45.1, 44.7, 44.2, 43.8, 43.4, 42.9, 42.4,
+    42.0, 41.5, 41.1, 40.6, 40.2
+  ],
+  lmgt3: [
+    57.0, 56.8, 56.5, 56.2, 56.0, 55.8, 55.5, 55.2, 55.0, 54.8,
+    54.5, 54.2, 54.0, 53.8, 53.5, 53.2, 53.0, 52.8, 52.5, 52.2,
+    52.0, 51.8, 51.5, 51.2, 51.0, 50.8, 50.5, 50.2, 50.0, 49.8,
+    49.5, 49.2, 49.0, 48.8, 48.5, 48.2, 48.0, 47.8, 47.5, 47.2,
+    47.0, 46.8, 46.5, 46.2, 46.0, 45.8, 45.5, 45.2, 45.0, 44.8,
+    44.5, 44.2, 44.0, 43.8, 43.5, 43.2, 43.0
+  ],
+  gte: [
+    65.0, 64.5, 64.0, 63.5, 63.0, 62.5, 62.0, 61.5, 61.0, 60.5,
+    60.0, 59.5, 59.0, 58.5, 58.0, 57.5, 57.0, 56.5, 56.0, 55.5,
+    55.0, 54.5, 54.0, 53.5, 53.0, 52.5, 52.0, 51.5, 51.0, 50.5,
+    50.0, 49.5, 49.0, 48.5, 48.0, 47.5, 47.0, 46.5, 46.0, 45.5,
+    45.0, 44.5, 44.0, 43.5, 43.0, 42.5, 42.0, 41.5, 41.0, 40.5,
+    40.0, 39.5, 39.0, 38.5, 38.0, 37.5, 37.0, 36.5, 36.0, 35.5,
+    35.0
+  ],
+  lmp3: [
+    65.0, 64.5, 64.0, 63.5, 63.0, 62.5, 62.0, 61.5, 61.0, 60.5,
+    60.0, 59.5, 59.0, 58.5, 58.0, 57.5, 57.0, 56.5, 56.0, 55.5,
+    55.0, 54.5, 54.0, 53.5, 53.0, 52.5, 52.0, 51.5, 51.0, 50.5,
+    50.0, 49.5, 49.0, 48.5, 48.0, 47.5, 47.0, 46.5, 46.0, 45.5,
+    45.0, 44.5, 44.0, 43.5, 43.0, 42.5, 42.0, 41.5, 41.0, 40.5,
+    40.0, 39.5, 39.0, 38.5, 38.0, 37.5, 37.0, 36.5, 36.0, 35.5,
+    35.0
+  ],
+  lmp2: [
+    60.0, 59.5, 59.1, 58.6, 58.2, 57.7, 57.3, 56.9, 56.4, 56.0,
+    55.5, 55.0, 54.6, 54.1, 53.7, 53.2, 52.8, 52.3, 51.9, 51.4,
+    51.0, 50.5, 50.1, 49.6, 49.2, 48.8, 48.3, 47.8
+  ]
+};
 
 // ── INIT ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -83,30 +143,30 @@ function updateBrakeBiasSliderConfig(classId) {
   let defaultValue = 57.5;
 
   if (classId === 'lmgt3') {
-    min = 45.0;
-    max = 70.0;
+    min = 43.0;
+    max = 57.0;
     step = 0.25;
-    defaultValue = 57.0;
+    defaultValue = 50.0;
   } else if (classId === 'gte') {
-    min = 45.0;
-    max = 70.0;
-    step = 0.2;
-    defaultValue = 55.0;
+    min = 35.0;
+    max = 65.0;
+    step = 0.5;
+    defaultValue = 50.0;
   } else if (classId === 'lmp2') {
-    min = 45.0;
-    max = 70.0;
-    step = 0.2;
-    defaultValue = 53.0;
+    min = 47.8;
+    max = 60.0;
+    step = 0.45;
+    defaultValue = 50.1;
   } else if (classId === 'lmp3') {
-    min = 45.0;
-    max = 70.0;
+    min = 35.0;
+    max = 65.0;
     step = 0.5;
     defaultValue = 50.0;
   } else if (classId === 'hypercar') {
-    min = 45.0;
-    max = 70.0;
-    step = 0.435;
-    defaultValue = 54.78; // Valor de partida alinhado com o passo (59.8 - 11.5 * 0.435) ou aproximado
+    min = 40.2;
+    max = 60.0;
+    step = 0.45;
+    defaultValue = 50.1;
   }
 
   sl.min = min;
@@ -130,7 +190,7 @@ function updateBrakeBiasSliderConfig(classId) {
 
   sl.value = curVal;
   
-  valInput.value = bankersRound(curVal, 1).toFixed(1);
+  valInput.value = getFormattedBrakeBias(classId, curVal);
 
   updateSliderTrack(sl);
   updateBrakeBiasRear();
@@ -241,7 +301,9 @@ function updateBrakeBiasRear() {
   if (valEl && rearEl) {
     const val = parseFloat(valEl.value);
     if (!isNaN(val)) {
-      rearEl.textContent = bankersRound(100 - val, 1).toFixed(1);
+      const classId = document.getElementById('f-class').value;
+      const formattedFront = parseFloat(getFormattedBrakeBias(classId, val));
+      rearEl.textContent = (100 - formattedFront).toFixed(1);
     } else {
       rearEl.textContent = '—';
     }
@@ -257,7 +319,8 @@ function bindSliders() {
     // Controle deslizante → entrada numérica
     slEl.addEventListener('input', () => {
       if (slider === 'sl-bb') {
-        valEl.value = bankersRound(parseFloat(slEl.value), 1).toFixed(1);
+        const classId = document.getElementById('f-class').value;
+        valEl.value = getFormattedBrakeBias(classId, parseFloat(slEl.value));
       } else {
         valEl.value = slEl.value;
       }
@@ -294,7 +357,8 @@ function bindSliders() {
       
       slEl.value = val;
       if (slider === 'sl-bb') {
-        valEl.value = bankersRound(parseFloat(slEl.value), 1).toFixed(1);
+        const classId = document.getElementById('f-class').value;
+        valEl.value = getFormattedBrakeBias(classId, parseFloat(slEl.value));
       } else {
         valEl.value = val;
       }
@@ -625,7 +689,7 @@ function bindSvmImport() {
         }
 
         // Parse key params for sliders
-        const keyParams = extractKeyParams(parsed);
+        const keyParams = extractKeyParams(parsed, classId);
 
         if (parsed.setupType === 'fixed') {
           // ── FIXED SETUP ───────────────────────────────────
@@ -905,7 +969,7 @@ function switchToFixedMode() {
 }
 
 // Extract Key parameters from parsed SVM
-function extractKeyParams(parsed) {
+function extractKeyParams(parsed, classId) {
   const controls = parsed.sections['CONTROLS'] || {};
   
   let brakeBias = null;
@@ -921,7 +985,17 @@ function extractKeyParams(parsed) {
     if (display) {
       const match = display.match(/^([\d.]+)/);
       if (match) {
-        brakeBias = parseFloat(match[1]);
+        let val = parseFloat(match[1]);
+        if (!isNaN(val)) {
+          if (val <= 35) {
+            // It's a raw index! Map it back.
+            const list = BRAKE_BIAS_DATA[classId];
+            if (list && list[Math.round(val)] != null) {
+              val = list[Math.round(val)];
+            }
+          }
+          brakeBias = val;
+        }
       }
     }
   }

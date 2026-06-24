@@ -258,16 +258,16 @@ function renderDetail(s) {
           <div style="display:flex;flex-direction:column;gap:var(--s5)">
 
             <!-- Laptime -->
-            <div class="detail-card" style="text-align:center">
-              <div class="detail-card-title">⏱️ Tempo de Volta</div>
+            <div class="detail-card sidebar-card" style="text-align:center">
+              <div class="detail-card-title"><span class="title-icon">⏱️</span> Tempo de Volta</div>
               <div class="laptime-display ${!s.laptime ? 'empty' : ''}">
                 ${s.laptime || 'Não registrado'}
               </div>
             </div>
 
             <!-- Rating -->
-            <div class="detail-card detail-rating-card" style="text-align:center">
-              <div class="detail-card-title">⭐ Avaliação</div>
+            <div class="detail-card sidebar-card detail-rating-card" style="text-align:center">
+              <div class="detail-card-title"><span class="title-icon">⭐</span> Avaliação</div>
               <div class="rating-display" style="margin-top:var(--s2)">
                 <div class="stars">
                   ${[1,2,3,4,5].map(i =>
@@ -279,11 +279,11 @@ function renderDetail(s) {
             </div>
 
             <!-- Notes -->
-            <div class="detail-card">
-              <div class="detail-card-title">📝 Comentários &amp; Notas</div>
+            <div class="detail-card sidebar-card ${s.notes ? 'has-content' : ''}" style="text-align:center">
+              <div class="detail-card-title"><span class="title-icon">📝</span> Comentários &amp; Notas</div>
               ${s.notes
-                ? `<p class="notes-text" style="white-space: pre-wrap;">${escapeHtml(s.notes)}</p>`
-                : `<p class="notes-text empty">Nenhum comentário adicionado.</p>`
+                ? `<p class="notes-text" style="white-space: pre-wrap; text-align: center;">${escapeHtml(s.notes)}</p>`
+                : `<p class="notes-text empty" style="text-align: center;">Nenhum comentário adicionado.</p>`
               }
             </div>
 

@@ -1360,6 +1360,40 @@ tr:hover .row-actions {
   line-height: 1.6;
 }
 
+/* Password wrapper and visibility toggle eye button */
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrapper .form-input {
+  padding-right: 40px !important;
+}
+
+.btn-toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--t-fast) ease;
+}
+
+.btn-toggle-password:hover {
+  color: #fff;
+}
+
+.btn-toggle-password svg {
+  display: block;
+}
+
 .form-select {
   appearance: none;
   padding-right: 32px;
@@ -1451,7 +1485,7 @@ tr:hover .row-actions {
 
 .param-row {
   display: grid;
-  grid-template-columns: 180px 1fr 80px;
+  grid-template-columns: 180px 1fr auto;
   align-items: center;
   gap: var(--s4);
   padding: var(--s4) 0;
@@ -1950,14 +1984,50 @@ tr:hover .row-actions {
   text-shadow: none;
 }
 
+/* Sidebar Cards layout & equal heights */
+.sidebar-card {
+  height: 210px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+.sidebar-card.has-content {
+  height: auto;
+  min-height: 210px;
+}
+
+.sidebar-card .detail-card-title .title-icon {
+  font-size: 1.1rem;
+  margin-right: var(--s1);
+  vertical-align: -0.1em;
+  display: inline-block;
+}
+
+.sidebar-card .laptime-display {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.sidebar-card .notes-text.empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
+
 /* Rating display */
 .detail-rating-card {
-  height: 200px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  align-items: center;
 }
 
 .detail-rating-card .rating-display {

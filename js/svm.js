@@ -18,6 +18,48 @@ window.SVM = window.SVM || {};
     return Math.round(n) / d;
   }
 
+  // Valores reais de Brake Bias mapeados do jogo por categoria
+  const BRAKE_BIAS_DATA = {
+    hypercar: [
+      60.0, 59.5, 59.1, 58.6, 58.2, 57.7, 57.3, 56.9, 56.4, 56.0,
+      55.5, 55.0, 54.6, 54.1, 53.7, 53.2, 52.8, 52.3, 51.9, 51.4,
+      51.0, 50.5, 50.1, 49.6, 49.2, 48.8, 48.3, 47.8, 47.4, 47.0,
+      46.5, 46.1, 45.6, 45.1, 44.7, 44.2, 43.8, 43.4, 42.9, 42.4,
+      42.0, 41.5, 41.1, 40.6, 40.2
+    ],
+    lmgt3: [
+      57.0, 56.8, 56.5, 56.2, 56.0, 55.8, 55.5, 55.2, 55.0, 54.8,
+      54.5, 54.2, 54.0, 53.8, 53.5, 53.2, 53.0, 52.8, 52.5, 52.2,
+      52.0, 51.8, 51.5, 51.2, 51.0, 50.8, 50.5, 50.2, 50.0, 49.8,
+      49.5, 49.2, 49.0, 48.8, 48.5, 48.2, 48.0, 47.8, 47.5, 47.2,
+      47.0, 46.8, 46.5, 46.2, 46.0, 45.8, 45.5, 45.2, 45.0, 44.8,
+      44.5, 44.2, 44.0, 43.8, 43.5, 43.2, 43.0
+    ],
+    gte: [
+      65.0, 64.5, 64.0, 63.5, 63.0, 62.5, 62.0, 61.5, 61.0, 60.5,
+      60.0, 59.5, 59.0, 58.5, 58.0, 57.5, 57.0, 56.5, 56.0, 55.5,
+      55.0, 54.5, 54.0, 53.5, 53.0, 52.5, 52.0, 51.5, 51.0, 50.5,
+      50.0, 49.5, 49.0, 48.5, 48.0, 47.5, 47.0, 46.5, 46.0, 45.5,
+      45.0, 44.5, 44.0, 43.5, 43.0, 42.5, 42.0, 41.5, 41.0, 40.5,
+      40.0, 39.5, 39.0, 38.5, 38.0, 37.5, 37.0, 36.5, 36.0, 35.5,
+      35.0
+    ],
+    lmp3: [
+      65.0, 64.5, 64.0, 63.5, 63.0, 62.5, 62.0, 61.5, 61.0, 60.5,
+      60.0, 59.5, 59.0, 58.5, 58.0, 57.5, 57.0, 56.5, 56.0, 55.5,
+      55.0, 54.5, 54.0, 53.5, 53.0, 52.5, 52.0, 51.5, 51.0, 50.5,
+      50.0, 49.5, 49.0, 48.5, 48.0, 47.5, 47.0, 46.5, 46.0, 45.5,
+      45.0, 44.5, 44.0, 43.5, 43.0, 42.5, 42.0, 41.5, 41.0, 40.5,
+      40.0, 39.5, 39.0, 38.5, 38.0, 37.5, 37.0, 36.5, 36.0, 35.5,
+      35.0
+    ],
+    lmp2: [
+      60.0, 59.5, 59.1, 58.6, 58.2, 57.7, 57.3, 56.9, 56.4, 56.0,
+      55.5, 55.0, 54.6, 54.1, 53.7, 53.2, 52.8, 52.3, 51.9, 51.4,
+      51.0, 50.5, 50.1, 49.6, 49.2, 48.8, 48.3, 47.8
+    ]
+  };
+
   // Mapeamento de carId para detalhes específicos do SVM
   const CAR_SVM_DETAILS = {
     toyota_gr010: {
@@ -435,6 +477,26 @@ window.SVM = window.SVM || {};
     frontBias = parseFloat(frontBias);
     if (isNaN(frontBias)) frontBias = 50.0;
     
+    // Se temos a lista exata de valores para a classe, usamos a busca por proximidade
+    const list = BRAKE_BIAS_DATA[classId];
+    if (list) {
+      let closestIdx = 0;
+      let minDiff = Infinity;
+      for (let i = 0; i < list.length; i++) {
+        const diff = Math.abs(list[i] - frontBias);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestIdx = i;
+        }
+      }
+      const actualFront = list[closestIdx];
+      const rearBias = 100.0 - actualFront;
+      return {
+        raw: closestIdx.toString(),
+        display: `${actualFront.toFixed(1)}:${rearBias.toFixed(1)}`
+      };
+    }
+    
     let raw = 0;
     let step = 0.25;
     let maxFront = 57.0;
@@ -613,14 +675,34 @@ window.SVM = window.SVM || {};
           raw = liters.toString();
           comment = (liters / 99).toFixed(2);
         } else if (section === 'GENERAL' && key === 'Notes') {
-          raw = `"${setup.notes || ''}"`;
+          const escapedNotes = (setup.notes || '')
+            .replace(/\r?\n/g, '\\n')
+            .replace(/"/g, '\\"');
+          raw = `"${escapedNotes}"`;
           comment = "";
         } else if (section === 'CONTROLS' && key === 'RearBrakeSetting') {
           let bbVal = setup.brakeBias;
           const rearBrakeVal = raw || comment;
           if (rearBrakeVal) {
-            const match = String(rearBrakeVal).match(/^([\d.]+)/);
-            if (match) bbVal = parseFloat(match[1]);
+            if (rearBrakeVal.includes(':') || rearBrakeVal.includes('/')) {
+              const match = String(rearBrakeVal).match(/^([\d.]+)/);
+              if (match) bbVal = parseFloat(match[1]);
+            } else {
+              const numVal = parseFloat(rearBrakeVal);
+              if (!isNaN(numVal)) {
+                if (numVal > 35) {
+                  bbVal = numVal;
+                } else {
+                  // It's a raw index! Map it back.
+                  const list = BRAKE_BIAS_DATA[classId];
+                  if (list && list[Math.round(numVal)] != null) {
+                    bbVal = list[Math.round(numVal)];
+                  } else {
+                    bbVal = numVal;
+                  }
+                }
+              }
+            }
           }
           if (bbVal == null || isNaN(bbVal)) bbVal = 50.0;
           const bbInfo = getRearBrakeSetting(classId, bbVal);

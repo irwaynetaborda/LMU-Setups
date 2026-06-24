@@ -81,6 +81,37 @@ const Auth = (() => {
     setTimeout(() => toast.remove(), 4000);
   }
 
+  function _initPasswordToggle(container) {
+    const toggles = container.querySelectorAll('.btn-toggle-password');
+    toggles.forEach(btn => {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = "true";
+      btn.addEventListener('click', () => {
+        const input = btn.previousElementSibling;
+        if (!input) return;
+        if (input.type === 'password') {
+          input.type = 'text';
+          btn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          `;
+          btn.setAttribute('aria-label', 'Esconder senha');
+        } else {
+          input.type = 'password';
+          btn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          `;
+          btn.setAttribute('aria-label', 'Mostrar senha');
+        }
+      });
+    });
+  }
+
   // ── Atualiza área do header ───────────────────────────────
 
   function _updateHeader() {
@@ -183,13 +214,29 @@ const Auth = (() => {
 
           <div class="form-field">
             <label class="form-label" for="auth-pass">Senha</label>
-            <input type="password" name="password" class="form-input" id="auth-pass" placeholder="Sua senha" autocomplete="current-password" required />
+            <div class="password-wrapper">
+              <input type="password" name="password" class="form-input" id="auth-pass" placeholder="Sua senha" autocomplete="current-password" required />
+              <button type="button" class="btn-toggle-password" tabindex="-1" aria-label="Mostrar senha">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
           </div>
 
           <!-- Confirmação somente no cadastro -->
           <div class="form-field" id="field-confirm" style="display:none">
             <label class="form-label" for="auth-confirm">Confirmar senha</label>
-            <input type="password" class="form-input" id="auth-confirm" placeholder="Repita a senha" autocomplete="new-password" />
+            <div class="password-wrapper">
+              <input type="password" class="form-input" id="auth-confirm" placeholder="Repita a senha" autocomplete="new-password" />
+              <button type="button" class="btn-toggle-password" tabindex="-1" aria-label="Mostrar senha">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
           </div>
 
           <!-- Lembrar de mim checkbox -->
@@ -242,6 +289,7 @@ const Auth = (() => {
     });
 
     document.getElementById('auth-form').addEventListener('submit', _handleSubmit);
+    _initPasswordToggle(overlay);
   }
 
   let _currentTab = 'login';
@@ -495,11 +543,27 @@ const Auth = (() => {
             <form class="auth-modal-form" id="change-pass-form">
               <div class="form-field">
                 <label class="form-label" for="change-pass-new">Nova Senha</label>
-                <input type="password" class="form-input" id="change-pass-new" placeholder="Mínimo 6 caracteres" autocomplete="new-password" required />
+                <div class="password-wrapper">
+                  <input type="password" class="form-input" id="change-pass-new" placeholder="Mínimo 6 caracteres" autocomplete="new-password" required />
+                  <button type="button" class="btn-toggle-password" tabindex="-1" aria-label="Mostrar senha">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                </div>
               </div>
               <div class="form-field">
                 <label class="form-label" for="change-pass-confirm">Confirmar Nova Senha</label>
-                <input type="password" class="form-input" id="change-pass-confirm" placeholder="Repita a nova senha" autocomplete="new-password" required />
+                <div class="password-wrapper">
+                  <input type="password" class="form-input" id="change-pass-confirm" placeholder="Repita a nova senha" autocomplete="new-password" required />
+                  <button type="button" class="btn-toggle-password" tabindex="-1" aria-label="Mostrar senha">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                </div>
               </div>
               <div class="auth-modal-error" id="change-pass-error" style="display:none"></div>
               <button type="submit" class="btn btn-primary auth-modal-submit" id="change-pass-submit">
@@ -514,8 +578,18 @@ const Auth = (() => {
         document.getElementById('change-pass-close').addEventListener('click', () => {
           passOverlay.classList.remove('open');
         });
-        passOverlay.addEventListener('click', (e) => {
-          if (e.target === passOverlay) passOverlay.classList.remove('open');
+
+        // Corrige bug de fechar ao selecionar texto:
+        // Só fecha se o click de início (mousedown) E término (mouseup) foram fora do modal
+        let passMousedownTarget = null;
+        passOverlay.addEventListener('mousedown', (e) => {
+          passMousedownTarget = e.target;
+        });
+        passOverlay.addEventListener('mouseup', (e) => {
+          if (passMousedownTarget === passOverlay && e.target === passOverlay) {
+            passOverlay.classList.remove('open');
+          }
+          passMousedownTarget = null;
         });
 
         document.getElementById('change-pass-form').addEventListener('submit', async (e) => {
@@ -558,6 +632,7 @@ const Auth = (() => {
             submitBtn.textContent = 'Salvar Nova Senha';
           }
         });
+        _initPasswordToggle(passOverlay);
       }
 
       // Abre o modal

@@ -27,6 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
   checkToast();
 });
 
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) {
+    loadAndRender();
+  }
+});
+
 // ── POPULATE FILTER DROPDOWNS ─────────────────────────────────
 function populateFilterDropdowns() {
   // Classes

@@ -1,0 +1,9 @@
+# Credenciais de banco de dados (Supabase)
+js/supabase-config.js
+
+# Arquivos do sistema operacional e IDEs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
