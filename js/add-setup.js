@@ -59,6 +59,76 @@ function buildClassPicker() {
   });
 }
 
+function updateBrakeBiasSliderConfig(classId) {
+  const sl = document.getElementById('sl-bb');
+  const valInput = document.getElementById('val-bb');
+  if (!sl || !valInput) return;
+
+  let min = 45.0;
+  let max = 70.0;
+  let step = 0.1;
+  let defaultValue = 57.5;
+
+  if (classId === 'lmgt3') {
+    min = 45.0;
+    max = 70.0;
+    step = 0.25;
+    defaultValue = 57.0;
+  } else if (classId === 'gte') {
+    min = 45.0;
+    max = 70.0;
+    step = 0.2;
+    defaultValue = 55.0;
+  } else if (classId === 'lmp2') {
+    min = 45.0;
+    max = 70.0;
+    step = 0.2;
+    defaultValue = 53.0;
+  } else if (classId === 'lmp3') {
+    min = 45.0;
+    max = 70.0;
+    step = 0.5;
+    defaultValue = 50.0;
+  } else if (classId === 'hypercar') {
+    min = 45.0;
+    max = 70.0;
+    step = 0.435;
+    defaultValue = 54.78; // Valor de partida alinhado com o passo (59.8 - 11.5 * 0.435) ou aproximado
+  }
+
+  sl.min = min;
+  sl.max = max;
+  sl.step = step;
+
+  valInput.min = min;
+  valInput.max = max;
+  valInput.step = step;
+
+  let curVal = parseFloat(sl.value);
+  if (isNaN(curVal) || curVal < min || curVal > max) {
+    curVal = defaultValue;
+  } else {
+    // Alinha o valor atual com o passo mais próximo
+    const stepsCount = Math.round((curVal - min) / step);
+    curVal = min + stepsCount * step;
+    if (curVal > max) curVal = max;
+    if (curVal < min) curVal = min;
+  }
+
+  sl.value = curVal;
+  
+  if (classId === 'hypercar') {
+    valInput.value = curVal.toFixed(2);
+  } else if (classId === 'lmgt3') {
+    valInput.value = curVal.toFixed(2).replace(/\.00$/, '.0');
+  } else {
+    valInput.value = curVal.toFixed(1);
+  }
+
+  updateSliderTrack(sl);
+  updateBrakeBiasRear();
+}
+
 function selectClass(classId) {
   // Atualiza o campo oculto
   document.getElementById('f-class').value = classId;
@@ -91,6 +161,9 @@ function selectClass(classId) {
     document.getElementById('val-tcsa').type = 'number';
     document.getElementById('val-tcsa').value = document.getElementById('sl-tcsa').value;
   }
+
+  // Atualiza limites e passos do slider de Brake Bias conforme a classe
+  updateBrakeBiasSliderConfig(classId);
 }
 
 // ── CARS CASCADE ──────────────────────────────────────────────
