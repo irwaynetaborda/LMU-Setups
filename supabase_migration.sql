@@ -88,28 +88,28 @@ CREATE POLICY "Usuarios logados podem criar setups" ON setups
     AND lower(creator_username) = split_part(auth.jwt() ->> 'email', '@', 1)
   );
 
--- 9.3 Política de edição: Apenas o dono ou o admin (substitua 'SEU-USER-ID-AQUI') podem editar
+-- 9.3 Política de edição: Apenas o dono ou o admin 'taborda' podem editar
 DROP POLICY IF EXISTS "Donos e admin podem atualizar setups" ON setups;
 CREATE POLICY "Donos e admin podem atualizar setups" ON setups
   FOR UPDATE
   TO authenticated
   USING (
     auth.uid() = user_id 
-    OR auth.uid() = '567e0c8f-0184-4bb5-a9f9-1a392c32b321'::uuid
+    OR split_part(auth.jwt() ->> 'email', '@', 1) = 'taborda'
   )
   WITH CHECK (
     auth.uid() = user_id 
-    OR auth.uid() = '567e0c8f-0184-4bb5-a9f9-1a392c32b321'::uuid
+    OR split_part(auth.jwt() ->> 'email', '@', 1) = 'taborda'
   );
 
--- 9.4 Política de exclusão física: Apenas dono ou admin
+-- 9.4 Política de exclusão física: Apenas dono ou admin 'taborda'
 DROP POLICY IF EXISTS "Donos e admin podem deletar setups" ON setups;
 CREATE POLICY "Donos e admin podem deletar setups" ON setups
   FOR DELETE
   TO authenticated
   USING (
     auth.uid() = user_id 
-    OR auth.uid() = '567e0c8f-0184-4bb5-a9f9-1a392c32b321'::uuid
+    OR split_part(auth.jwt() ->> 'email', '@', 1) = 'taborda'
   );
 
 -- ============================================================
@@ -147,7 +147,7 @@ DROP POLICY IF EXISTS "Usuarios logados podem deletar seus proprios comentarios"
 CREATE POLICY "Usuarios logados podem deletar seus proprios comentarios" ON setup_comments
   FOR DELETE TO authenticated USING (
     auth.uid() = user_id
-    OR auth.uid() = '567e0c8f-0184-4bb5-a9f9-1a392c32b321'::uuid
+    OR split_part(auth.jwt() ->> 'email', '@', 1) = 'taborda'
   );
 
 -- 11. RPC para incrementar curtidas dos comentários ignorando RLS
