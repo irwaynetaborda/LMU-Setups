@@ -439,8 +439,8 @@ window.SVM = window.SVM || {};
       step = 0.2;
       raw = Math.round((maxFront - frontBias) / step);
     } else if (classId === 'lmp3') {
-      maxFront = 55.1;
-      step = 0.2;
+      maxFront = 65.0;
+      step = 0.5;
       raw = Math.round((maxFront - frontBias) / step);
     } else if (classId === 'hypercar') {
       maxFront = 59.8;
@@ -458,7 +458,7 @@ window.SVM = window.SVM || {};
     
     return {
       raw: raw.toString(),
-      display: `${actualFront.toFixed(1)} / ${rearBias.toFixed(1)}`
+      display: `${actualFront.toFixed(1)}:${rearBias.toFixed(1)}`
     };
   }
 
