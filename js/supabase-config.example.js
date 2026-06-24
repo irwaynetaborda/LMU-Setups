@@ -10,7 +10,7 @@ const SUPABASE_ANON_KEY = "INSIRA_SUA_ANON_KEY_AQUI";
 
 let supabaseClient = null;
 
-if (SUPABASE_URL !== "INSIRA_SUA_URL_AQUI" && SUPABASE_ANON_KEY !== "INSIRA_SUA_ANON_KEY_AQUI") {
+if (SUPABASE_URL && !SUPABASE_URL.includes("INSIRA_SUA_URL") && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes("INSIRA_SUA_ANON")) {
   try {
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       global: {
