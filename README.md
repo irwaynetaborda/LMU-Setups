@@ -27,6 +27,7 @@ Uma biblioteca pessoal e painel de controle interativo para gerenciar configura�
 - **Login por Usuário e Senha:** Autenticação real integrada ao **Supabase Auth** para controle de acesso seguro.
 - **Público vs. Privado:** Escolha se o seu setup será visível para toda a comunidade na aba de setups públicos ou privado (exclusivo para sua conta).
 - **Persistência em Nuvem e Fallback:** Sincronização em tempo real com o banco de dados PostgreSQL do Supabase, contendo fallback automático para `localStorage` caso o cliente perca conectividade.
+- **Segurança RLS Robusta:** Políticas de Row Level Security (RLS) ativas em nível de banco de dados para setups e comentários. Validações integradas contra falsificação de identidade (spoofing de autor) usando o e-mail autenticado e proteção administrativa para edição de registros.
 
 ---
 

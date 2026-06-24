@@ -56,19 +56,61 @@ ALTER TABLE setups ADD COLUMN IF NOT EXISTS car_version TEXT;
 -- 8. Adiciona coluna active para soft delete (ocultar do site sem deletar do banco)
 ALTER TABLE setups ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT TRUE;
 
--- 9. Cria ou atualiza a política de UPDATE para permitir que o criador ou o admin 'Taborda' editem/deletem setups
-DROP POLICY IF EXISTS "Permitir update para donos e admin Taborda" ON setups;
-CREATE POLICY "Permitir update para donos e admin Taborda" ON setups
-FOR UPDATE
-TO authenticated
-USING (
-  auth.uid() = user_id 
-  OR auth.uid() = 'SEU-USER-ID-AQUI' -- Substituir pelo seu ID real
-)
-WITH CHECK (
-  auth.uid() = user_id 
-  OR auth.uid() = 'SEU-USER-ID-AQUI' -- Substituir pelo seu ID real
-);
+-- 9. Habilita RLS na tabela setups e cria políticas completas de segurança
+ALTER TABLE setups ENABLE ROW LEVEL SECURITY;
+
+-- Limpa dinamicamente TODAS as políticas antigas/padrão existentes para evitar conflitos (onde políticas se somam com OR)
+DO $$
+DECLARE
+    pol RECORD;
+BEGIN
+    FOR pol IN 
+        SELECT policyname, tablename 
+        FROM pg_policies 
+        WHERE schemaname = 'public' AND tablename IN ('setups', 'setup_comments')
+    LOOP
+        EXECUTE format('DROP POLICY %I ON %I', pol.policyname, pol.tablename);
+    END LOOP;
+END $$;
+CREATE POLICY "Qualquer um pode ver setups ativos" ON setups
+  FOR SELECT
+  TO public
+  USING (active = true OR auth.uid() = user_id);
+
+-- 9.2 Política de criação: Apenas usuários autenticados criam setups sob o seu próprio ID
+-- e com o creator_username correspondente ao seu email real para evitar falsificação
+DROP POLICY IF EXISTS "Usuarios logados podem criar setups" ON setups;
+CREATE POLICY "Usuarios logados podem criar setups" ON setups
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    auth.uid() = user_id
+    AND lower(creator_username) = split_part(auth.jwt() ->> 'email', '@', 1)
+  );
+
+-- 9.3 Política de edição: Apenas o dono ou o admin (substitua 'SEU-USER-ID-AQUI') podem editar
+DROP POLICY IF EXISTS "Donos e admin podem atualizar setups" ON setups;
+CREATE POLICY "Donos e admin podem atualizar setups" ON setups
+  FOR UPDATE
+  TO authenticated
+  USING (
+    auth.uid() = user_id 
+    OR auth.uid() = '567e0c8f-0184-4bb5-a9f9-1a392c32b321'::uuid
+  )
+  WITH CHECK (
+    auth.uid() = user_id 
+    OR auth.uid() = '567e0c8f-0184-4bb5-a9f9-1a392c32b321'::uuid
+  );
+
+-- 9.4 Política de exclusão física: Apenas dono ou admin
+DROP POLICY IF EXISTS "Donos e admin podem deletar setups" ON setups;
+CREATE POLICY "Donos e admin podem deletar setups" ON setups
+  FOR DELETE
+  TO authenticated
+  USING (
+    auth.uid() = user_id 
+    OR auth.uid() = '567e0c8f-0184-4bb5-a9f9-1a392c32b321'::uuid
+  );
 
 -- ============================================================
 -- MIGRATION: LMU Setups - Community Feedbacks / Comments
@@ -95,11 +137,18 @@ CREATE POLICY "Qualquer um pode ler comentarios" ON setup_comments
 
 DROP POLICY IF EXISTS "Usuarios logados podem criar comentarios" ON setup_comments;
 CREATE POLICY "Usuarios logados podem criar comentarios" ON setup_comments
-  FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+  FOR INSERT TO authenticated 
+  WITH CHECK (
+    auth.uid() = user_id
+    AND lower(username) = split_part(auth.jwt() ->> 'email', '@', 1)
+  );
 
 DROP POLICY IF EXISTS "Usuarios logados podem deletar seus proprios comentarios" ON setup_comments;
 CREATE POLICY "Usuarios logados podem deletar seus proprios comentarios" ON setup_comments
-  FOR DELETE TO authenticated USING (auth.uid() = user_id);
+  FOR DELETE TO authenticated USING (
+    auth.uid() = user_id
+    OR auth.uid() = '567e0c8f-0184-4bb5-a9f9-1a392c32b321'::uuid
+  );
 
 -- 11. RPC para incrementar curtidas dos comentários ignorando RLS
 DROP FUNCTION IF EXISTS increment_comment_likes(UUID);
