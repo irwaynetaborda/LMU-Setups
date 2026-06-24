@@ -518,6 +518,7 @@ window.SVM = window.SVM || {};
     linhas.push(`UpgradeSetting=${carDetails.upgrade}`);
     linhas.push(`//VEH=C:\\Program Files (x86)\\Steam\\steamapps\\common\\Le Mans Ultimate\\Installed\\Vehicles\\${vehPath}`);
     linhas.push(`//UpgradeClass=`);
+    linhas.push(`//SetupType=${setup.setupType || 'fixed'}`);
 
     // Comentários padrão de upgrades baseados na classe
     if (classId === 'lmgt3' || classId === 'gte') {

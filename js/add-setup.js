@@ -500,7 +500,7 @@ function bindSvmImport() {
     reader.onload = function(evt) {
       try {
         const text = evt.target.result;
-        const parsed = parseSVM(text);
+        const parsed = parseSVM(text, file.name);
 
         if (!parsed.vehicleClassSetting) {
           showToast('Formato de arquivo .svm inválido ou vazio.', 'error');
@@ -654,7 +654,7 @@ function openImportTrackModal(fileName, notesText, setupType) {
 }
 
 // SVM Parser
-function parseSVM(text) {
+function parseSVM(text, filename = '') {
   const lines = text.split(/\r?\n/);
   const result = {
     vehicleClassSetting: '',
@@ -663,11 +663,28 @@ function parseSVM(text) {
     sections: {}
   };
 
+  // Tentar detectar pelo nome do arquivo primeiro se contiver '-fixed' ou '-open'
+  if (filename) {
+    const nameLower = filename.toLowerCase();
+    if (nameLower.includes('-fixed')) {
+      result.setupType = 'fixed';
+    } else if (nameLower.includes('-open')) {
+      result.setupType = 'open';
+    }
+  }
+
   let currentSection = '';
 
   for (let line of lines) {
     line = line.trim();
     if (!line) continue;
+
+    // Detectar tipo via cabeçalho proprietário "//SetupType="
+    const setupTypeMatch = line.match(/^\/\/SetupType=(fixed|open)/i);
+    if (setupTypeMatch) {
+      result.setupType = setupTypeMatch[1].toLowerCase();
+      continue;
+    }
 
     // Detectar tipo Fixed vs Open via cabeçalho "//Gear ratios="
     const gearRatiosMatch = line.match(/^\/\/Gear ratios=(\d+)/);
