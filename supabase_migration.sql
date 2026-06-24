@@ -56,10 +56,6 @@ ALTER TABLE setups ADD COLUMN IF NOT EXISTS car_version TEXT;
 -- 8. Adiciona coluna active para soft delete (ocultar do site sem deletar do banco)
 ALTER TABLE setups ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT TRUE;
 
--- ============================================================
--- MIGRATION: LMU Setups - Admin Bypass for 'Taborda'
--- ============================================================
-
 -- 9. Cria ou atualiza a política de UPDATE para permitir que o criador ou o admin 'Taborda' editem/deletem setups
 DROP POLICY IF EXISTS "Permitir update para donos e admin Taborda" ON setups;
 CREATE POLICY "Permitir update para donos e admin Taborda" ON setups
@@ -67,10 +63,64 @@ FOR UPDATE
 TO authenticated
 USING (
   auth.uid() = user_id 
-  OR (auth.jwt() -> 'user_metadata' ->> 'username') = 'Taborda'
+  OR auth.uid() = 'SEU-USER-ID-AQUI' -- Substituir pelo seu ID real
 )
 WITH CHECK (
   auth.uid() = user_id 
-  OR (auth.jwt() -> 'user_metadata' ->> 'username') = 'Taborda'
+  OR auth.uid() = 'SEU-USER-ID-AQUI' -- Substituir pelo seu ID real
 );
+
+-- ============================================================
+-- MIGRATION: LMU Setups - Community Feedbacks / Comments
+-- ============================================================
+
+-- 10. Cria a tabela de feedbacks da comunidade
+CREATE TABLE IF NOT EXISTS setup_comments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  setup_id TEXT REFERENCES setups(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  username TEXT NOT NULL,
+  comment TEXT NOT NULL,
+  likes INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Habilita RLS para a tabela de comentários
+ALTER TABLE setup_comments ENABLE ROW LEVEL SECURITY;
+
+-- Políticas de RLS para setup_comments
+DROP POLICY IF EXISTS "Qualquer um pode ler comentarios" ON setup_comments;
+CREATE POLICY "Qualquer um pode ler comentarios" ON setup_comments
+  FOR SELECT TO public USING (true);
+
+DROP POLICY IF EXISTS "Usuarios logados podem criar comentarios" ON setup_comments;
+CREATE POLICY "Usuarios logados podem criar comentarios" ON setup_comments
+  FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Usuarios logados podem deletar seus proprios comentarios" ON setup_comments;
+CREATE POLICY "Usuarios logados podem deletar seus proprios comentarios" ON setup_comments
+  FOR DELETE TO authenticated USING (auth.uid() = user_id);
+
+-- 11. RPC para incrementar curtidas dos comentários ignorando RLS
+DROP FUNCTION IF EXISTS increment_comment_likes(UUID);
+CREATE OR REPLACE FUNCTION increment_comment_likes(comment_id UUID)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE setup_comments
+  SET likes = COALESCE(likes, 0) + 1
+  WHERE id = comment_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 12. RPC para decrementar curtidas dos comentários ignorando RLS
+DROP FUNCTION IF EXISTS decrement_comment_likes(UUID);
+CREATE OR REPLACE FUNCTION decrement_comment_likes(comment_id UUID)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE setup_comments
+  SET likes = GREATEST(COALESCE(likes, 0) - 1, 0)
+  WHERE id = comment_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 

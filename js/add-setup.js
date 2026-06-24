@@ -27,6 +27,20 @@ document.addEventListener('DOMContentLoaded', () => {
   checkEditMode();
   bindFormSubmit();
   bindSvmImport();
+
+  // Bloqueia salvamento de setup se Supabase estiver offline
+  if (typeof supabaseClient === 'undefined' || !supabaseClient) {
+    const btnSubmit = document.getElementById('btn-submit');
+    if (btnSubmit) {
+      btnSubmit.disabled = true;
+      btnSubmit.style.opacity = '0.5';
+      btnSubmit.style.cursor = 'not-allowed';
+      btnSubmit.title = 'Servidor de banco de dados offline. Salvar indisponível.';
+    }
+    setTimeout(() => {
+      showToast('O servidor do banco de dados está offline. Não é possível salvar setups no momento.', 'error');
+    }, 600);
+  }
 });
 
 // ── CLASS PICKER ──────────────────────────────────────────────
@@ -354,6 +368,10 @@ async function checkEditMode() {
 function bindFormSubmit() {
   document.getElementById('setup-form').addEventListener('submit', async e => {
     e.preventDefault();
+    if (typeof supabaseClient === 'undefined' || !supabaseClient) {
+      showToast('O servidor do banco de dados está offline. Não é possível salvar setups.', 'error');
+      return;
+    }
     if (!validateForm()) return;
 
     const data = {
@@ -404,22 +422,32 @@ function bindFormSubmit() {
       data.openParams = null;
     }
 
-    if (editId) {
-      await Storage.update(editId, data);
-      showToast('Setup atualizado com sucesso!', 'success');
-    } else {
-      await Storage.save(data);
-      showToast('Setup salvo com sucesso!', 'success');
-    }
-    
-    // Desabilita o botão para não enviar duas vezes
-    const btn = document.getElementById('btn-submit');
-    btn.disabled = true;
-    btn.style.opacity = '0.7';
+    try {
+      if (editId) {
+        await Storage.update(editId, data);
+        showToast('Setup atualizado com sucesso!', 'success');
+      } else {
+        await Storage.save(data);
+        showToast('Setup salvo com sucesso!', 'success');
+      }
+      
+      // Desabilita o botão para não enviar duas vezes
+      const btn = document.getElementById('btn-submit');
+      if (btn) {
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+      }
 
-    setTimeout(() => {
-      window.location.href = 'index.html';
-    }, 1200);
+      setTimeout(() => {
+        if (editId) {
+          window.location.href = `setup-detail.html?id=${editId}`;
+        } else {
+          window.location.href = 'index.html';
+        }
+      }, 1200);
+    } catch (err) {
+      showToast(err.message || 'Erro ao salvar o setup.', 'error');
+    }
   });
 }
 

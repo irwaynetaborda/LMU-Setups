@@ -602,6 +602,12 @@ async function voteSetup(id, event) {
     return;
   }
 
+  const setup = allSetups.find(s => s.id === id);
+  if (setup && setup.userId && setup.userId === Auth.getUser()?.id) {
+    showToast('Você não pode votar no seu próprio setup.', 'error');
+    return;
+  }
+
   let voted = [];
   const userId = Auth.getUser()?.id || 'anon';
   const votedKey = `voted_setups_${userId}`;
@@ -626,7 +632,6 @@ async function voteSetup(id, event) {
   localStorage.setItem(votedKey, JSON.stringify(voted));
 
   // Incrementa/decrementa no estado local da UI
-  const setup = allSetups.find(s => s.id === id);
   if (setup) {
     setup.votes = Math.max((setup.votes || 0) + diff, 0);
   }

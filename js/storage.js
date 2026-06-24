@@ -16,7 +16,10 @@ const Storage = {
           .eq('active', true)
           .order('created_at', { ascending: false });
         if (error) throw error;
-        return data.map(row => this._mapFromDb(row));
+        const mapped = data.map(row => this._mapFromDb(row));
+        // Salva cópia local para leitura offline
+        this._persist(mapped);
+        return mapped;
       } catch (err) {
         console.error("[Supabase] Erro ao buscar setups do banco:", err);
         return this._getAllLocal().filter(s => s.active !== false);
@@ -27,6 +30,10 @@ const Storage = {
 
   /** Salva um novo setup */
   async save(setup) {
+    if (!supabaseClient) {
+      throw new Error("O servidor do banco de dados não está disponível.");
+    }
+
     const activeUsername = (typeof Auth !== 'undefined') ? Auth.getUsername() : null;
     const newSetup = {
       ...setup,
@@ -37,79 +44,87 @@ const Storage = {
       updatedAt: new Date().toISOString(),
     };
 
-    if (supabaseClient) {
-      try {
-        const dbRow = this._mapToDb(newSetup);
-        // Injeta o user_id do usuário logado
-        const userId = (typeof Auth !== 'undefined') ? Auth.getUser()?.id : null;
-        if (userId) dbRow.user_id = userId;
-        const { error } = await supabaseClient
-          .from('setups')
-          .insert([dbRow]);
-        if (error) throw error;
-        return newSetup;
-      } catch (err) {
-        console.error("[Supabase] Erro ao salvar setup no banco:", err);
-      }
-    }
+    const dbRow = this._mapToDb(newSetup);
+    // Injeta o user_id do usuário logado
+    const userId = (typeof Auth !== 'undefined') ? Auth.getUser()?.id : null;
+    if (userId) dbRow.user_id = userId;
 
-    // Fallback local
+    const { error } = await supabaseClient
+      .from('setups')
+      .insert([dbRow]);
+    if (error) throw error;
+
+    // Sincroniza cache local
     const all = this._getAllLocal();
     all.unshift(newSetup);
     this._persist(all);
+
     return newSetup;
   },
 
   /** Atualiza um setup existente por id */
   async update(id, updates) {
+    if (!supabaseClient) {
+      throw new Error("O servidor do banco de dados não está disponível.");
+    }
+
     const updatedSetup = {
       ...updates,
       updatedAt: new Date().toISOString(),
     };
 
-    if (supabaseClient) {
-      try {
-        const dbRow = this._mapToDb(updatedSetup);
-        // Remove id e created_at para evitar sobrescrever a chave primária ou data de criação original
-        delete dbRow.id;
-        delete dbRow.created_at;
+    const dbRow = this._mapToDb(updatedSetup);
+    // Remove id e created_at para evitar sobrescrever a chave primária ou data de criação original
+    // Remove também campos do criador e contagem de votos para evitar resetá-los na edição
+    delete dbRow.id;
+    delete dbRow.created_at;
+    delete dbRow.creator_username;
+    delete dbRow.user_id;
+    delete dbRow.votes;
 
-        const { error } = await supabaseClient
-          .from('setups')
-          .update(dbRow)
-          .eq('id', id);
-        if (error) throw error;
-        return { id, ...updatedSetup };
-      } catch (err) {
-        console.error("[Supabase] Erro ao atualizar setup no banco:", err);
-      }
-    }
+    const { error } = await supabaseClient
+      .from('setups')
+      .update(dbRow)
+      .eq('id', id);
+    if (error) throw error;
 
-    // Fallback local
+    // Sincroniza cache local
     const all = this._getAllLocal();
     const idx = all.findIndex(s => s.id === id);
-    if (idx === -1) return null;
-    all[idx] = { ...all[idx], ...updatedSetup };
-    this._persist(all);
-    return all[idx];
+    if (idx !== -1) {
+      // Remove chaves undefined para não corromper o cache local
+      const cleanUpdates = {};
+      Object.keys(updatedSetup).forEach(k => {
+        if (updatedSetup[k] !== undefined) {
+          cleanUpdates[k] = updatedSetup[k];
+        }
+      });
+      // Protege campos no cache local
+      delete cleanUpdates.id;
+      delete cleanUpdates.createdAt;
+      delete cleanUpdates.creatorUsername;
+      delete cleanUpdates.userId;
+      delete cleanUpdates.votes;
+
+      all[idx] = { ...all[idx], ...cleanUpdates };
+      this._persist(all);
+    }
+    return { id, ...updatedSetup };
   },
 
   /** Remove um setup por id (soft delete: altera active para false) */
   async delete(id) {
-    if (supabaseClient) {
-      try {
-        const { error } = await supabaseClient
-          .from('setups')
-          .update({ active: false })
-          .eq('id', id);
-        if (error) throw error;
-        return;
-      } catch (err) {
-        console.error("[Supabase] Erro ao deletar setup no banco:", err);
-      }
+    if (!supabaseClient) {
+      throw new Error("O servidor do banco de dados não está disponível.");
     }
 
-    // Fallback local
+    const { error } = await supabaseClient
+      .from('setups')
+      .update({ active: false })
+      .eq('id', id);
+    if (error) throw error;
+
+    // Sincroniza cache local
     const all = this._getAllLocal();
     const idx = all.findIndex(s => s.id === id);
     if (idx !== -1) {
@@ -200,6 +215,79 @@ const Storage = {
       topTrackId: topTrackId || null,
       topTrackName: topTrack ? topTrack.name : null,
     };
+  },
+
+  /** Retorna todos os feedbacks de um setup */
+  async getComments(setupId) {
+    if (!supabaseClient) {
+      return [];
+    }
+    try {
+      const { data, error } = await supabaseClient
+        .from('setup_comments')
+        .select('*')
+        .eq('setup_id', setupId)
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      return data.map(c => ({
+        id: c.id,
+        setupId: c.setup_id,
+        userId: c.user_id,
+        username: c.username,
+        comment: c.comment,
+        likes: c.likes || 0,
+        createdAt: c.created_at
+      }));
+    } catch (err) {
+      console.error("[Supabase] Erro ao buscar feedbacks:", err);
+      return [];
+    }
+  },
+
+  /** Adiciona um novo feedback */
+  async addComment(setupId, commentText) {
+    if (!supabaseClient) {
+      throw new Error("O servidor de banco de dados não está disponível.");
+    }
+    const username = (typeof Auth !== 'undefined') ? Auth.getUsername() : 'Piloto';
+    const userId = (typeof Auth !== 'undefined') ? Auth.getUser()?.id : null;
+
+    if (!userId) {
+      throw new Error("Você precisa estar logado para comentar.");
+    }
+
+    const newCommentId = this._uuid();
+    const { error } = await supabaseClient
+      .from('setup_comments')
+      .insert([{
+        id: newCommentId,
+        setup_id: setupId,
+        user_id: userId,
+        username: username || 'Piloto',
+        comment: commentText,
+        likes: 0
+      }]);
+    if (error) throw error;
+
+    return {
+      id: newCommentId,
+      setupId,
+      userId,
+      username: username || 'Piloto',
+      comment: commentText,
+      likes: 0,
+      createdAt: new Date().toISOString()
+    };
+  },
+
+  /** Altera curtidas do feedback */
+  async likeComment(commentId, diff) {
+    if (!supabaseClient) {
+      throw new Error("O servidor de banco de dados não está disponível.");
+    }
+    const rpcName = diff > 0 ? 'increment_comment_likes' : 'decrement_comment_likes';
+    const { error } = await supabaseClient.rpc(rpcName, { comment_id: commentId });
+    if (error) throw error;
   },
 
   // ── Internos ────────────────────────────────────────────

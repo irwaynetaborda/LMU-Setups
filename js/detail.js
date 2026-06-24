@@ -9,7 +9,11 @@
 let currentSetup = null;
 
 // ── INIT ──────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
+  initPage();
+});
+
+async function initPage() {
   const id = new URLSearchParams(window.location.search).get('id');
   if (!id) { redirect(); return; }
 
@@ -20,7 +24,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   renderDetail(currentSetup);
   bindModal();
-});
+  await loadAndRenderComments(id);
+}
+
+// Para recarregar ao fazer login/logout
+window.loadAndRender = async function() {
+  const id = new URLSearchParams(window.location.search).get('id');
+  if (id) {
+    currentSetup = await Storage.getById(id);
+    if (currentSetup) {
+      renderDetail(currentSetup);
+      await loadAndRenderComments(id);
+    }
+  }
+};
 
 function redirect() {
   window.location.href = 'index.html';
@@ -206,42 +223,38 @@ function renderDetail(s) {
             ${s.setupType === 'open' 
               ? renderOpenParams(s.openParams, isLMP3, hasABS)
               : `
-              <div class="detail-card" style="margin-bottom:var(--s5)">
+              <div class="detail-card card-with-header" style="margin-bottom:var(--s5); background:#08080eeb;">
                 <div class="detail-card-title">⚙️ Parâmetros Fixed Setup</div>
-                <div class="param-items">
-                  ${renderParamItem('Brake Bias', s.brakeBias, 45, 70, false, true)}
-                  ${renderParamItem('TC', s.tc, 1, 11)}
-                  ${renderParamItem('TC Power Cut', s.tcPowerCut, 1, 11)}
-                  ${isLMP3
-                    ? `<div class="param-item" style="opacity:0.35">
-                         <span class="param-item-label">TC Slip Angle</span>
-                         <span class="param-item-val" style="font-size:0.875rem;color:var(--text-3)">Linked</span>
-                       </div>`
-                    : renderParamItem('TC Slip Angle', s.tcSlipAngle, 1, 11)
-                  }
-                  ${hasABS
-                    ? renderParamItem('ABS', s.abs, 1, 11)
-                    : `<div class="param-item" style="opacity:0.35">
-                         <span class="param-item-label">ABS</span>
-                         <span class="param-item-val" style="font-size:0.75rem;color:var(--text-3)">N/A (LMP3)</span>
-                       </div>`
-                  }
-                  ${renderParamItem('Brake Pressure', s.brakePressure, 50, 100, true)}
+                <div class="detail-card-body">
+                  <div class="param-items">
+                    ${renderParamItem('Brake Bias', s.brakeBias, 45, 70, false, true)}
+                    ${renderParamItem('TC', s.tc, 1, 11)}
+                    ${renderParamItem('TC Power Cut', s.tcPowerCut, 1, 11)}
+                    ${isLMP3
+                      ? `<div class="param-item" style="opacity:0.35">
+                           <span class="param-item-label">TC Slip Angle</span>
+                           <span class="param-item-val" style="font-size:0.875rem;color:var(--text-3)">Linked</span>
+                         </div>`
+                      : renderParamItem('TC Slip Angle', s.tcSlipAngle, 1, 11)
+                    }
+                    ${hasABS
+                      ? renderParamItem('ABS', s.abs, 1, 11)
+                      : `<div class="param-item" style="opacity:0.35">
+                           <span class="param-item-label">ABS</span>
+                           <span class="param-item-val" style="font-size:0.75rem;color:var(--text-3)">N/A (LMP3)</span>
+                         </div>`
+                    }
+                    ${renderParamItem('Brake Pressure', s.brakePressure, 50, 100, true)}
+                  </div>
                 </div>
               </div>`
             }
 
-            <!-- Notes -->
-            <div class="detail-card">
-              <div class="detail-card-title">📝 Comentários &amp; Notas</div>
-              ${s.notes
-                ? `<p class="notes-text">${escapeHtml(s.notes)}</p>`
-                : `<p class="notes-text empty">Nenhum comentário adicionado.</p>`
-              }
-            </div>
+            <!-- Feedbacks da Comunidade -->
+            <div id="comments-section-root"></div>
           </div>
 
-          <!-- Right: Laptime + Rating -->
+          <!-- Right: Laptime + Rating + Notes -->
           <div style="display:flex;flex-direction:column;gap:var(--s5)">
 
             <!-- Laptime -->
@@ -263,6 +276,15 @@ function renderDetail(s) {
                 </div>
                 <span class="rating-text">${ratingLabel(s.rating)}</span>
               </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="detail-card">
+              <div class="detail-card-title">📝 Comentários &amp; Notas</div>
+              ${s.notes
+                ? `<p class="notes-text" style="white-space: pre-wrap;">${escapeHtml(s.notes)}</p>`
+                : `<p class="notes-text empty">Nenhum comentário adicionado.</p>`
+              }
             </div>
 
           </div>
@@ -432,6 +454,11 @@ async function voteSetup(id, event) {
   const isLoggedIn = (typeof Auth !== 'undefined') ? Auth.isAuthenticated() : false;
   if (!isLoggedIn) {
     showToast('Você precisa fazer login para votar.', 'error');
+    return;
+  }
+
+  if (currentSetup && currentSetup.userId && currentSetup.userId === Auth.getUser()?.id) {
+    showToast('Você não pode votar no seu próprio setup.', 'error');
     return;
   }
 
@@ -700,3 +727,181 @@ function renderOpenParams(openParams, isLMP3, hasABS) {
       </div>
     </div>`;
 }
+
+// ── COMMENTS & FEEDBACKS LOGIC ─────────────────────────────
+let currentComments = [];
+
+async function loadAndRenderComments(setupId) {
+  const root = document.getElementById('comments-section-root');
+  if (!root) return;
+
+  const isDbOnline = typeof supabaseClient !== 'undefined' && supabaseClient;
+  
+  if (!isDbOnline) {
+    root.innerHTML = `
+      <div class="detail-card card-with-header" style="margin-top:var(--s5); background:#08080eeb;">
+        <div class="detail-card-title">💬 Feedbacks da Comunidade</div>
+        <div class="detail-card-body">
+          <div style="padding:var(--s4); background:rgba(232,0,45,0.05); border:1px solid rgba(232,0,45,0.15); border-radius:var(--r-md); text-align:center; color:var(--text-3); font-size:0.875rem;">
+            ⚠️ O servidor de banco de dados está offline. Os feedbacks estão indisponíveis no momento.
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  currentComments = await Storage.getComments(setupId);
+
+  const isLoggedIn = (typeof Auth !== 'undefined') ? Auth.isAuthenticated() : false;
+  const currentUserId = isLoggedIn ? Auth.getUser()?.id : null;
+  const isOwner = currentSetup && currentSetup.userId && currentSetup.userId === currentUserId;
+
+  let commentsHtml = '';
+  if (currentComments.length === 0) {
+    commentsHtml = `<p class="notes-text empty" style="margin-bottom:var(--s4)">Nenhum feedback ainda. Seja o primeiro a comentar!</p>`;
+  } else {
+    commentsHtml = `
+      <div class="comments-container">
+        ${currentComments.map(c => {
+          const initials = getInitials(c.username);
+          const avatarColor = (typeof Auth !== 'undefined') ? Auth.getAvatarColor(c.username) : '#e8002d';
+          
+          let likedClass = '';
+          if (isLoggedIn) {
+            const likedComments = JSON.parse(localStorage.getItem(`liked_comments_${currentUserId}`) || '[]');
+            if (likedComments.includes(c.id)) {
+              likedClass = 'liked';
+            }
+          }
+          
+          return `
+            <div class="comment-row" data-id="${c.id}">
+              <div class="comment-avatar-col">
+                <div class="avatar-small" style="background:${avatarColor}">${initials}</div>
+              </div>
+              <div class="comment-content-col">
+                <div class="comment-header" style="margin-bottom: var(--s2); display: flex; justify-content: space-between; align-items: center;">
+                  <div class="comment-author">${escapeHtml(c.username)}</div>
+                  <div class="comment-header-right" style="display: flex; align-items: center; gap: var(--s4); padding-right: 6px;">
+                    <span class="comment-time">${formatDateTime(c.createdAt)}</span>
+                    <button type="button" class="btn-comment-like ${likedClass}" onclick="likeComment('${c.id}', event)">
+                      👍 <span class="like-count">${c.likes || 0}</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="comment-text">${escapeHtml(c.comment)}</div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  let formHtml = '';
+  if (isOwner) {
+    formHtml = `
+      <div style="margin-top:var(--s4); padding:var(--s4); background:rgba(255,255,255,0.02); border:1px dashed var(--border); border-radius:var(--r-md); text-align:center; font-size:0.875rem; color:var(--text-3)">
+        📝 Como criador do setup, utilize o card "Comentários & Notas" (editando o setup) para adicionar observações.
+      </div>
+    `;
+  } else {
+    formHtml = `
+      <div class="comment-form-wrap">
+        <textarea class="comment-input-area" id="txt-new-comment" placeholder="Escreva seu feedback sobre o setup..."></textarea>
+        <div class="comment-submit-row">
+          <button type="button" class="btn btn-primary btn-sm" id="btn-submit-comment">Enviar Feedback</button>
+        </div>
+      </div>
+    `;
+  }
+
+  root.innerHTML = `
+    <div class="detail-card card-with-header" style="margin-top:var(--s5); background:#08080eeb;">
+      <div class="detail-card-title">💬 Feedbacks da Comunidade</div>
+      <div class="detail-card-body">
+        ${commentsHtml}
+        ${formHtml}
+      </div>
+    </div>
+  `;
+
+  const btnSubmit = document.getElementById('btn-submit-comment');
+  if (btnSubmit) {
+    btnSubmit.addEventListener('click', async (e) => {
+      if (e) e.preventDefault();
+      const textarea = document.getElementById('txt-new-comment');
+      const text = textarea ? textarea.value.trim() : '';
+      if (!text) {
+        showToast('Escreva um feedback primeiro.', 'error');
+        return;
+      }
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = 'Enviando...';
+      try {
+        await Storage.addComment(setupId, text);
+        showToast('Feedback enviado com sucesso!', 'success');
+        await loadAndRenderComments(setupId);
+      } catch (err) {
+        showToast(err.message || 'Erro ao enviar feedback.', 'error');
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'Enviar Feedback';
+      }
+    });
+  }
+}
+
+async function likeComment(commentId, event) {
+  if (event) event.stopPropagation();
+
+  const isLoggedIn = (typeof Auth !== 'undefined') ? Auth.isAuthenticated() : false;
+  if (!isLoggedIn) {
+    showToast('Você precisa fazer login para curtir feedbacks.', 'error');
+    return;
+  }
+
+  const userId = Auth.getUser()?.id || 'anon';
+  const likedKey = `liked_comments_${userId}`;
+  let liked = [];
+  try {
+    liked = JSON.parse(localStorage.getItem(likedKey) || '[]');
+  } catch (e) {
+    liked = [];
+  }
+
+  const comment = currentComments.find(c => c.id === commentId);
+  if (comment && comment.userId === userId) {
+    showToast('Você não pode curtir seu próprio comentário.', 'error');
+    return;
+  }
+
+  const alreadyLiked = liked.includes(commentId);
+  const diff = alreadyLiked ? -1 : 1;
+
+  try {
+    await Storage.likeComment(commentId, diff);
+    
+    if (alreadyLiked) {
+      liked = liked.filter(id => id !== commentId);
+      showToast('Curtida removida.', 'error');
+    } else {
+      liked.push(commentId);
+      showToast('Feedback curtido!', 'success');
+    }
+    localStorage.setItem(likedKey, JSON.stringify(liked));
+
+    const btn = event.currentTarget || document.querySelector(`.comment-row[data-id="${commentId}"] .btn-comment-like`);
+    if (btn) {
+      btn.classList.toggle('liked', !alreadyLiked);
+      const countEl = btn.querySelector('.like-count');
+      if (countEl) {
+        const currentCount = parseInt(countEl.textContent) || 0;
+        countEl.textContent = Math.max(currentCount + diff, 0);
+      }
+    }
+  } catch (err) {
+    showToast(err.message || 'Erro ao alterar curtida.', 'error');
+  }
+}
+window.likeComment = likeComment;
