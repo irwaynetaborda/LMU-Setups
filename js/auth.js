@@ -513,10 +513,17 @@ const Auth = (() => {
     },
 
     async logout() {
-      await supabaseClient.auth.signOut();
+      if (supabaseClient) {
+        await supabaseClient.auth.signOut();
+      }
     },
 
     openModal() {
+      if (!supabaseClient) {
+        _showToast('Erro: Supabase não conectado. Configure as variáveis no Vercel.', 'error');
+        alert('Erro: Conexão com o Banco de Dados (Supabase) não estabelecida.\n\nPara resolver isso:\n1. Acesse o painel da Vercel (https://vercel.com/irwaynetabordas-projects/lmu-setups).\n2. Vá nas configurações do projeto (Settings) > Environment Variables.\n3. Adicione duas variáveis:\n   - Nome: SUPABASE_URL  | Valor: (Sua URL do Supabase)\n   - Nome: SUPABASE_ANON_KEY | Valor: (Sua Anon Key do Supabase)\n4. Redefina o deploy ou faça um novo commit para atualizar o site.');
+        return;
+      }
       _switchTab('login');
       document.getElementById('auth-modal-overlay')?.classList.add('open');
       setTimeout(() => document.getElementById('auth-username')?.focus(), 100);

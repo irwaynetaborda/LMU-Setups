@@ -399,6 +399,30 @@ function renderRow(s, index) {
 
 function renderEmpty() {
   const hasFilters = Object.values(filters).some(v => v !== '');
+  const isDbConnected = (typeof supabaseClient !== 'undefined' && supabaseClient !== null);
+
+  if (!isDbConnected && !hasFilters) {
+    return `
+      <div class="empty-state animate-in" style="border: 1px dashed var(--red); padding: var(--s8); border-radius: var(--r-xl); background: rgba(232, 0, 45, 0.05); text-align: center;">
+        <div class="icon" style="color: var(--red); font-size: 3rem; margin-bottom: var(--s4);">⚠️</div>
+        <h3 style="color: var(--red); margin-bottom: var(--s2);">Conexão com o Banco de Dados Ausente</h3>
+        <p style="max-width: 500px; margin: 0 auto var(--s6); color: var(--text-2);">
+          O site não conseguiu se conectar ao Supabase (banco de dados). 
+          Por isso, nenhum setup cadastrado na nuvem pôde ser carregado.
+        </p>
+        <div style="background: rgba(8,8,14,0.92); padding: var(--s5); border-radius: var(--r-md); font-size: 0.875rem; text-align: left; max-width: 450px; margin: 0 auto; border: 1px solid var(--border); color: var(--text-1);">
+          <strong style="display:block; margin-bottom:var(--s2); color:white;">Como resolver isso:</strong>
+          1. Acesse o painel da <strong>Vercel</strong>.<br>
+          2. Vá em <strong>Settings &gt; Environment Variables</strong>.<br>
+          3. Adicione duas variáveis de ambiente:<br>
+             &nbsp;&nbsp;&bull;&nbsp;<code>SUPABASE_URL</code><br>
+             &nbsp;&nbsp;&bull;&nbsp;<code>SUPABASE_ANON_KEY</code><br>
+             com os valores corretos obtidos no painel do seu Supabase.<br>
+          4. Redefina o deploy (Redeploy) ou faça um novo push para que o site seja reconstruído.
+        </div>
+      </div>`;
+  }
+
   return `
     <div class="empty-state animate-in">
       <div class="icon">🏎️</div>
