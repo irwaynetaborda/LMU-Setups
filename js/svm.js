@@ -5,6 +5,19 @@
 window.SVM = window.SVM || {};
 
 (function() {
+  // Arredondamento Bancário (IEEE 754 Round to Nearest Even)
+  function bankersRound(num, decimals = 1) {
+    const d = Math.pow(10, decimals);
+    const n = num * d;
+    const i = Math.floor(n);
+    const f = n - i;
+    const e = 1e-9;
+    if (Math.abs(f - 0.5) < e) {
+      return (i % 2 === 0 ? i : i + 1) / d;
+    }
+    return Math.round(n) / d;
+  }
+
   // Mapeamento de carId para detalhes específicos do SVM
   const CAR_SVM_DETAILS = {
     toyota_gr010: {
@@ -458,7 +471,7 @@ window.SVM = window.SVM || {};
     
     return {
       raw: raw.toString(),
-      display: `${actualFront.toFixed(1)}:${rearBias.toFixed(1)}`
+      display: `${bankersRound(actualFront, 1).toFixed(1)}:${bankersRound(rearBias, 1).toFixed(1)}`
     };
   }
 

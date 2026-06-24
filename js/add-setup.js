@@ -3,6 +3,19 @@
 //  Lógica do formulário de novo setup / edição
 // ============================================================
 
+// Arredondamento Bancário (IEEE 754 Round to Nearest Even)
+function bankersRound(num, decimals = 1) {
+  const d = Math.pow(10, decimals);
+  const n = num * d;
+  const i = Math.floor(n);
+  const f = n - i;
+  const e = 1e-9;
+  if (Math.abs(f - 0.5) < e) {
+    return (i % 2 === 0 ? i : i + 1) / d;
+  }
+  return Math.round(n) / d;
+}
+
 // ── STATE ─────────────────────────────────────────────────────
 let editId   = null;
 let rating   = 0;
@@ -117,13 +130,7 @@ function updateBrakeBiasSliderConfig(classId) {
 
   sl.value = curVal;
   
-  if (classId === 'hypercar') {
-    valInput.value = curVal.toFixed(2);
-  } else if (classId === 'lmgt3') {
-    valInput.value = curVal.toFixed(2).replace(/\.00$/, '.0');
-  } else {
-    valInput.value = curVal.toFixed(1);
-  }
+  valInput.value = bankersRound(curVal, 1).toFixed(1);
 
   updateSliderTrack(sl);
   updateBrakeBiasRear();
@@ -234,7 +241,7 @@ function updateBrakeBiasRear() {
   if (valEl && rearEl) {
     const val = parseFloat(valEl.value);
     if (!isNaN(val)) {
-      rearEl.textContent = (100 - val).toFixed(1);
+      rearEl.textContent = bankersRound(100 - val, 1).toFixed(1);
     } else {
       rearEl.textContent = '—';
     }
@@ -249,21 +256,23 @@ function bindSliders() {
 
     // Controle deslizante → entrada numérica
     slEl.addEventListener('input', () => {
-      valEl.value = slEl.value;
+      if (slider === 'sl-bb') {
+        valEl.value = bankersRound(parseFloat(slEl.value), 1).toFixed(1);
+      } else {
+        valEl.value = slEl.value;
+      }
       updateSliderTrack(slEl);
       if (slider === 'sl-bb') updateBrakeBiasRear();
     });
 
     // Entrada numérica → controle deslizante
     valEl.addEventListener('input', () => {
-      // Se estiver vazio ou for apenas um sinal de menos/ponto, não atualizamos o slider ainda
       if (valEl.value === '' || isNaN(parseFloat(valEl.value))) return;
       
       const val = parseFloat(valEl.value);
       const min = parseFloat(slEl.min);
       const max = parseFloat(slEl.max);
       
-      // Apenas movemos o slider e a barra se estiver dentro dos limites válidos
       if (val >= min && val <= max) {
         slEl.value = val;
         updateSliderTrack(slEl);
@@ -284,7 +293,11 @@ function bindSliders() {
       }
       
       slEl.value = val;
-      valEl.value = val;
+      if (slider === 'sl-bb') {
+        valEl.value = bankersRound(parseFloat(slEl.value), 1).toFixed(1);
+      } else {
+        valEl.value = val;
+      }
       updateSliderTrack(slEl);
       if (slider === 'sl-bb') updateBrakeBiasRear();
     };
