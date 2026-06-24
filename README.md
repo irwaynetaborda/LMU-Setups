@@ -56,7 +56,8 @@ Como o projeto é construído em HTML/CSS/JS puros, você não precisa instalar 
    ```bash
    git clone https://github.com/irwaynetaborda/LMU-Setups.git
    ```
-2. Abra o arquivo `index.html` diretamente em qualquer navegador moderno ou utilize uma extensão de Live Server (como a do VS Code) para ter a melhor experiência de desenvolvimento.
+2. Crie uma cópia do arquivo `js/supabase-config.example.js` com o nome de `js/supabase-config.js` e insira as credenciais do seu projeto Supabase.
+3. Abra o arquivo `index.html` diretamente em qualquer navegador moderno ou utilize uma extensão de Live Server (como a do VS Code) para ter a melhor experiência de desenvolvimento.
 
 ---
 
