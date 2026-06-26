@@ -161,7 +161,7 @@ const SCHEDULE_DATA = {
 
   weekly: [
     {
-      sr: "S2",
+      sr: "SILVER",
       rankClass: "silver",
       frequency: "Dias Específicos",
       title: "WEC Semanal",
@@ -175,10 +175,13 @@ const SCHEDULE_DATA = {
       splits: "38",
       setup: "Open",
       theme: "theme-silver",
-      times: "Qua Qui Seg @ 02:00, 06:00, 09:00, 12:00, 15:00, 18:00, 20:00, 23:00 UTC"
-    },
+      times: "Ter Qua Dom @ 23:00 / Qua Qui Seg @ 03:00, 06:00, 09:00, 12:00, 15:00, 17:00, 20:00 (Horário de Brasília)"
+    }
+  ],
+
+  special: [
     {
-      sr: "B2",
+      sr: "BRONZE",
       rankClass: "bronze",
       frequency: "Dias Específicos",
       title: "6 Hours of Le Mans",
@@ -193,7 +196,7 @@ const SCHEDULE_DATA = {
       setup: "Open",
       relay: "Sim",
       theme: "theme-bronze",
-      times: "Sex Sáb Dom @ 05:00, 11:00, 17:00, 22:00 UTC"
+      times: "Sex Sáb Dom @ 02:00, 08:00, 14:00, 19:00 (Horário de Brasília)"
     }
   ]
 };

@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderCards('daily', 'pane-daily');
   renderCards('weekly', 'pane-weekly');
+  renderCards('special', 'pane-special');
 
   // Tabs
   const tabs = document.querySelectorAll('.schedule-tab');

@@ -2380,7 +2380,17 @@ tr:hover .row-actions {
 }
 
 #pane-weekly {
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 420px));
+  justify-content: center;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Special Events: card com mesmo tamanho dos outros, centralizado */
+#pane-special {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 380px));
+  justify-content: center;
   max-width: 900px;
   margin: 0 auto;
   width: 100%;
@@ -2393,9 +2403,9 @@ tr:hover .row-actions {
 }
 
 @media (max-width: 768px) {
-
   #pane-daily,
-  #pane-weekly {
+  #pane-weekly,
+  #pane-special {
     grid-template-columns: 1fr;
   }
 }
