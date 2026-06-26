@@ -22,6 +22,7 @@ const filters = {
 // ── INIT ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   populateFilterDropdowns();
+  populateCarFilter(''); // Popula todos os carros na inicialização
   loadAndRender();
   bindEvents();
   checkToast();
@@ -108,6 +109,7 @@ function applyFilters() {
       const hay = [
         car?.name, track?.name, track?.shortName,
         s.notes, s.carYear,
+        s.creatorUsername, // Permite buscar pelo nome de usuário
       ].join(' ').toLowerCase();
       if (!hay.includes(q)) return false;
     }
