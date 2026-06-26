@@ -573,12 +573,39 @@ function bindFormSubmit() {
     }
 
     try {
+      let savedSetup;
       if (editId) {
         await Storage.update(editId, data);
+        savedSetup = { id: editId, ...data };
         showToast('Setup atualizado com sucesso!', 'success');
       } else {
-        await Storage.save(data);
+        savedSetup = await Storage.save(data);
         showToast('Setup salvo com sucesso!', 'success');
+      }
+
+      // Faz upload do arquivo .svm (importado ou gerado)
+      try {
+        const userId = (typeof Auth !== 'undefined') ? Auth.getUser()?.id : null;
+        if (userId && savedSetup?.id) {
+          if (window.importedSvmFile) {
+            // Upload do arquivo original importado
+            const url = await Storage.uploadSvmFile(window.importedSvmFile, userId, savedSetup.id);
+            if (url) await Storage.saveSvmUrl(savedSetup.id, url);
+          } else if (typeof window.SVM !== 'undefined') {
+            // Gera o .svm a partir dos dados e faz upload
+            const svmContent = window.SVM.gerarSVM(savedSetup);
+            const trackObj = LMU_DATA.getTrackById(savedSetup.trackId);
+            const trackSlug = (trackObj?.shortName || savedSetup.trackId || 'track')
+              .toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/(^_|_$)/g, '');
+            const fileName = `${trackSlug}-${savedSetup.carId}-${savedSetup.setupType || 'fixed'}.svm`;
+            const svmBlob = new File([svmContent], fileName, { type: 'application/octet-stream' });
+            const url = await Storage.uploadSvmFile(svmBlob, userId, savedSetup.id);
+            if (url) await Storage.saveSvmUrl(savedSetup.id, url);
+          }
+        }
+      } catch (uploadErr) {
+        console.warn('[SVM Upload] Erro ao enviar arquivo .svm:', uploadErr);
+        // Não bloqueia o fluxo, o setup já foi salvo
       }
       
       // Desabilita o botão para não enviar duas vezes
@@ -629,8 +656,9 @@ function showToast(msg, type = 'info') {
   setTimeout(() => el.remove(), 4000);
 }
 
-// ── SVM IMPORT LOGIC ──────────────────────────────────────────
+// ── SVM IMPORT LOGIC ──────────────────────────────────────────────
 window.importedOpenParams = null;
+window.importedSvmFile = null; // Guarda o arquivo .svm original importado
 
 function bindSvmImport() {
   const btn = document.getElementById('btn-import-svm');
@@ -646,6 +674,7 @@ function bindSvmImport() {
       showToast('Apenas arquivos .svm são permitidos.', 'error');
       return;
     }
+    window.importedSvmFile = file; // Guarda referência ao arquivo original
     const reader = new FileReader();
     reader.onload = function(evt) {
       try {

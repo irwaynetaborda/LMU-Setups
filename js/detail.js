@@ -299,17 +299,29 @@ function renderDetail(s) {
   if (btnDownload) {
     btnDownload.addEventListener('click', async () => {
       const setup = await Storage.getById(s.id);
-      const content = window.SVM.gerarSVM(setup);
-      const blob = new Blob([content], { type: 'application/octet-stream' });
       const trackObj = LMU_DATA.getTrackById(setup.trackId);
       const trackSlug = (trackObj?.shortName || setup.trackId || 'track')
         .toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/(^_|_$)/g, '');
       const name = `${trackSlug}-${setup.carId}-${setup.setupType || 'fixed'}.svm`;
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = name;
-      a.click();
-      URL.revokeObjectURL(a.href);
+
+      if (setup.svmFileUrl) {
+        // ── Baixa o arquivo original do Supabase Storage ──────
+        const a = document.createElement('a');
+        a.href = setup.svmFileUrl;
+        a.download = name;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.click();
+      } else {
+        // ── Fallback: gera o .svm localmente (setups sem arquivo salvo) ──
+        const content = window.SVM.gerarSVM(setup);
+        const blob = new Blob([content], { type: 'application/octet-stream' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }
       showToast('📥 Arquivo .svm baixado com sucesso.', 'success');
     });
   }

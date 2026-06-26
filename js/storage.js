@@ -302,6 +302,52 @@ const Storage = {
     if (error) throw error;
   },
 
+  // ── Upload do arquivo .svm para o Supabase Storage ────────
+  async uploadSvmFile(file, userId, setupId) {
+    if (!supabaseClient) return null;
+    try {
+      const folder = `${userId}/${setupId}`;
+      const path = `${folder}/setup.svm`;
+
+      // Remove arquivos antigos da pasta (evita arquivos órfãos com nomes diferentes)
+      const { data: existingFiles } = await supabaseClient.storage
+        .from('setup-files')
+        .list(folder);
+      if (existingFiles && existingFiles.length > 0) {
+        const toDelete = existingFiles.map(f => `${folder}/${f.name}`);
+        await supabaseClient.storage.from('setup-files').remove(toDelete);
+      }
+
+      // Faz o upload do novo arquivo com caminho fixo
+      const { error } = await supabaseClient.storage
+        .from('setup-files')
+        .upload(path, file, { contentType: 'application/octet-stream' });
+      if (error) throw error;
+
+      const { data } = supabaseClient.storage
+        .from('setup-files')
+        .getPublicUrl(path);
+      return data?.publicUrl || null;
+    } catch (err) {
+      console.error('[Storage] Erro ao fazer upload do .svm:', err);
+      return null;
+    }
+  },
+
+  // ── Salva a URL do .svm no registro do setup ────────────────
+  async saveSvmUrl(setupId, url) {
+    if (!supabaseClient) return;
+    try {
+      const { error } = await supabaseClient
+        .from('setups')
+        .update({ svm_file_url: url })
+        .eq('id', setupId);
+      if (error) throw error;
+    } catch (err) {
+      console.error('[Storage] Erro ao salvar URL do .svm:', err);
+    }
+  },
+
   // ── Internos ────────────────────────────────────────────
   _getAllLocal() {
     try {
@@ -361,7 +407,8 @@ const Storage = {
       car_version: s.carVersion || null,
       active: s.active !== undefined ? s.active : true,
       created_at: s.createdAt,
-      updated_at: s.updatedAt
+      updated_at: s.updatedAt,
+      svm_file_url: s.svmFileUrl || null,
     };
   },
 
@@ -396,7 +443,8 @@ const Storage = {
       carVersion: d.car_version || null,
       active: d.active !== undefined ? d.active : true,
       createdAt: d.created_at,
-      updatedAt: d.updated_at
+      updatedAt: d.updated_at,
+      svmFileUrl: d.svm_file_url || null,
     };
-  }
+  },
 };
