@@ -2128,7 +2128,7 @@ tr:hover .row-actions {
   display: flex;
   flex-direction: column;
   gap: var(--s2);
-  z-index: 300;
+  z-index: 1100; /* Acima do modal de login (z-index: 1000) */
 }
 
 .toast {
