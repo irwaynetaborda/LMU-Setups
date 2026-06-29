@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 //  LMU SETUPS â€” schedule-data.js
 //  Dados estÃ¡ticos para o mural de corridas (Season 11 - Atualizado)
 // ============================================================
@@ -79,7 +79,7 @@ const SCHEDULE_DATA = {
       sr: "SILVER",
       rankClass: "silver",
       frequency: "Inicia a cada 20 min",
-      title: "ProtÃ³tipo Fixo",
+      title: "Protótipo Fixo",
       track: "Barcelona (ELMS)",
       classes: ["P2", "P3"],
       duration: "30 MIN",
