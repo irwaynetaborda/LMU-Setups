@@ -1,20 +1,20 @@
-// ============================================================
-//  LMU SETUPS — schedule-data.js
-//  Dados estáticos para o mural de corridas (Season 11 - Atualizado)
+﻿// ============================================================
+//  LMU SETUPS â€” schedule-data.js
+//  Dados estÃ¡ticos para o mural de corridas (Season 11 - Atualizado)
 // ============================================================
 
 const SCHEDULE_DATA = {
   season: "Temporada 11",
-  dateFrom: "23 de Junho de 2026",
+  dateFrom: "30 de Junho de 2026",
   
   daily: [
-    // ── INICIANTE (BRONZE) ──
+    // â”€â”€ INICIANTE (BRONZE) â”€â”€
     {
       sr: "BRONZE",
       rankClass: "bronze",
       frequency: "Inicia a cada 15 min",
       title: "LMGT3 Fixo",
-      track: "Bahrain (Paddock)",
+      track: "Sebring (School)",
       classes: ["GT3"],
       duration: "20 MIN",
       fuel: "100%",
@@ -29,8 +29,8 @@ const SCHEDULE_DATA = {
       sr: "BRONZE",
       rankClass: "bronze",
       frequency: "Inicia a cada 15 min",
-      title: "LOGITECH MCLAREN G CHALLENGE Q4",
-      track: "Le Mans (WEC)",
+      title: "LOGITECH MCLAREN G CHALLENGE Q5",
+      track: "Monza (WEC)",
       classes: ["GT3"],
       duration: "20 MIN",
       fuel: "100%",
@@ -46,7 +46,7 @@ const SCHEDULE_DATA = {
       rankClass: "bronze",
       frequency: "Inicia a cada 15 min",
       title: "LMP3 Fixo",
-      track: "Spa-Francorchamps (WEC)",
+      track: "Fuji (Classic)",
       classes: ["P3"],
       duration: "20 MIN",
       fuel: "100%",
@@ -58,13 +58,13 @@ const SCHEDULE_DATA = {
       theme: "theme-bronze"
     },
 
-    // ── INTERMEDIÁRIO (PRATA) ──
+    // â”€â”€ INTERMEDIÃRIO (PRATA) â”€â”€
     {
       sr: "SILVER",
       rankClass: "silver",
       frequency: "Inicia a cada 20 min",
       title: "LMGT3 Sprint Cup",
-      track: "Monza (Curva Grande)",
+      track: "COTA (National)",
       classes: ["GT3"],
       duration: "30 MIN",
       fuel: "100%",
@@ -79,8 +79,8 @@ const SCHEDULE_DATA = {
       sr: "SILVER",
       rankClass: "silver",
       frequency: "Inicia a cada 20 min",
-      title: "Protótipo Fixo",
-      track: "Interlagos (WEC)",
+      title: "ProtÃ³tipo Fixo",
+      track: "Barcelona (ELMS)",
       classes: ["P2", "P3"],
       duration: "30 MIN",
       fuel: "100%",
@@ -96,7 +96,7 @@ const SCHEDULE_DATA = {
       rankClass: "silver",
       frequency: "Inicia a cada 20 min",
       title: "ELMS Sprint Trophy",
-      track: "Qatar (WEC)",
+      track: "Portimao (WEC)",
       classes: ["P2", "P3", "GT3"],
       duration: "30 MIN",
       fuel: "100%",
@@ -108,20 +108,20 @@ const SCHEDULE_DATA = {
       theme: "theme-silver"
     },
 
-    // ── AVANÇADO (OURO) ──
+    // â”€â”€ AVANÃ‡ADO (OURO) â”€â”€
     {
       sr: "GOLD",
       rankClass: "gold",
       frequency: "Inicia a cada 30 min",
       title: "One Stint Sprint",
-      track: "COTA (WEC)",
+      track: "Paul Ricard (Layout 1A)",
       classes: ["HY", "GT3"],
       duration: "40 MIN",
       fuel: "100%",
       tyresLimit: "8",
       assists: "NENHUMA",
       warmers: "DESLIGADO",
-      splits: "38",
+      splits: "44",
       setup: "Open",
       theme: "theme-gold"
     },
@@ -130,14 +130,14 @@ const SCHEDULE_DATA = {
       rankClass: "gold",
       frequency: "Inicia a cada 30 min",
       title: "ELMS Super 60",
-      track: "Bahrain (WEC)",
+      track: "Spa (ELMS)",
       classes: ["P2", "P3", "GT3"],
       duration: "60 MIN",
-      fuel: "Limitado",
+      fuel: "Variado",
       tyresLimit: "8",
       assists: "NENHUMA",
       warmers: "DESLIGADO",
-      splits: "38",
+      splits: "44",
       setup: "Open",
       theme: "theme-gold"
     },
@@ -146,14 +146,14 @@ const SCHEDULE_DATA = {
       rankClass: "gold",
       frequency: "Inicia a cada 30 min",
       title: "WEC-Xperience",
-      track: "Sebring (WEC)",
+      track: "Silverstone (ELMS)",
       classes: ["HY", "GT3"],
       duration: "60 MIN",
       fuel: "75% VE",
       tyresLimit: "8",
       assists: "NENHUMA",
       warmers: "DESLIGADO",
-      splits: "38",
+      splits: "44",
       setup: "Open",
       theme: "theme-gold"
     }
@@ -161,21 +161,21 @@ const SCHEDULE_DATA = {
 
   weekly: [
     {
-      sr: "SILVER",
+      sr: "S2",
       rankClass: "silver",
-      frequency: "Dias Específicos",
+      frequency: "Dias EspecÃ­ficos",
       title: "WEC Semanal",
-      track: "Fuji (WEC)",
+      track: "Portimao (ELMS)",
       classes: ["HY", "GT3"],
       duration: "100 MIN",
       fuel: "100%",
       tyresLimit: "10",
       assists: "NENHUMA",
       warmers: "DESLIGADO",
-      splits: "38",
+      splits: "44",
       setup: "Open",
       theme: "theme-silver",
-      times: "Ter Qua Dom @ 23:00 / Qua Qui Seg @ 03:00, 06:00, 09:00, 12:00, 15:00, 17:00, 20:00 (Horário de Brasília)"
+      times: "Ter Qua Qui Sex SÃ¡b Dom @ 23:00 / Qua Qui Sex SÃ¡b Dom Seg @ 03:00, 06:00, 09:00, 12:00, 15:00, 17:00, 20:00 (HorÃ¡rio de BrasÃ­lia)"
     }
   ],
 
@@ -183,7 +183,7 @@ const SCHEDULE_DATA = {
     {
       sr: "BRONZE",
       rankClass: "bronze",
-      frequency: "Dias Específicos",
+      frequency: "Dias EspecÃ­ficos",
       title: "6 Hours of Le Mans",
       track: "Le Mans (WEC)",
       classes: ["HY", "P2", "GT3"],
@@ -196,7 +196,7 @@ const SCHEDULE_DATA = {
       setup: "Open",
       relay: "Sim",
       theme: "theme-bronze",
-      times: "Sex Sáb Dom @ 02:00, 08:00, 14:00, 19:00 (Horário de Brasília)"
+      times: "Sex SÃ¡b Dom @ 02:00, 08:00, 14:00, 19:00 (HorÃ¡rio de BrasÃ­lia)"
     }
   ]
 };
