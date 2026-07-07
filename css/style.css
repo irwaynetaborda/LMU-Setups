@@ -240,6 +240,15 @@ ol {
   flex: 1;
 }
 
+@media (min-width: 769px) {
+  .header-nav {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    flex: none;
+  }
+}
+
 .nav-link {
   position: relative;
   padding: 6px var(--s3);
